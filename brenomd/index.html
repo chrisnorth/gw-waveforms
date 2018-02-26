@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>phenomd.0.1.0</title>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+    <script src="./brenomd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.bundle.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <canvas id="myChart" width="1000" height="400"></canvas>
+    <script type="text/javascript">
+    var h       = phenomd(30.0,40.0,0,0,10.0);
+    var ctx = $("#myChart");
+    a = []
+    function closure(i) {
+      return i
+    }
+    var unit = Math.floor(h[0].length/100);
+    for(i=85*unit; i<93*unit; i++){
+      if(i%5){
+        continue;
+      }
+      a.push({
+        x:h[0][i],
+        y:h[1][i]//Math.sqrt(h[1][i]**2+h[2][i]**2)
+      })
+    }
+    var myChart = new Chart.Line(ctx, {
+      data: {
+        datasets: [{
+          label: 'PhenomD',
+          pointRadius: 0,
+          fill: false,
+          borderWidth:1,
+          borderColor:'#1F77B4',
+          data: a
+        }]
+      },
+      options: {
+        scales: {
+          xAxes: [{
+            type: 'linear',
+            position: 'bottom'
+          }]
+        }
+      }
+    });
+    </script>
+  </body>
+</html>
