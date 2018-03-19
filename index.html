@@ -1,0 +1,63 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+	<title>GW Viewer test page</title>
+	<script type="text/javascript" src="js/lib/stuquery.js"></script>
+	<script type="text/javascript" src="gwcat/js/gwcat.js"></script>
+	<script type="text/javascript" src="js/gwviewer.js"></script>
+	<style>
+	body {
+		font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+		font-size: 16px;
+	}
+	#gwviewer {
+		padding: 1em;
+		background: black;
+		color: white;
+	}
+	#gwviewer button {
+		border: 0px;
+		border-radius: 0px;
+		padding: 0.25em 0.5em;
+		margin: 0 0.25em 0.25em 0;
+		font-size: 1em;
+		cursor: pointer;
+		background: #5d2f4f;
+		color: #fff;
+	}
+	#gwviewer button:hover { background: rgba(93,47,79,0.85); }
+	#gwviewer button:last-child { margin-right: 0px; }
+	#gwviewer button.selected { background: #fff; color: black; }
+	</style>
+</head>
+<body>
+	<h1>GW Viewer demo</h1>
+	<h2>Initialisation</h2>
+	In the &lt;head&gt; of the page, include the <code>gwcat</code> library.
+	<pre><code>
+	&lt;script type="text/javascript" src="js/lib/stuquery.js"&gt;&lt;/script&gt;
+	&lt;script type="text/javascript" src="gwcat/js/gwcat.js"&gt;&lt;/script&gt;
+	&lt;script type="text/javascript" src="js/gwviewer.js"&gt;&lt;/script&gt;
+	</code></pre>
+	<p>To initialise the database of events</p>
+	<pre><code>
+	gwview = new GWViewer({<i>parameters</i>});
+	</code></pre>
+	<ul>
+		<li><b><i>parameters</i></b> [Object, optional]: a dictionary containing input parameters:
+			<ul>
+				<li><i>id</i>: [string] the id of the DOM element we will draw the gravitational waves to</li>
+			</ul>
+		</li>
+	</ul>
+	<h2>Example</h2>
+	<div id="gwviewer"></div>
+
+	<script type="text/javascript">
+	var gwview;
+	S(document).ready(function(){
+	
+		gwview = new GWViewer({'id':'gwviewer'});
+	});
+	</script>
+</body>
+</html>
