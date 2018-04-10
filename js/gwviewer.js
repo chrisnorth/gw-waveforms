@@ -160,10 +160,9 @@ GWViewer.prototype.renderCatalogue = function(){
 		str += makeCircle(m[2].v,m[2].u);
 		str += ' &rarr; ';
 		str += makeCircle(m[0].v,m[0].u);
-		str += '<div class="waveform">Waveform</div>'
 
 		// Add the HTML to the element
-		this.cat.data[i].waveform.el.html(str);
+		this.cat.data[i].waveform.el.html('<div class="gw-about">'+str+'</div><div class="waveform">Waveform</div>');
 	}
 	
 	return this;
@@ -372,7 +371,7 @@ WaveForm.prototype.setWH = function(w,h){
 	this.c.height = h;
 	this.wide = w;
 	this.tall = h;
-	this.canvas.css({'width':w,'height':h});
+	this.canvas.css({'width':w+'px','height':h+'px'});
 	return this;
 }
 WaveForm.prototype.getFontsize = function(){
