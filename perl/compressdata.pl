@@ -19,7 +19,7 @@ close(FILE);
 $file =~ s/\.txt/_compress.txt/;
 
 open(FILE,">",$file);
-$lines[0] =~ s/ hp hc/,strain * 1e23/;
+$lines[0] =~ s/ hp hc/ strain*1e23/;
 print FILE $lines[0];
 for($i = 1; $i < (@lines); $i++){
 	$lines[$i] =~ s/[\n\r]//g;
@@ -34,6 +34,6 @@ for($i = 1; $i < (@lines); $i++){
 	$hp =~ s/(\.[0-9]{1,})0+$/$1/g;
 	$t =~ s/(\.[0-9]{1,})0+$/$1/g;
 	$hp =~ s/\.0$//;
-	print FILE $t.",".$hp."\n";
+	print FILE $t." ".$hp."\n";
 }
 close(FILE);
