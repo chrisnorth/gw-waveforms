@@ -1,0 +1,23 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+	<title>GW Viewer test page</title>
+	<script type="text/javascript" src="js/lib/stuquery.js"></script>
+	<script type="text/javascript" src="gwcat/js/gwcat.js"></script>
+	<script type="text/javascript" src="js/gwviewer.js"></script>
+	<link rel="stylesheet" href="css/gwviewer.css">
+	<style>
+	body { padding: 0px; margin: 0px; background-color: black; }
+	</style>
+</head>
+<body>
+
+	<div id="gwviewer"></div>
+
+	<script type="text/javascript">
+	var gwview;
+	S(document).ready(function(){
+		gwview = new GWViewer({'id':'gwviewer'});
+	});
+	</script>
+</body>
+</html>
