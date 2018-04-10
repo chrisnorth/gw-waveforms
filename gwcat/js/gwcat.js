@@ -10,15 +10,21 @@ function GWCat(callback,inp){
 
 GWCat.prototype.init = function(){
     // set default parameters
-    console.log('inp',this.inp);
+    this.log('inp',this.inp);
     this.debug = (this.inp && this.inp.debug) ? this.inp.debug : true;
     this.fileIn = (this.inp && this.inp.fileIn) ? this.inp.fileIn : "data/events.json";
     this.loadMethod = (this.inp && this.inp.loadMethod) ? this.inp.loadMethod : "";
     return this;
 }
 
+GWCat.prototype.log = function(){
+	var args = Array.prototype.slice.call(arguments, 0);
+	if(console && typeof console.log==="function") console.log('GWCat',args);
+	return this;
+}
+
 GWCat.prototype.callbackDefault = function(){
-    console.log('Successfully loaded data');
+    this.log('Successfully loaded data');
 	return this;
 }
 
@@ -156,7 +162,7 @@ GWCat.prototype.loadData = function(){
 		// Quick alias for length
 		_gw.length = _gw.data.length;
 
-		if(_gw.debug){console.log('data loaded via internal:',_gw.data);}
+		if(_gw.debug){ _gw.log('data loaded via internal:',_gw.data); }
 		if (loaded==toLoad){
 			_gw.orderData('GPS');
 			return _gw.callback(_gw);
@@ -169,7 +175,7 @@ GWCat.prototype.loadData = function(){
 			"dataType": "json",
 			"this": this,
 			"error": function(error,attr) {
-				console.log('events error:',error,attr);
+				this.log('events error:',error,attr);
 				//alert("Fatal error loading input file: '"+attr.url+"'. Sorry!");
 			},
 			"success": function(dataIn,attr){
@@ -192,21 +198,20 @@ GWCat.prototype.loadData = function(){
 }
 
 GWCat.prototype.showWarning = function(message){
-    if (this.debug){console.log('WARNING: ',message)}
+    if (this.debug) this.log('WARNING: ',message);
     return this;
 }
 
 GWCat.prototype.showError = function(message){
-    if (this.debug){console.log('ERROR: ',message)}
+    if (this.debug) this.log('ERROR: ',message);
     return this;
 }
 
 
 // Function to sort the catalogue using a data key
 // If reverse is true then the order will be reversed
-GWCat.prototype.orderData = function(order,reverse){
+GWCat.prototype.orderData = function(order='GPS',reverse){
     sign = ((typeof reverse==="boolean") ? reverse : false) ? -1 : 1;
-    if(!order) order = 'GPS';
     if(this.data[0][order]){
 	    best = (typeof this.data[0][order]==="object");
 		this.data=this.data.sort(function(a,b){
@@ -218,7 +223,7 @@ GWCat.prototype.orderData = function(order,reverse){
 		this.data.forEach(function(d){dataOrder.push(d.name);});
 		this.dataOrder = dataOrder;
 	}else{
-		console.log("No key "+order+". Data order stays the same.");
+		this.log("No key "+order+". Data order stays the same.");
 	}
     return this;
 }
