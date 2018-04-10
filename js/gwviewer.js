@@ -95,6 +95,8 @@ GWViewer.prototype.loadWaves = function(){
 					this.draw();
 				}
 			}
+			wavefiles[this.cat.data[i].name].wide = 2000;
+			wavefiles[this.cat.data[i].name].tall = 100;
 			this.cat.data[i].waveform = new WaveForm(wavefiles[this.cat.data[i].name]);
 			this.cat.data[i].waveform.name = this.cat.data[i].name;
 			this.cat.data[i].waveform.setAxis('x',2000);
@@ -301,8 +303,9 @@ WaveForm.prototype.draw = function(){
 
 		// If the Javascript function has been passed a width/height
 		// those take precedence over the CSS-set values
-		this.wide = this.el[0].offsetWidth;
-		this.tall = this.el[0].offsetHeight;
+		console.log(this.wide,this.tall,typeof this.wide,typeof this.tall)
+		if(typeof this.wide!=="number") this.wide = this.el[0].offsetWidth;
+		if(typeof this.tall!=="number") this.tall = this.el[0].offsetHeight;
 
 		if(this.c && this.c.getContext){  
 		
