@@ -13,8 +13,6 @@
 		padding: 1em;
 		background: #000;
 		color: white;
-		max-width: 100%;
-		overflow-x: auto;
 	}
 	#gwviewer button {
 		border: 0px;
@@ -26,11 +24,17 @@
 		background: #5d2f4f;
 		color: #fff;
 	}
+	#gwviewer .waves {
+		max-width: 100%;
+		overflow-x: auto;
+		margin-bottom: 1em;	
+	}
 	#gwviewer button:hover { background: rgba(93,47,79,0.85); }
 	#gwviewer button:last-child { margin-right: 0px; }
 	#gwviewer button.selected { background: #fff; color: black; }
 	#gwviewer ol { list-style: none; margin: 0px; padding: 0px; }
 	#gwviewer ol li .gw-about { display: none; }
+	pre { max-width: 100%; overflow-x: auto; }
 	</style>
 </head>
 <body>
@@ -38,9 +42,9 @@
 	<h2>Initialisation</h2>
 	In the &lt;head&gt; of the page, include the <code>gwcat</code> library.
 	<pre><code>
-	&lt;script type="text/javascript" src="js/lib/stuquery.js"&gt;&lt;/script&gt;
-	&lt;script type="text/javascript" src="gwcat/js/gwcat.js"&gt;&lt;/script&gt;
-	&lt;script type="text/javascript" src="js/gwviewer.js"&gt;&lt;/script&gt;
+&lt;script src="js/lib/stuquery.js"&gt;&lt;/script&gt;
+&lt;script src="gwcat/js/gwcat.js"&gt;&lt;/script&gt;
+&lt;script src="js/gwviewer.js"&gt;&lt;/script&gt;
 	</code></pre>
 	<p>To initialise the database of events</p>
 	<pre><code>
