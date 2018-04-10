@@ -74,12 +74,12 @@ GWViewer.prototype.loadWaves = function(){
 	// Load each wave
 	// Dummy lookup table for files
 	var wavefiles = {
-		'GW150914':{'file':'example-data/m1-5-m2-5.txt','offset':-4.233642578,'colour':'#1576a1'},
-		'LVT151012':{'file':'example-data/m1-5-m2-10.txt','offset':-2.905273438,'colour':'#0a9676'},
-		'GW151226':{'file':'example-data/m1-10-m2-10.txt','offset':-1.933959961,'colour':'#c85b26'},
-		'GW170104':{'file':'example-data/m1-10-m2-15.txt','offset':-1.654052734,'colour':'#c288a5'},
-		'GW170608':{'file':'example-data/m1-15-m2-20.txt','offset':-1.3227539},
-		'GW170814':{'file':'example-data/m1-30-m2-30.txt','offset':-1.388305664,'colour':'#eeea87'},
+		'GW150914':{'file':'example-data/m1-5-m2-5_compress.txt','offset':-4.233642578,'colour':'#1576a1'},
+		'LVT151012':{'file':'example-data/m1-5-m2-10_compress.txt','offset':-2.905273438,'colour':'#0a9676'},
+		'GW151226':{'file':'example-data/m1-10-m2-10_compress.txt','offset':-1.933959961,'colour':'#c85b26'},
+		'GW170104':{'file':'example-data/m1-10-m2-15_compress.txt','offset':-1.654052734,'colour':'#c288a5'},
+		'GW170608':{'file':'example-data/m1-15-m2-20_compress.txt','offset':-1.3227539},
+		'GW170814':{'file':'example-data/m1-30-m2-30_compress.txt','offset':-1.388305664,'colour':'#eeea87'},
 	};
 	
 	var _obj = this;
@@ -99,7 +99,7 @@ GWViewer.prototype.loadWaves = function(){
 			wavefiles[this.cat.data[i].name].tall = 100;
 			this.cat.data[i].waveform = new WaveForm(wavefiles[this.cat.data[i].name]);
 			this.cat.data[i].waveform.name = this.cat.data[i].name;
-			this.cat.data[i].waveform.setAxis('x',2000);
+			this.cat.data[i].waveform.setAxis('x',5000);
 			this.log('get data',i,this.cat.data[i]);
 			if(this.cat.data[i].waveform.file) this.cat.data[i].waveform.loadData();
 		}
@@ -121,7 +121,7 @@ GWViewer.prototype.renderCatalogue = function(){
 
 	// Build the list of gravitational waves
 	var viewer = S('#'+this.attr.id).find('.viewer');
-	viewer.html('<ol></ol>');
+	viewer.html('<div class="waves"><ol></ol></div>');
 
 	this.log('renderCatalogue');
 
@@ -243,6 +243,8 @@ WaveForm.prototype.parse = function(){
 	var xscale = 1000;	// into milliseconds
 	var yscale = 1e24;
 
+//strain * 1e23
+
 	if(!this.datastr) return this;
 	// Parse the data string
 	var d = this.datastr;
@@ -251,15 +253,21 @@ WaveForm.prototype.parse = function(){
 	this.data = new Array(d.length-1);
 	var ids = d[0].replace(/^# /,'').split(/ /);
 	var idx = {};
+	var scaling = 1;
 	for(var j = 0; j < ids.length; j++) idx[ids[j]] = j;
 	if(typeof idx.t==="undefined") return this;
-	if(typeof idx.hp==="undefined") return this;
+	if(typeof idx.hp==="undefined"){
+		if(typeof idx['strain*1e23']==="number"){
+			idx.hp = idx['strain*1e23'];
+			scaling = 1e-23;
+		}else return this;
+	}
 	this.max = -1e12;
 	var v;
 	for(var row = 1; row < d.length; row++){
 		if(d[row]){
 			cols = d[row].split(/ /);
-			this.data[row-1] = {'t':parseFloat(cols[idx.t]-this.offset)*xscale,'hp':parseFloat(cols[idx.hp])*yscale};
+			this.data[row-1] = {'t':parseFloat(cols[idx.t]-this.offset)*xscale,'hp':parseFloat(cols[idx.hp])*yscale*scaling};
 			// Find the maximum amplitude
 			v = Math.abs(this.data[row-1].hp); 
 			if(v > this.max) this.max = v;
