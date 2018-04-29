@@ -6,24 +6,74 @@
 */
 function GWViewer(attr) {
 	
+	this.version = "0.1";
 	if(!attr) attr = {};
 	if(typeof attr.id!=="string") attr.id = "gw-viewer";
 	this.attr = attr;
-	this.logging = false;
+
+
+	this.logging = true;
 	if(typeof this.attr.log==="boolean") this.logging = this.attr.log;
+
+	function query(){
+        var r = {length:0};
+        var q = location.search;
+		if(q && q != '#'){
+			// remove the leading ? and trailing &
+			q = q.replace(/^\?/,'').replace(/\&$/,'');
+			qs = q.split('&');
+			for(var i = 0; i < qs.length; i++){
+				var key = qs[i].split('=')[0];
+				var val = qs[i].split('=')[1];
+				if(/^[0-9.]+$/.test(val)) val = parseFloat(val);	// convert floats
+				r[key] = val;
+				r['length']++;
+			}
+		}
+		return r;
+	}
+	this.query = query();
+
+	this.languages = {};
+	this.lang = (this.query.lang ? this.query.lang : (navigator) ? (navigator.userLanguage||navigator.systemLanguage||navigator.language||browser.language) : "");
+
 	
+	// Create DOM references
+	if(!this.attr.dom) this.attr.dom = {};
+	this.dom = { };
+	for(d in this.attr.dom){ this.dom[d] = this.attr.dom[d]; }
+
 	// Set up the viewer in the DOM
 	if(S('#'+attr.id).length == 0) S('body').append('<div id="'+attr.id+'">GW Viewer</div>');
-	var el = S('#'+attr.id);
+	this.dom.main = S('#'+attr.id);
+	if(!this.dom.menu){
+		this.dom.main.append('<div id="gw-menu"></div>');
+		this.dom.menu = S('#gw-menu');
+	}
 
-	el.html('<div class="header"></div><div class="menu">Order by: <button class="order selected" order-by="UTC">Date (oldest first)</button><button class="order" order-by="UTC" order-reverse="true">Date (most recent first)</button><button class="order" order-by="M1" order-reverse="true">M1 (largest)</button><button class="order" order-by="M2" order-reverse="true">M2 (largest)</button><button class="order" order-by="Mfinal" order-reverse="true">Final mass (largest)</button><button class="order" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button><button class="order" order-by="DL">Luminosity distance (nearest)</button><button class="order" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></div><div class="viewer"></div>');
+	// Update DOM
+	this.dom.main.html('<div class="viewer"></div>');
+	if(this.dom.menu.length == 1) this.dom.menu.html('<div class="menu"><h1><span lang="text.gwviewer.information.title" class="translatable">Gravitational wave viewer</span><span class="version"></span></h1><section id="language" class="collapse"><h2 tabindex="0"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist"></ol></section><section class="collapse"><h2 id="order" lang="text.gwviewer.orderby" class="translatable" tabindex="0">Order by</h2><ol><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section></div>');
+	S('.version').html(this.version);
+	
+	// Add event to expandable lists
+	this.dom.menu.find('h2').on('click',{gw:this},function(e){
+		var section = S(e.currentTarget).parent();
+		section.toggleClass('collapse');
+		var growDiv = section.find('ol')[0];
+		if(growDiv.clientHeight) {
+			growDiv.style.height = 0;
+		}else{
+			growDiv.style.height = growDiv.scrollHeight + "px";
+		}
+	});
 
 	// Add events to order buttons
-	el.find('button.order').on('click',{gw:this},function(e){
+	S('button.order').on('click',{gw:this},function(e){
 		button = S(e.currentTarget);
 		by = button.attr('order-by');
 		rev = (button.attr('order-reverse') ? true : false);
-		el.find('button.selected').removeClass('selected');
+		S('button.order.selected').removeClass('selected');
 		button.addClass('selected');
 
 		e.data.gw.cat.orderData(by,rev);
@@ -39,6 +89,7 @@ function GWViewer(attr) {
 	});
 
 	this.loadCatalogue();
+	this.loadLanguageList();
 	
 	return this;
 }
@@ -48,6 +99,99 @@ GWViewer.prototype.log = function(){
 		var args = Array.prototype.slice.call(arguments, 0);
 		if(console && typeof console.log==="function") console.log('GWViewer',args);
 	}
+	return this;
+}
+
+// Get the list of languages
+GWViewer.prototype.loadLanguageList = function(file){
+
+	this.log('loadLanguageList')
+	if(!file || typeof file!=="string") file = 'lang/lang.json';
+
+	S().ajax(file,{
+		'dataType': 'json',
+		'this':this,
+		'success': function(data,attrs){
+			this.log('Loaded language list');
+			this.languages = data;
+			html = "";
+			for(var l in this.languages) html += '<li><button id="lang-'+l+'" lang="'+l+'" tabindex="0">'+this.languages[l].name+'</button></li>';
+			S('#languagelist').html(html);
+
+			// Add events to buttons
+			S('#languagelist button').on('click',{me:this},function(e){
+				el = S(e.currentTarget);
+				l = el.attr('lang');
+				if(l) e.data.me.loadLanguage(l);
+			});			
+
+			this.loadLanguage();
+		}
+	});
+	return this;
+}
+
+GWViewer.prototype.loadLanguage = function(l){
+
+	this.log('loadLanguage');
+
+	// If no user-provided language then use the system default
+	if(!l) l = this.lang;
+	
+	// Is the language in our list of known languages?
+	if(!this.languages[l]){
+		l = (l.indexOf('-') > 0 ? l.substring(0,l.indexOf('-')) : l.substring(0,2));
+		// Is a short code version of the language in our list of languages
+		if(!this.languages[l]){
+			// We don't seem to have this language so use English
+			l = "en";
+		}
+	}
+	this.lang = l;
+	S('#languagelist button.selected').removeClass('selected')
+	S('#lang-'+this.lang).addClass('selected');
+
+	this.log('loading',l);
+	if(!this.languages[l].dict){
+		this.languages[l].dict = {};
+		var _filestoload = this.languages[l].files.length;
+		var _filesloaded = 0;
+		for(var f = 0; f < this.languages[l].files.length; f++){
+			console.log(this.languages[l].files[f])
+			S().ajax(this.languages[l].files[f],{
+				'dataType': 'json',
+				'this':this,
+				'success': function(data,attrs){
+					this.log('complete language load',data,attrs.url);
+					// Overwrite/update dictionary
+					for (var attrname in data) { this.languages[l].dict[attrname] = data[attrname]; }
+					_filesloaded++;
+					if(_filestoload == _filesloaded) this.updateLanguage();
+				}
+			})
+		}
+	}else this.updateLanguage();
+
+	return this;
+}
+
+// Update the interface
+GWViewer.prototype.updateLanguage = function(){
+	this.log('updateLanguage',this.lang);
+
+	this.language = this.languages[this.lang].dict;
+	
+	// Now update any elements that need updating
+	var e = S('.translatable');
+	for(var i = 0; i < e.length; i++){
+		el = S(e[i]);
+		text = el.attr('lang');
+		title = el.attr('lang-title');
+		if(this.language[text]) text = this.language[text];
+		if(this.language[title]) title = this.language[title];
+		el.html(text).attr('title',title);
+	}
+	
 	return this;
 }
 

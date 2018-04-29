@@ -6,79 +6,7 @@
 	<script type="text/javascript" src="js/gwviewer.js"></script>
 	<link rel="stylesheet" href="css/gwviewer.css">
 	<style>
-	body { padding: 0px; margin: 0px; background-color: black; color: white; }
 
-	.hamburger {
-		cursor: pointer;
-		display: block; 
-		width: 3em;
-		height: 3em;
-		position: absolute;
-		left: 0px;
-		top: 0px;
-		font-size: 1em;
-		margin: 0px;
-	}
-	label.hamburger {
-		z-index: 1;
-		background-color: black;
-	}
-	label.hamburger .nv {
-		display: none;
-	}
-	input.hamburger {
-		z-index: 1005;
-		opacity: 0.01;
-	}
-	label.hamburger:after {
-		position: absolute;
-		padding: 0.25em;
-		width: 100%;
-		height: 100%;
-		top: 0px;
-		left: 0px;
-		content:"\2261";
-		font-size: 2em;
-		text-align: center;
-		line-height: 1em;
-	}
-	input.hamburger:hover ~ label.hamburger,
-	input.hamburger:checked ~ label.hamburger {
-		background: #999999;
-	}
-	input.hamburger:checked ~ header > .holder {
-		left: 0px;
-	}
-	input.hamburger:checked, input.hamburger:checked + label.hamburger {
-		left: 75%;
-	}
-	input.hamburger:checked ~ #main, input.hamburger:checked ~ header, input.hamburger:checked ~ footer {
-		margin-left: 75%;
-		width: 100%;
-	}
-	.hamburger, header .holder {
-		transition: left 0.3s ease-in;
-	}
-	
-	header > .holder {
-		position: absolute;
-		background: black;
-		top: 0px;
-		display: block;
-		position: absolute;
-		left: -75%;
-		bottom: 0px;
-		width: 75%;
-		z-index: 10;
-		border-right: 1px solid rgba(255,255,255,0.8);
-	}
-	header nav a {
-		text-align: right;
-	}
-	header, footer, #main {
-		width: 100%;
-		transition: margin-left 0.3s ease-in;
-	}
 	</style>
 </head>
 <body>
@@ -95,7 +23,10 @@
 	<script type="text/javascript">
 	var gwview;
 	S(document).ready(function(){
-		gwview = new GWViewer({'id':'gwviewer'});
+		gwview = new GWViewer({
+			'id': 'gwviewer',
+			'dom': { 'menu': S('header .holder') }
+		});
 	});
 	</script>
 

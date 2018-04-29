@@ -1,0 +1,22 @@
+{
+	"de": {
+		"name":"Deutsch",
+		"files":["gwcat/lang/lang_de.json"]
+	},
+	"en": {
+		"name":"English",
+		"files":["gwcat/lang/lang_en.json","lang/lang_en.json"]
+	},
+	"es": {
+		"name":"Espa&#241;ol",
+		"files":["gwcat/lang/lang_es.json"]
+	},
+	"fr": {
+		"name":"Fran&#231;ais",
+		"files":["gwcat/lang/lang_fr.json"]
+	},
+	"pl": {
+		"name":"Polski",
+		"files":["gwcat/lang/lang_pl.json"]
+	}
+}

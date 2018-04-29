@@ -1,0 +1,12 @@
+{
+	"text.gwviewer.information.title": "Gravitational Wave Viewer",
+	"text.gwviewer.orderby": "Order by",
+	"text.gwviewer.orderby.date-oldest": "Date (oldest)",
+	"text.gwviewer.orderby.date-newest": "Date (most recent)",
+	"text.gwviewer.orderby.M1-largest": "M1 (largest)",
+	"text.gwviewer.orderby.M2-largest": "M2 (largest)",
+	"text.gwviewer.orderby.Mfinal-largest": "Final mass (largest)",
+	"text.gwviewer.orderby.dl-furthest": "Luminosity distance (furthest)",
+	"text.gwviewer.orderby.dl-nearest": "Luminosity distance (nearest)",
+	"text.gwviewer.orderby.rho-highest": "Signal-to-noise (highest)"
+}
