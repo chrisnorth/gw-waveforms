@@ -206,7 +206,7 @@ GWViewer.prototype.addMenu = function(){
 		form = '';
 		form += '<h3 lang="'+a.label+'" class="translatable"></h3><ol>';
 		if(a.type == "slider"){
-			form += '<li class="row range"><div id="'+key+'"><div class="slider"></div><span class="min">'+a.min['default']+'</span>'+(a.min.unit ? '<span lang="'+a.min.unit+'" class="translatable"></span>':'')+' &rarr; <span class="max"></span>'+(a.max.unit ? '<span lang="'+a.max.unit+'" class="translatable"></span>':'')+'</div></li>';
+			form += '<li class="row range"><div id="'+key+'"><div class="slider"></div><span class="min">'+a.min['default']+'</span> &rarr; <span class="max"></span>'+(a.max.unit ? '<span lang="'+a.max.unit+'" class="translatable"></span>':'')+'</div></li>';
 		}else if(a.type == "checkbox"){
 			for(var i = 0; i < a.options.length; i++) form += '<li class="row"><input type="checkbox" name="'+a.options[i].id+'" id="'+a.options[i].id+'" checked="checked"></input><label for="'+a.options[i].id+'" lang="'+a.options[i].label+'" class="translatable"></label></li>';
 		}
