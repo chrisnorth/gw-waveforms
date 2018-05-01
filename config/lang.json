@@ -5,7 +5,7 @@
 	},
 	"en": {
 		"name":"English",
-		"files":["gwcat/lang/lang_en.json","lang/lang_en.json"]
+		"files":["gwcat/lang/lang_en.json","config/lang/lang_en.json"]
 	},
 	"es": {
 		"name":"Espa&#241;ol",

@@ -186,7 +186,7 @@ GWViewer.prototype.log = function(){
 GWViewer.prototype.loadLanguageList = function(file){
 
 	this.log('loadLanguageList')
-	if(!file || typeof file!=="string") file = 'lang/lang.json';
+	if(!file || typeof file!=="string") file = 'config/lang.json';
 
 	S().ajax(file,{
 		'dataType': 'json',
