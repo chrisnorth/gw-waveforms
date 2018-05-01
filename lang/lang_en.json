@@ -8,5 +8,18 @@
 	"text.gwviewer.orderby.Mfinal-largest": "Final mass (largest)",
 	"text.gwviewer.orderby.dl-furthest": "Luminosity distance (furthest)",
 	"text.gwviewer.orderby.dl-nearest": "Luminosity distance (nearest)",
-	"text.gwviewer.orderby.rho-highest": "Signal-to-noise (highest)"
+	"text.gwviewer.orderby.rho-highest": "Signal-to-noise (highest)",
+	"text.gwviewer.filter": "Filter by",
+	"text.gwviewer.filter.title": "Options to filter by",
+	"text.gwviewer.filter.observingrun": "Observing run",
+	"text.gwviewer.filter.observingrun.O1": "O1",
+	"text.gwviewer.filter.observingrun.O2": "O2",
+	"text.gwviewer.filter.observingrun.O3": "O3",
+	"text.gwviewer.filter.detector": "Detector",
+	"text.gwviewer.filter.detector-H": "H",
+	"text.gwviewer.filter.detector-L": "L",
+	"text.gwviewer.filter.detector-V": "V",
+	"text.gwviewer.filter.object": "Object type",
+	"text.gwviewer.filter.object.BBH": "BBH",
+	"text.gwviewer.filter.object.BNS": "BNS"
 }
