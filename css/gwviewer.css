@@ -1,92 +1,46 @@
-/* 
-html5doctor.com Reset Stylesheet
-v1.6.1
-Last Updated: 2010-09-17
-Author: Richard Clark - http://richclarkdesign.com 
-Twitter: @rich_clark
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
 */
-html, body, div, span, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-abbr, address, cite, code,
-del, dfn, em, img, ins, kbd, q, samp,
-small, strong, sub, sup, var,
-b, i,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section, summary,
-time, mark, audio, video {
-    margin:0;
-    padding:0;
-    border:0;
-    outline:0;
-    font-size:100%;
-    vertical-align:baseline;
-    background:transparent;
-}
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block; }
+
 body {
-    line-height:1;
-}
-article,aside,details,figcaption,figure,
-footer,header,hgroup,menu,nav,section { 
-    display:block;
-}
-nav ul {
-    list-style:none;
-}
+  line-height: 1em; }
+
+ol, ul {
+  list-style: none; }
+
 blockquote, q {
-    quotes:none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-    content:'';
-    content:none;
-}
-a {
-    margin:0;
-    padding:0;
-    font-size:100%;
-    vertical-align:baseline;
-    background:transparent;
-}
-/* change colours to suit your needs */
-ins {
-    background-color:#ff9;
-    color:#000;
-    text-decoration:none;
-}
-/* change colours to suit your needs */
-mark {
-    background-color:#ff9;
-    color:#000; 
-    font-style:italic;
-    font-weight:bold;
-}
-del {
-    text-decoration: line-through;
-}
-abbr[title], dfn[title] {
-    border-bottom:1px dotted;
-    cursor:help;
-}
+  quotes: none; }
+
+blockquote:before, blockquote:after, q:before, q:after {
+  content: '';
+  content: none; }
+
 table {
-    border-collapse:collapse;
-    border-spacing:0;
-}
-/* change border colour to suit your needs */
-hr {
-    display:block;
-    height:1px;
-    border:0;   
-    border-top:1px solid #666666;
-    margin:1em 0;
-    padding:0;
-}
-input, select {
-    vertical-align:middle;
-}
-/* End reset */
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+/* apply a natural box layout model to all elements */
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
+
+/* End of reset */
 
 
 body {
@@ -126,6 +80,9 @@ pre { max-width: 100%; overflow-x: auto; }
 label.hamburger {
 	z-index: 1;
 	background: #666666;
+	border-right: 1px solid #888;
+	border-bottom: 1px solid #888;
+	box-sizing: border-box;
 }
 label.hamburger .nv {
 	display: none;
@@ -161,22 +118,27 @@ input.hamburger:checked ~ #main, input.hamburger:checked ~ header, input.hamburg
 }
 
 header > .holder {
-	border-right: 1px solid #666666;
+	border-right: 1px solid #888;
 	position: absolute;
 	background: rgba(0,0,0,0.8);
 	top: 0px;
 	display: block;
 	position: absolute;
 	bottom: 0px;
+	min-height: 100%;
 	z-index: 10;
+	color: white;
 }
+header .holder .menu { padding-top: 3em; }
 header .version { margin-left: 0.5em; }
-header section { border-top: 1px solid #444; }
-/*header section.collapse ol { height: 0px; overflow: hidden; transition: height 5s; }*/
-header h1, header h2 { line-height: 2.5em; font-size: 1em; padding: 0.25em 0.5em; background-color: #666666; }
-header section ol { list-style: none; padding-left: 0px; height: 0px; overflow: hidden; transition: height 0.5s ease-in;  }
-header h2, header button { cursor: pointer; position: relative; }
-header h2:after {
+header h1 { position: fixed; z-index: 10; top: 0px; width: 360px; display: block; border-right: 1px solid #888; }
+header h1, header h2, header h3 { height: 3em; line-height: 2.5em; font-size: 1em; padding: 0.25em 1em; }
+header h1, header section { border-bottom: 1px solid #888; }
+header h1, header h2 { background-color: #666666; }
+header h3 { background-color: #444444; border-top: 1px solid #888; }
+header .expander { list-style: none; padding-left: 0px; height: 0px; overflow: hidden; transition: height 0.5s ease-in;  }
+header h2, header h3, header button { cursor: pointer; position: relative; }
+header .expandable:after {
 	content: "";
 	width: 0.5em;
 	height: 0.5em;
@@ -188,25 +150,35 @@ header h2:after {
 	right: 0em;
 	top: 50%;
 	transform-origin: center center;
-	transform: translate3d(-1em,-50%,0) rotate(135deg);
+	transform: translate3d(-1em,-25%,0) rotate(135deg);
 	transition: transform 0.5s ease-in;
 }
-header section.collapse h2:after {
-	transform: translate3d(-1em,-50%,0) translate3d(0,-0.25em,0) rotate(-45deg);
+header .collapse > .expandable:after {
+	transform: translate3d(-1em,-25%,0) translate3d(0,-0.25em,0) rotate(-45deg);
 }
-header button { width: 100%; text-align: left; }
 header button {
+	width: 100%;
+	padding: 0.25em 0.5em;
+}
+header button, header .row {
+	text-align: left; 
 	border: 0px;
 	border-radius: 0px;
-	padding: 0.25em 0.5em;
 	margin: 0;
 	font-size: 1em;
-	line-height: 2.5em;
+	line-height: 2em;
 	background: #444444;
 	color: #efefef;
 }
+header .row input[type=checkbox] { display: inline-block; float: left; height: 2em; width: 2em; margin: 0.75em 0.75em 0.25em 1em; }
+header .row label { line-height: 2.5em; display: block; cursor: pointer; }
+header .range > div { line-height: 2.5em; padding-left: 1.5em; padding-right: 1.5em; padding-top: 1em; text-align: center; }
+header .range .min, header .range .max { display: inline-block; }
+header .range .min { margin-left: 1em; }
+header .range .slider { display: block; width: auto; margin: 0 0.25em; }
 header button:last-child { margin-right: 0px; }
-header button:hover, header button.selected { background: #634d72; color: white; }/*#5d2f4f*/
+header button:hover, header button.selected, header label:hover { background: #634d72; color: white; }/*#5d2f4f*/
+header ol { list-style: none; }
 header ol li button { padding-left: 1em; }
 header nav a {
 	text-align: right;
@@ -217,14 +189,30 @@ header, footer, #main {
 }
 
 input.hamburger:checked, input.hamburger:checked + label.hamburger {
-	left: 300px;
+	left: 360px;
 }
 input.hamburger:checked ~ header, input.hamburger:checked ~ footer {
-	margin-left: 300px;
+	margin-left: 360px;
 }
 header > .holder {
-	left: -300px;
-	width: 300px;
+	left: -360px;
+	width: 360px;
+	position: fixed;
+	height: 100%;
+	overflow-y: auto;
+}
+
+.noUi-target {
+	border-radius: 0px;
+}
+.noUi-connect {
+	background: #634d72;
+}
+.noUi-background {
+	background: #222;
+}
+.noUi-handle {
+	border-radius: 2px;
 }
 
 @media only screen and (max-width: 500px) {

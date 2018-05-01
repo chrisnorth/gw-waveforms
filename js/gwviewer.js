@@ -53,14 +53,177 @@ function GWViewer(attr) {
 
 	// Update DOM
 	this.dom.main.html('<div class="viewer"></div>');
-	if(this.dom.menu.length == 1) this.dom.menu.html('<div class="menu"><h1><span lang="text.gwviewer.information.title" class="translatable">Gravitational wave viewer</span><span class="version"></span></h1><section id="language" class="collapse"><h2 tabindex="0"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist"></ol></section><section class="collapse"><h2 id="order" lang="text.gwviewer.orderby" class="translatable" tabindex="0">Order by</h2><ol><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section></div>');
+	if(this.dom.menu.length == 1) this.dom.menu.html('<div class="menu"><h1><span lang="text.gwviewer.information.title" class="translatable">Gravitational wave viewer</span><span class="version"></span></h1><section id="language" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist" class="expander"></ol></section><section class="collapse"><h2 id="order" lang="text.gwviewer.orderby" class="translatable expandable" tabindex="0">Order by</h2><ol class="expander"><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section><section id="filter" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.filter" lang-title="text.gwviewer.filter.title" class="translatable">Filter</span></h2><form class="expander" id="filterform"></form></section></div>');
 	S('.version').html(this.version);
 	
+	this.loadCatalogue();
+	this.loadLanguageList();
+	
+	return this;
+}
+
+GWViewer.prototype.addMenu = function(){
+
+	// We might want to add GWCat functions so we can find the ranges from the data
+	this.filters = {
+		'observingrun': {
+			'label': 'text.gwviewer.filter.observingrun',
+			'type':'checkbox',
+			'options':[
+				{'id': 'o1', 'label':'text.gwviewer.filter.observingrun.O1' },
+				{'id': 'o2', 'label':'text.gwviewer.filter.observingrun.O2' },
+				{'id': 'o3', 'label':'text.gwviewer.filter.observingrun.O3' }
+			]
+		},
+		'detector': {
+			'label': 'text.gwviewer.filter.detector',
+			'type':'checkbox',
+			'options':[
+				{'id': 'detector-H', 'label': 'text.gwviewer.filter.detector-H' },
+				{'id': 'detector-L', 'label': 'text.gwviewer.filter.detector-L' },
+				{'id': 'detector-V', 'label': 'text.gwviewer.filter.detector-V' }
+			]
+		},
+		'object': {
+			'label': 'text.gwviewer.filter.object',
+			'type':'checkbox',
+			'options':[
+				{'id': 'object-BBH', 'label':'text.gwviewer.filter.object.BBH' },
+				{'id': 'object-BNS', 'label':'text.gwviewer.filter.object.BNS' }
+			]
+		},
+		'M1': {
+			'label': 'data.M1.name',
+			'type':'slider',
+			'min': { 'label': '', 'unit': 'data.M1.unit', 'default': 0, 'value': 0 },
+			'max': { 'label': '', 'unit': 'data.M1.unit', 'default': 50, 'value': 50 }
+		},
+		'M2': {
+			'label': 'data.M2.name',
+			'type':'slider',
+			'min': { 'label': '', 'unit': 'data.M2.unit', 'default': 0, 'value': 0 },
+			'max': { 'label': '', 'unit': 'data.M2.unit', 'default': 50, 'value': 50 }
+		},
+		'Mfinal': {
+			'label': 'data.Mfinal.name',
+			'type':'slider',
+			'min': { 'label': '', 'unit': 'data.Mfinal.unit', 'default': 0, 'value': 0 },
+			'max': { 'label': '', 'unit': 'data.Mfinal.unit', 'default': 100, 'value': 100 }
+		},
+		'rho': {
+			'label': 'data.rho.name',
+			'type':'slider',
+			'min': { 'label': '', 'default': 0, 'value': 0 },
+			'max': { 'label': '', 'default': 40, 'value': 40 }
+		},
+		'skyArea': {
+			'label': 'data.skyArea.name',
+			'type':'slider',
+			'min': { 'label': '', 'unit': 'data.skyArea.unit', 'default': 0, 'value': 0 },
+			'max': { 'label': '', 'unit': 'data.skyArea.unit', 'default': 1000, 'value': 1000 }
+		},
+		'DL': {
+			'label': 'data.DL.name',
+			'type':'slider',
+			'min': { 'label': '', 'unit': 'data.DL.unit', 'default': 0, 'value': 0 },
+			'max': { 'label': '', 'unit': 'data.DL.unit', 'default': 3000, 'value': 3000 }
+		},
+		'z': {
+			'label': 'data.z.name',
+			'type':'slider',
+			'step': 0.01,
+			'min': { 'label': '', 'default': 0, 'value': 0 },
+			'max': { 'label': '', 'default': 0.3, 'value': 0.3 }
+		},
+		'date': {
+			'label': 'data.date.name',
+			'type':'slider',
+			'format': 'date',
+			'step': 7 * 24 * 60 * 60 * 1000,
+			'min': { 'label': '' },
+			'max': { 'label': '' }
+		}
+	}
+	
+	var __obj = this;
+	function getDateRange(){
+		var min = new Date();
+		var max = new Date('2000');
+		for(var i = 0; i < __obj.cat.data.length; i++){
+			d = new Date(__obj.cat.data[i].UTC.best);
+			if(d < min) min = d;
+			if(d > max) max = d;
+		}
+		return [min,max];
+	}
+
+	function makeSlider(key){
+		var a = __obj.filters[key];
+		this.el = S('#'+key);
+		this.range = {};
+		this.values = [0,0];
+		var dates;
+		if(typeof a.min['default']==="number") this.range.min = a.min['default'];
+		else{
+			if(a.format=='date'){
+				if(!dates) dates = getDateRange();
+				this.range.min = (dates[0]).getTime();
+			}
+		}
+		if(typeof a.max['default']==="number") this.range.max = a.max['default'];
+		else{
+			if(a.format=='date'){
+				if(!dates) dates = getDateRange();
+				this.range.max = (dates[1]).getTime();
+			}
+		}
+		// Set the starting values to either a specified value or the range default
+		this.values[0] = (typeof a.min.value==="number" ? a.min.value : this.range.min);
+		this.values[1] = (typeof a.max.value==="number" ? a.max.value : this.range.max);
+		
+		
+		this.step = (a.step||1);
+		inputs = { 'start': this.values, 'step': this.step, 'range': this.range, 'connect': true };
+		this.slider = noUiSlider.create(this.el.find('.slider')[0], inputs);
+		var _obj = this;
+		this.slider.on('update', function(values, handle) {
+			var value = values[handle];
+			_obj.values[handle] = parseFloat(value);
+			var min = _obj.values[0];
+			var max = _obj.values[1];
+			if(a.format=='date'){
+				min = (new Date(min)).toISOString().substr(0,10);
+				max = (new Date(max)).toISOString().substr(0,10);
+			}
+			if(_obj.el.find('.min').length > 0) _obj.el.find('.min').html(min);
+			if(_obj.el.find('.max').length > 0) _obj.el.find('.max').html(max);
+		});
+		return this;
+	}
+
+	for(key in this.filters){
+		a = this.filters[key]
+		form = '';
+		form += '<h3 lang="'+a.label+'" class="translatable"></h3><ol>';
+		if(a.type == "slider"){
+			form += '<li class="row range"><div id="'+key+'"><div class="slider"></div><span class="min">'+a.min['default']+'</span>'+(a.min.unit ? '<span lang="'+a.min.unit+'" class="translatable"></span>':'')+' &rarr; <span class="max"></span>'+(a.max.unit ? '<span lang="'+a.max.unit+'" class="translatable"></span>':'')+'</div></li>';
+		}else if(a.type == "checkbox"){
+			for(var i = 0; i < a.options.length; i++) form += '<li class="row"><input type="checkbox" name="'+a.options[i].id+'" id="'+a.options[i].id+'" checked="checked"></input><label for="'+a.options[i].id+'" lang="'+a.options[i].label+'" class="translatable"></label></li>';
+		}
+		form += '</ol>';
+		S('#filterform').append(form);
+		if(this.filters[key].type == "slider"){
+			this.filters[key].slider = new makeSlider(key);
+		}
+	}
+	// this.filters[key].slider.set([10,30]);
+
 	// Add event to expandable lists
-	this.dom.menu.find('h2').on('click',{gw:this},function(e){
+	this.dom.menu.find('.expandable').on('click',{gw:this},function(e){
 		var section = S(e.currentTarget).parent();
+		console.log(e.currentTarget.nextSibling);
 		section.toggleClass('collapse');
-		var growDiv = section.find('ol')[0];
+		var growDiv = e.currentTarget.nextSibling;
 		if(growDiv.clientHeight) {
 			growDiv.style.height = 0;
 		}else{
@@ -88,9 +251,6 @@ function GWViewer(attr) {
 		container.parentNode.replaceChild(tmp, container);
 	});
 
-	this.loadCatalogue();
-	this.loadLanguageList();
-	
 	return this;
 }
 
@@ -207,6 +367,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 		_obj.cat.orderData('UTC');
 		_obj.loadWaves();
 		_obj.renderCatalogue();
+		_obj.addMenu();
 	}
 	this.cat = new GWCat(loaded,{'fileIn':file});
 
