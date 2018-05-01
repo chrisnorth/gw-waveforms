@@ -63,87 +63,6 @@ function GWViewer(attr) {
 }
 
 GWViewer.prototype.addMenu = function(){
-
-	// We might want to add GWCat functions so we can find the ranges from the data
-	this.filters = {
-		'observingrun': {
-			'label': 'text.gwviewer.filter.observingrun',
-			'type':'checkbox',
-			'options':[
-				{'id': 'o1', 'label':'text.gwviewer.filter.observingrun.O1' },
-				{'id': 'o2', 'label':'text.gwviewer.filter.observingrun.O2' },
-				{'id': 'o3', 'label':'text.gwviewer.filter.observingrun.O3' }
-			]
-		},
-		'detector': {
-			'label': 'text.gwviewer.filter.detector',
-			'type':'checkbox',
-			'options':[
-				{'id': 'detector-H', 'label': 'text.gwviewer.filter.detector-H' },
-				{'id': 'detector-L', 'label': 'text.gwviewer.filter.detector-L' },
-				{'id': 'detector-V', 'label': 'text.gwviewer.filter.detector-V' }
-			]
-		},
-		'object': {
-			'label': 'text.gwviewer.filter.object',
-			'type':'checkbox',
-			'options':[
-				{'id': 'object-BBH', 'label':'text.gwviewer.filter.object.BBH' },
-				{'id': 'object-BNS', 'label':'text.gwviewer.filter.object.BNS' }
-			]
-		},
-		'M1': {
-			'label': 'data.M1.name',
-			'type':'slider',
-			'min': { 'label': '', 'unit': 'data.M1.unit', 'default': 0, 'value': 0 },
-			'max': { 'label': '', 'unit': 'data.M1.unit', 'default': 50, 'value': 50 }
-		},
-		'M2': {
-			'label': 'data.M2.name',
-			'type':'slider',
-			'min': { 'label': '', 'unit': 'data.M2.unit', 'default': 0, 'value': 0 },
-			'max': { 'label': '', 'unit': 'data.M2.unit', 'default': 50, 'value': 50 }
-		},
-		'Mfinal': {
-			'label': 'data.Mfinal.name',
-			'type':'slider',
-			'min': { 'label': '', 'unit': 'data.Mfinal.unit', 'default': 0, 'value': 0 },
-			'max': { 'label': '', 'unit': 'data.Mfinal.unit', 'default': 100, 'value': 100 }
-		},
-		'rho': {
-			'label': 'data.rho.name',
-			'type':'slider',
-			'min': { 'label': '', 'default': 0, 'value': 0 },
-			'max': { 'label': '', 'default': 40, 'value': 40 }
-		},
-		'skyArea': {
-			'label': 'data.skyArea.name',
-			'type':'slider',
-			'min': { 'label': '', 'unit': 'data.skyArea.unit', 'default': 0, 'value': 0 },
-			'max': { 'label': '', 'unit': 'data.skyArea.unit', 'default': 1000, 'value': 1000 }
-		},
-		'DL': {
-			'label': 'data.DL.name',
-			'type':'slider',
-			'min': { 'label': '', 'unit': 'data.DL.unit', 'default': 0, 'value': 0 },
-			'max': { 'label': '', 'unit': 'data.DL.unit', 'default': 3000, 'value': 3000 }
-		},
-		'z': {
-			'label': 'data.z.name',
-			'type':'slider',
-			'step': 0.01,
-			'min': { 'label': '', 'default': 0, 'value': 0 },
-			'max': { 'label': '', 'default': 0.3, 'value': 0.3 }
-		},
-		'date': {
-			'label': 'data.date.name',
-			'type':'slider',
-			'format': 'date',
-			'step': 7 * 24 * 60 * 60 * 1000,
-			'min': { 'label': '' },
-			'max': { 'label': '' }
-		}
-	}
 	
 	var __obj = this;
 	function getDateRange(){
@@ -221,7 +140,6 @@ GWViewer.prototype.addMenu = function(){
 	// Add event to expandable lists
 	this.dom.menu.find('.expandable').on('click',{gw:this},function(e){
 		var section = S(e.currentTarget).parent();
-		console.log(e.currentTarget.nextSibling);
 		section.toggleClass('collapse');
 		var growDiv = e.currentTarget.nextSibling;
 		if(growDiv.clientHeight) {
@@ -250,6 +168,8 @@ GWViewer.prototype.addMenu = function(){
 		}
 		container.parentNode.replaceChild(tmp, container);
 	});
+
+	this.updateLanguage()
 
 	return this;
 }
@@ -339,17 +259,19 @@ GWViewer.prototype.loadLanguage = function(l){
 GWViewer.prototype.updateLanguage = function(){
 	this.log('updateLanguage',this.lang);
 
-	this.language = this.languages[this.lang].dict;
+	if(this.languages[this.lang].dict){
+		this.language = this.languages[this.lang].dict;
 	
-	// Now update any elements that need updating
-	var e = S('.translatable');
-	for(var i = 0; i < e.length; i++){
-		el = S(e[i]);
-		text = el.attr('lang');
-		title = el.attr('lang-title');
-		if(this.language[text]) text = this.language[text];
-		if(this.language[title]) title = this.language[title];
-		el.html(text).attr('title',title);
+		// Now update any elements that need updating
+		var e = S('.translatable');
+		for(var i = 0; i < e.length; i++){
+			el = S(e[i]);
+			text = el.attr('lang');
+			title = el.attr('lang-title');
+			if(this.language[text]) text = this.language[text];
+			if(this.language[title]) title = this.language[title];
+			el.html(text).attr('title',title);
+		}
 	}
 	
 	return this;
@@ -367,7 +289,14 @@ GWViewer.prototype.loadCatalogue = function(file){
 		_obj.cat.orderData('UTC');
 		_obj.loadWaves();
 		_obj.renderCatalogue();
-		_obj.addMenu();
+		S().ajax('config/filters.json',{
+			'dataType': 'json',
+			'this':_obj,
+			'success': function(data,attrs){
+				this.filters = data;
+				this.addMenu();
+			}
+		});
 	}
 	this.cat = new GWCat(loaded,{'fileIn':file});
 
@@ -379,12 +308,12 @@ GWViewer.prototype.loadWaves = function(){
 	// Load each wave
 	// Dummy lookup table for files
 	var wavefiles = {
-		'GW150914':{'file':'example-data/m1-5-m2-5.txt','offset':-4.233642578,'colour':'#1576a1'},
-		'LVT151012':{'file':'example-data/m1-5-m2-10.txt','offset':-2.905273438,'colour':'#0a9676'},
-		'GW151226':{'file':'example-data/m1-10-m2-10.txt','offset':-1.933959961,'colour':'#c85b26'},
-		'GW170104':{'file':'example-data/m1-10-m2-15.txt','offset':-1.654052734,'colour':'#c288a5'},
-		'GW170608':{'file':'example-data/m1-15-m2-20.txt','offset':-1.3227539},
-		'GW170814':{'file':'example-data/m1-30-m2-30.txt','offset':-1.388305664,'colour':'#eeea87'},
+		'GW150914':{'file':'example-data/m1-5-m2-5_compress.txt','offset':-4.233642578,'colour':'#1576a1'},
+		'LVT151012':{'file':'example-data/m1-5-m2-10_compress.txt','offset':-2.905273438,'colour':'#0a9676'},
+		'GW151226':{'file':'example-data/m1-10-m2-10_compress.txt','offset':-1.933959961,'colour':'#c85b26'},
+		'GW170104':{'file':'example-data/m1-10-m2-15_compress.txt','offset':-1.654052734,'colour':'#c288a5'},
+		'GW170608':{'file':'example-data/m1-15-m2-20_compress.txt','offset':-1.3227539},
+		'GW170814':{'file':'example-data/m1-30-m2-30_compress.txt','offset':-1.388305664,'colour':'#eeea87'},
 	};
 	
 	var _obj = this;
@@ -616,7 +545,6 @@ WaveForm.prototype.draw = function(){
 
 		// If the Javascript function has been passed a width/height
 		// those take precedence over the CSS-set values
-		console.log(this.wide,this.tall,typeof this.wide,typeof this.tall)
 		if(typeof this.wide!=="number") this.wide = this.el[0].offsetWidth;
 		if(typeof this.tall!=="number") this.tall = this.el[0].offsetHeight;
 
