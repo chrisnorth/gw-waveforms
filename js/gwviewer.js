@@ -11,7 +11,6 @@ function GWViewer(attr) {
 	if(typeof attr.id!=="string") attr.id = "gw-viewer";
 	this.attr = attr;
 
-
 	this.logging = true;
 	if(typeof this.attr.log==="boolean") this.logging = this.attr.log;
 
@@ -37,6 +36,8 @@ function GWViewer(attr) {
 	this.languages = {};
 	this.lang = (this.query.lang ? this.query.lang : (navigator) ? (navigator.userLanguage||navigator.systemLanguage||navigator.language||browser.language) : "");
 
+	this.axes = {'x':2000,'y':2e6};
+
 	
 	// Create DOM references
 	if(!this.attr.dom) this.attr.dom = {};
@@ -52,13 +53,21 @@ function GWViewer(attr) {
 	}
 
 	// Update DOM
-	this.dom.main.html('<div class="viewer"></div>');
+	//this.dom.main.html('<div class="viewer"></div>');
 	if(this.dom.menu.length == 1) this.dom.menu.html('<div class="menu"><h1><span lang="text.gwviewer.information.title" class="translatable">Gravitational wave viewer</span><span class="version"></span></h1><section id="language" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist" class="expander"></ol></section><section class="collapse"><h2 id="order" lang="text.gwviewer.orderby" class="translatable expandable" tabindex="0">Order by</h2><ol class="expander"><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section><section id="filter" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.filter" lang-title="text.gwviewer.filter.title" class="translatable">Filter</span></h2><form class="expander" id="filterform"></form></section></div>');
 	S('.version').html(this.version);
 	
 	this.loadCatalogue();
 	this.loadLanguageList();
 	
+	return this;
+}
+
+GWViewer.prototype.log = function(){
+	if(this.logging){
+		var args = Array.prototype.slice.call(arguments, 0);
+		if(console && typeof console.log==="function") console.log('GWViewer',args);
+	}
 	return this;
 }
 
@@ -158,7 +167,10 @@ GWViewer.prototype.addMenu = function(){
 		button.addClass('selected');
 
 		e.data.gw.cat.orderData(by,rev);
+		e.data.gw.draw();
 
+
+/*
 		var container = S('#'+e.data.gw.attr.id).find('.viewer ol')[0];
 		var tmp = document.createElement('ol');
 		console.log(e.data.gw.cat.dataOrder)
@@ -167,21 +179,14 @@ GWViewer.prototype.addMenu = function(){
 			tmp.appendChild( S('#'+e.data.gw.cat.dataOrder[i])[0] );
 		}
 		container.parentNode.replaceChild(tmp, container);
+*/
 	});
 
 	this.updateLanguage()
 
 	return this;
 }
-
-GWViewer.prototype.log = function(){
-	if(this.logging){
-		var args = Array.prototype.slice.call(arguments, 0);
-		if(console && typeof console.log==="function") console.log('GWViewer',args);
-	}
-	return this;
-}
-
+ 
 // Get the list of languages
 GWViewer.prototype.loadLanguageList = function(file){
 
@@ -282,62 +287,58 @@ GWViewer.prototype.loadCatalogue = function(file){
 	this.log('loadCatalogue')
 	if(!file || typeof file!=="string") file = 'gwcat/data/events.json';
 	var _obj = this;
+
 	function loaded(){
 		_obj.log('loaded catalogue from '+file);
 
 		// Order the data by time (default)
 		_obj.cat.orderData('UTC');
-		_obj.loadWaves();
-		_obj.renderCatalogue();
-		S().ajax('config/filters.json',{
+
+		// Load each wave
+		S().ajax('config/waveforms.json',{
 			'dataType': 'json',
-			'this':_obj,
-			'success': function(data,attrs){
-				this.filters = data;
-				this.addMenu();
+			'this': _obj,
+			'success': function(wavefiles,attrs){
+
+				this.log('loaded waveform',wavefiles,this.cat)
+				this.setAxis('x',4500);
+				for(var i = 0; i < this.cat.length; i++){
+					if(!this.cat.data[i].waveform){
+						console.log(this.cat.data[i].name)
+						if(!wavefiles[this.cat.data[i].name]) wavefiles[this.cat.data[i].name] = {};
+						wavefiles[this.cat.data[i].name].callback = {
+							'onload': function(a){
+								_obj.scaleWaves();
+							},
+							'onprogress': function(a){
+								_obj.draw();
+							}
+						}
+						if(typeof wavefiles[this.cat.data[i].name].wide==="undefined") wavefiles[this.cat.data[i].name].wide = 2000;
+						if(typeof wavefiles[this.cat.data[i].name].tall==="undefined") wavefiles[this.cat.data[i].name].tall = 100;
+						this.cat.data[i].waveform = new WaveForm(wavefiles[this.cat.data[i].name]);
+						this.cat.data[i].waveform.name = this.cat.data[i].name;
+						this.log('get data',i,this.cat.data[i]);
+						if(this.cat.data[i].waveform.file) this.cat.data[i].waveform.loadData();
+					}
+				}
+				this.renderCatalogue();
+
+				// Now that we are getting the data we will add the filters
+				S().ajax('config/filters.json',{
+					'dataType': 'json',
+					'this':_obj,
+					'success': function(data,attrs){
+						this.filters = data;
+						this.addMenu();
+					}
+				});
 			}
 		});
 	}
+
 	this.cat = new GWCat(loaded,{'fileIn':file});
 
-	return this;
-}
-
-GWViewer.prototype.loadWaves = function(){
-
-	// Load each wave
-	// Dummy lookup table for files
-	var wavefiles = {
-		'GW150914':{'file':'example-data/m1-5-m2-5_compress.txt','offset':-4.233642578,'colour':'#1576a1'},
-		'LVT151012':{'file':'example-data/m1-5-m2-10_compress.txt','offset':-2.905273438,'colour':'#0a9676'},
-		'GW151226':{'file':'example-data/m1-10-m2-10_compress.txt','offset':-1.933959961,'colour':'#c85b26'},
-		'GW170104':{'file':'example-data/m1-10-m2-15_compress.txt','offset':-1.654052734,'colour':'#c288a5'},
-		'GW170608':{'file':'example-data/m1-15-m2-20_compress.txt','offset':-1.3227539},
-		'GW170814':{'file':'example-data/m1-30-m2-30_compress.txt','offset':-1.388305664,'colour':'#eeea87'},
-	};
-	
-	var _obj = this;
-	for(var i = 0; i < this.cat.length; i++){
-		if(!this.cat.data[i].waveform){
-			console.log(this.cat.data[i].name)
-			if(!wavefiles[this.cat.data[i].name]) wavefiles[this.cat.data[i].name] = {};
-			wavefiles[this.cat.data[i].name].callback = {
-				'onload': function(a){
-					_obj.scaleWaves();
-				},
-				'onprogress': function(a){
-					this.draw();
-				}
-			}
-			wavefiles[this.cat.data[i].name].wide = 2000;
-			wavefiles[this.cat.data[i].name].tall = 100;
-			this.cat.data[i].waveform = new WaveForm(wavefiles[this.cat.data[i].name]);
-			this.cat.data[i].waveform.name = this.cat.data[i].name;
-			this.cat.data[i].waveform.setAxis('x',5000);
-			this.log('get data',i,this.cat.data[i]);
-			if(this.cat.data[i].waveform.file) this.cat.data[i].waveform.loadData();
-		}
-	}
 	return this;
 }
 
@@ -354,11 +355,11 @@ GWViewer.prototype.renderCatalogue = function(){
 	}
 
 	// Build the list of gravitational waves
-	var viewer = S('#'+this.attr.id).find('.viewer');
-	viewer.html('<div class="waves"><ol></ol></div>');
+//	var viewer = S('#'+this.attr.id).find('.viewer');
+//	viewer.html('<div class="waves"><ol></ol></div>');
 
 	this.log('renderCatalogue');
-
+/*
 	for(var i = 0; i < this.cat.length; i++){
 		name = this.cat.data[i].name;
 		var m = [{'v':0,'u':''},{'v':0,'u':''},{'v':0,'u':''}];
@@ -400,7 +401,107 @@ GWViewer.prototype.renderCatalogue = function(){
 		// Add the HTML to the element
 		this.cat.data[i].waveform.el.html('<div class="gw-about">'+str+'</div><div class="waveform">Waveform</div>');
 	}
+*/	
+	return this;
+}
+
+GWViewer.prototype.draw = function(){
+
+	var now = new Date();
+
+	function Canvas(el,idinner){
+		this.container = el;
+		this.container.html('');
+		this.ex = (typeof G_vmlCanvasManager != 'undefined') ? true : false;
+		this.c = document.createElement("canvas");
+		this.container[0].appendChild(this.c);
+		S(this.c).attr('id',idinner).css({'display':'block'});
+		this.el = S(this.c);
+
+		// For excanvas we need to initialise the newly created <canvas>
+		if(this.ex) this.c = G_vmlCanvasManager.initElement(this.c);
+
+		// If the Javascript function has been passed a width/height
+		// those take precedence over the CSS-set values
+		if(typeof this.wide!=="number") this.wide = this.container[0].offsetWidth;
+		if(typeof this.tall!=="number") this.tall = window.innerHeight;//this.container[0].offsetHeight;
+
+		if(this.c && this.c.getContext){  
+			this.setWH(this.wide,this.tall);
+			this.ctx = this.c.getContext('2d');
+			this.ctx.clearRect(0,0,this.wide,this.tall);
+			this.ctx.beginPath();
+			var fs = this.getFontsize();
+			this.ctx.font = fs+"px Helvetica";
+			this.ctx.fillStyle = 'rgb(255,255,255)';
+			this.ctx.lineWidth = 1.5;
+			//var loading = 'Loading waveform...';
+			//this.ctx.fillText(loading,(this.wide-this.ctx.measureText(loading).width)/2,(this.tall-fs)/2)
+			this.ctx.fill();
+		}
+
+		return this;
+	}
+
+	Canvas.prototype.setWH = function(w,h){
+		if(!w || !h) return;
+		this.c.width = w;
+		this.c.height = h;
+		this.wide = w;
+		this.tall = h;
+		this.el.css({'width':w+'px','height':h+'px'});
+		return this;
+	}
+
+	Canvas.prototype.getFontsize = function(){
+		if(this.fontsize) return parseInt(this.fontsize);
+		var m = this.wide;
+		//console.log(m,parseInt(this.el.css('font-size')))
+		return (m < 600) ? ((m < 500) ? ((m < 350) ? ((m < 300) ? ((m < 250) ? 9 : 10) : 11) : 12) : 14) : parseInt(this.el.css('font-size'));
+	}
+
+	if(!this.canvas){
+		this.canvas = new Canvas(this.dom.main,this.attr.id+'-canvas');
+	}
 	
+	if(this.canvas.ctx){
+
+		// Clear canvas
+		this.canvas.ctx.moveTo(0,0);
+		this.canvas.ctx.clearRect(0,0,this.canvas.wide,this.canvas.tall);
+		
+		var dy = (this.canvas.tall/this.cat.length);
+		// Loop over each waveform
+		for(var i = 0; i < this.cat.length; i++){
+
+			wf = this.cat.data[i].waveform;
+			if(!wf.colour) wf.colour = "white";
+			//wf.parse();
+	
+			this.canvas.ctx.beginPath();
+
+			this.canvas.ctx.strokeStyle = wf.colour;
+			this.canvas.ctx.fillStyle = wf.colour;
+			this.canvas.ctx.lineWidth = 1;
+
+			xscale = this.canvas.wide/this.axes.x;
+			yscale = this.canvas.tall/(typeof this.axes.y==="number" ? this.axes.y : (this.max || 2e6));
+
+			if(wf.data){
+				pos = {'x':(wf.data[0].t*xscale).toFixed(1),'y':((dy*(i+0.5))+Math.round(wf.data[0].hp*yscale)).toFixed(1)};
+				this.canvas.ctx.moveTo(pos.x,pos.y);
+				old = pos;
+				for(var j = 1; j < wf.data.length; j++){
+					pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':((dy*(i+0.5))+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
+					this.canvas.ctx.lineTo(pos.x,pos.y);
+				}
+			}
+			this.canvas.ctx.stroke();
+		}
+	}
+
+	diff = ((new Date()) - now);
+	this.log('Draw time = '+diff+' ms')
 	return this;
 }
 
@@ -410,12 +511,17 @@ GWViewer.prototype.scaleWaves = function(){
 	for(var i = 0; i < this.cat.length; i++){
 		if(this.cat.data[i].waveform.max > max) max = this.cat.data[i].waveform.max;
 	}
-	for(var i = 0; i < this.cat.length; i++){
-		if(max > 0) this.cat.data[i].waveform.axes.y = max;
-		this.cat.data[i].waveform.draw();
-	}
+	this.axes.y = max;
+	this.draw();
 	return this;
 }
+
+
+GWViewer.prototype.setAxis = function(t,size){
+	this.axes[t] = size;
+	return this;
+}
+
 
 // Object to process wave forms
 function WaveForm(attr){
@@ -430,6 +536,7 @@ function WaveForm(attr){
 
 	return this;
 }
+
 WaveForm.prototype.log = function(){
 	if(this.logging){
 		var args = Array.prototype.slice.call(arguments, 0);
@@ -437,17 +544,21 @@ WaveForm.prototype.log = function(){
 	}
 	return this;
 }
+
 WaveForm.prototype.addData = function(data){
 	this.loading = true;
 	this.datastr = data;
+	this.parse();
 	return this;
 }
+
 WaveForm.prototype.endData = function(data){
 	this.loading = false;
 	this.loaded = true;
 	this.datastr = data;
 	return this;
 }
+
 WaveForm.prototype.loadData = function(){
 	if(!this.file){
 		console.log('No file provided to load from');
@@ -460,13 +571,11 @@ WaveForm.prototype.loadData = function(){
 			this.log('complete',attrs,this);
 			this.endData(data);
 			if(typeof this.callback.onload==="function") this.callback.onload.call(this);
-//			this.draw();
 		},
 		'progress': function(e,attrs){
 			this.log('progress',attrs,this);
 			this.addData(e.target.responseText);
 			if(typeof this.callback.onprogress==="function") this.callback.onprogress.call(this);
-//			this.draw();
 		}
 	});
 	return this;
@@ -511,117 +620,3 @@ WaveForm.prototype.parse = function(){
 
 	return this;
 }
-
-WaveForm.prototype.setAxis = function(t,size){
-	this.axes[t] = size;
-	return this;
-}
-
-// Render a gravitational wave
-// Input can be either an index (integer) or a gravitational wave ID e.g. 'GW150914'
-WaveForm.prototype.draw = function(){
-	
-	this.log('draw',this);
-	if(!this.el) return this;
-
-	var el = this.el.find('.waveform');
-	if(el.length<1) return this;
-	
-	var id = this.name+'-canvas';
-	el.attr('id',id);
-	var idinner = id+'_inner';
-
-	if(typeof this.canvas==="undefined" || S('#'+idinner).length == 0){
-		el.html('');
-		var canvas = document.createElement("canvas");
-		el[0].appendChild(canvas);
-		S(canvas).attr('id',idinner).css({'display':'block'});
-
-		this.c = canvas;
-		this.canvas = S(canvas);
-
-		// For excanvas we need to initialise the newly created <canvas>
-		if(this.excanvas) this.c = G_vmlCanvasManager.initElement(this.c);
-
-		// If the Javascript function has been passed a width/height
-		// those take precedence over the CSS-set values
-		if(typeof this.wide!=="number") this.wide = this.el[0].offsetWidth;
-		if(typeof this.tall!=="number") this.tall = this.el[0].offsetHeight;
-
-		if(this.c && this.c.getContext){  
-		
-			this.setWH(this.wide,this.tall);
-			this.ctx = this.c.getContext('2d');
-			this.ctx.clearRect(0,0,this.wide,this.tall);
-			this.ctx.beginPath();
-			var fs = this.getFontsize();
-			this.ctx.font = fs+"px Helvetica";
-			this.ctx.fillStyle = 'rgb(255,255,255)';
-			this.ctx.lineWidth = 1.5;
-			var loading = 'Loading waveform...';
-			this.ctx.fillText(loading,(this.wide-this.ctx.measureText(loading).width)/2,(this.tall-fs)/2)
-			this.ctx.fill();
-		}
-	}
-
-	this.parse();
-	
-	if(this.ctx){
-
-		this.ctx.moveTo(0,0);
-
-		this.ctx.clearRect(0,0,this.wide,this.tall);
-		this.ctx.beginPath();
-
-		colour = this.colour || 'white';
-		this.ctx.strokeStyle = colour;
-		this.ctx.fillStyle = colour;
-		this.ctx.lineWidth = 1;
-
-		xscale = this.wide/this.axes.x;
-		yscale = this.tall/(typeof this.axes.y==="number" ? this.axes.y : (this.max || 2e6));
-		/*
-		this.cat.data[i].waveform.svg = new SVG(id);
-		this.cat.data[i].waveform.svg.paper.attr('viewBox','0 0 '+xscale+' '+yscale);
-		this.cat.data[i].waveform.svg.clear();
-	
-		// Build path
-		// Move to start
-		path = [['M',[0,(yscale/2)]]];
-		*/
-		if(this.data){
-			for(var j = 1; j < this.data.length; j++){
-				posa = {'x':(this.data[j-1].t*xscale).toFixed(1),'y':((this.tall/2)+Math.round(this.data[j-1].hp*yscale)).toFixed(1)};
-				posb = {'x':(this.data[j].t*xscale).toFixed(1),'y':((this.tall/2)+Math.round(this.data[j].hp*yscale)).toFixed(1)};
-				this.ctx.moveTo(posa.x,posa.y);
-				this.ctx.lineTo(posb.x,posb.y);
-				//path.push(['L',[this.cat.data[i].waveform.data[j].t.toFixed(3),(yscale/2)+Math.round(this.cat.data[i].waveform.data[j].hp)]]);
-			}
-		}
-	/*	
-		this.cat.data[i].waveform.svg.path(path).attr({'stroke':'red','stroke-width':1});
-		this.cat.data[i].waveform.svg.draw();
-	*/
-		this.ctx.stroke();
-	}
-
-	this.log('end draw',this,el);
-
-	return this;
-}
-WaveForm.prototype.setWH = function(w,h){
-	if(!w || !h) return;
-	this.c.width = w;
-	this.c.height = h;
-	this.wide = w;
-	this.tall = h;
-	this.canvas.css({'width':w+'px','height':h+'px'});
-	return this;
-}
-WaveForm.prototype.getFontsize = function(){
-	if(this.fontsize) return parseInt(this.fontsize);
-	var m = this.wide;
-	//console.log(m,parseInt(this.el.css('font-size')))
-	return (m < 600) ? ((m < 500) ? ((m < 350) ? ((m < 300) ? ((m < 250) ? 9 : 10) : 11) : 12) : 14) : parseInt(this.el.css('font-size'));
-}
-
