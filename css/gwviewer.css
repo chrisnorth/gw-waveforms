@@ -44,7 +44,7 @@ table {
 
 
 body {
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: "Open Sans",sans-serif;
 	font-size: 16px;
 	padding: 0px;
 	margin: 0px;
@@ -98,7 +98,7 @@ label.hamburger:after {
 	top: 0px;
 	left: 0px;
 	content:"\2261";
-	font-size: 2em;
+	font-size: 2.3em;
 	text-align: center;
 	line-height: 1em;
 }
@@ -123,6 +123,12 @@ input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger
 	color: white;
 	text-align: right;
 }
+#heading h1 {
+	font-size: 1em;
+	line-height: 3em;
+	padding: 0em 0.5em;
+}
+#heading h1 span { font-size: 1.5em; }
 .version { margin-left: 0.5em; }
 
 menu > .holder {
@@ -139,7 +145,7 @@ menu > .holder {
 }
 /*menu .holder .menu { padding-top: 3em; }*/
 menu h1 { position: fixed; z-index: 10; top: 0px; width: 360px; display: block; border-right: 1px solid #888; }
-#heading h1, menu h1, menu h2, menu h3 { height: 3em; line-height: 2.5em; font-size: 1em; padding: 0.25em 1em; }
+menu h1, menu h2, menu h3 { height: 3em; line-height: 2.5em; font-size: 1em; padding: 0.25em 1em; }
 #heading, menu h1, menu section { border-bottom: 1px solid #888; }
 menu h1, menu h2 { background-color: #666666; }
 menu h3 { background-color: #444444; border-top: 1px solid #888; }
