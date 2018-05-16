@@ -7,14 +7,22 @@
 	<script type="text/javascript" src="js/lib/nouislider.min.js"></script>
 	<link rel="stylesheet" href="css/lib/nouislider.min.css">
 	<link rel="stylesheet" href="css/gwviewer.css">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta property="og:url"           content="http://chrisnorth.github.io/gw-waveforms/" />
+    <meta property="og:type"          content="website" />
+    <meta property="og:title"         content="Gravitational Wave Viewer" />
+    <meta property="og:description"   content="Explore the LIGO catalogue of gravitataional waves" />
+    <meta property="og:image"         content="http://chrisnorth.github.io/plotgw/img/screenshot.png" />
+    <link rel="icon" type="image/vnd.microsoft.icon" href="http://chrisnorth.github.io/plotgw/img/favicon-32x32.png" />
 </head>
 <body>
 
 	<input type="checkbox" id="hamburger" class="hamburger">
 	<label for="hamburger" class="hamburger"><span class="nv">Toggle menu (if not visible)</span></label>
-	<header>
+	<div id="heading"><h1><span class="translatable" lang="text.gwviewer.information.title">Gravitational Wave Viewer</span><span class="version">0.1</span></h1></div>
+	<menu>
 		<div class="holder">Header</div>
-	</header>
+	</menu>
 	<div id="main">
 		<div id="gwviewer"></div>
 	</div>
@@ -24,7 +32,7 @@
 	S(document).ready(function(){
 		gwview = new GWViewer({
 			'id': 'gwviewer',
-			'dom': { 'menu': S('header .holder') }
+			'dom': { 'menu': S('menu .holder') }
 		});
 	});
 	</script>

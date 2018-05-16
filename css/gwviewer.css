@@ -81,7 +81,6 @@ label.hamburger {
 	z-index: 1;
 	background: #666666;
 	border-right: 1px solid #888;
-	border-bottom: 1px solid #888;
 	box-sizing: border-box;
 }
 label.hamburger .nv {
@@ -107,17 +106,26 @@ input.hamburger:hover ~ label.hamburger,
 input.hamburger:checked ~ label.hamburger {
 	background: #666666;
 }
-input.hamburger:checked ~ header > .holder {
+input.hamburger:checked ~ menu > .holder {
 	left: 0px;
 }
-input.hamburger:checked ~ #main, input.hamburger:checked ~ header, input.hamburger:checked ~ footer {
+input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger:checked ~ footer {
 	width: 100%;
 }
-.hamburger, header .holder {
+.hamburger, menu .holder {
 	transition: left 0.3s ease-in;
 }
 
-header > .holder {
+#heading {
+	background: #35272f;
+	background-image: url('purple_page_background.jpg');
+	background-position: top center;
+	color: white;
+	text-align: right;
+}
+.version { margin-left: 0.5em; }
+
+menu > .holder {
 	border-right: 1px solid #888;
 	position: absolute;
 	background: rgba(0,0,0,0.8);
@@ -129,16 +137,15 @@ header > .holder {
 	z-index: 10;
 	color: white;
 }
-header .holder .menu { padding-top: 3em; }
-header .version { margin-left: 0.5em; }
-header h1 { position: fixed; z-index: 10; top: 0px; width: 360px; display: block; border-right: 1px solid #888; }
-header h1, header h2, header h3 { height: 3em; line-height: 2.5em; font-size: 1em; padding: 0.25em 1em; }
-header h1, header section { border-bottom: 1px solid #888; }
-header h1, header h2 { background-color: #666666; }
-header h3 { background-color: #444444; border-top: 1px solid #888; }
-header .expander { list-style: none; padding-left: 0px; height: 0px; overflow: hidden; transition: height 0.5s ease-in;  }
-header h2, header h3, header button { cursor: pointer; position: relative; }
-header .expandable:after {
+/*menu .holder .menu { padding-top: 3em; }*/
+menu h1 { position: fixed; z-index: 10; top: 0px; width: 360px; display: block; border-right: 1px solid #888; }
+#heading h1, menu h1, menu h2, menu h3 { height: 3em; line-height: 2.5em; font-size: 1em; padding: 0.25em 1em; }
+#heading, menu h1, menu section { border-bottom: 1px solid #888; }
+menu h1, menu h2 { background-color: #666666; }
+menu h3 { background-color: #444444; border-top: 1px solid #888; }
+menu .expander { list-style: none; padding-left: 0px; height: 0px; overflow: hidden; transition: height 0.5s ease-in;  }
+menu h2, menu h3, menu button { cursor: pointer; position: relative; }
+menu .expandable:after {
 	content: "";
 	width: 0.5em;
 	height: 0.5em;
@@ -153,14 +160,14 @@ header .expandable:after {
 	transform: translate3d(-1em,-25%,0) rotate(135deg);
 	transition: transform 0.5s ease-in;
 }
-header .collapse > .expandable:after {
+menu .collapse > .expandable:after {
 	transform: translate3d(-1em,-25%,0) translate3d(0,-0.25em,0) rotate(-45deg);
 }
-header button {
+menu button {
 	width: 100%;
 	padding: 0.25em 0.5em;
 }
-header button, header .row {
+menu button, menu .row {
 	text-align: left; 
 	border: 0px;
 	border-radius: 0px;
@@ -170,20 +177,20 @@ header button, header .row {
 	background: #444444;
 	color: #efefef;
 }
-header .row input[type=checkbox] { display: inline-block; float: left; height: 2em; width: 2em; margin: 0.75em 0.75em 0.25em 1em; }
-header .row label { line-height: 2.5em; display: block; cursor: pointer; }
-header .range > div { line-height: 2.5em; padding-left: 1.5em; padding-right: 1.5em; padding-top: 1em; text-align: center; }
-header .range .min, header .range .max { display: inline-block; }
-header .range .min { margin-left: 1em; }
-header .range .slider { display: block; width: auto; margin: 0 0.25em; }
-header button:last-child { margin-right: 0px; }
-header button:hover, header button.selected, header label:hover { background: #634d72; color: white; }/*#5d2f4f*/
-header ol { list-style: none; }
-header ol li button { padding-left: 1em; }
-header nav a {
+menu .row input[type=checkbox] { display: inline-block; float: left; height: 2em; width: 2em; margin: 0.75em 0.75em 0.25em 1em; }
+menu .row label { line-height: 2.5em; display: block; cursor: pointer; }
+menu .range > div { line-height: 2.5em; padding-left: 1.5em; padding-right: 1.5em; padding-top: 1em; text-align: center; }
+menu .range .min, menu .range .max { display: inline-block; }
+menu .range .min { margin-left: 1em; }
+menu .range .slider { display: block; width: auto; margin: 0 0.25em; }
+menu button:last-child { margin-right: 0px; }
+menu button:hover, menu button.selected, menu label:hover { background: #634d72; color: white; }/*#5d2f4f*/
+menu ol { list-style: none; }
+menu ol li button { padding-left: 1em; }
+menu nav a {
 	text-align: right;
 }
-header, footer, #main {
+menu, footer, #main {
 	width: 100%;
 	transition: margin-left 0.3s ease-in;
 }
@@ -191,10 +198,10 @@ header, footer, #main {
 input.hamburger:checked, input.hamburger:checked + label.hamburger {
 	left: 360px;
 }
-input.hamburger:checked ~ header, input.hamburger:checked ~ footer {
+input.hamburger:checked ~ menu, input.hamburger:checked ~ footer {
 	margin-left: 360px;
 }
-header > .holder {
+menu > .holder {
 	left: -360px;
 	width: 360px;
 	position: fixed;
@@ -219,10 +226,10 @@ header > .holder {
 	input.hamburger:checked, input.hamburger:checked + label.hamburger {
 		left: 75%;
 	}
-	input.hamburger:checked ~ #main, input.hamburger:checked ~ header, input.hamburger:checked ~ footer {
+	input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger:checked ~ footer {
 		margin-left: 75%;
 	}
-	header > .holder {
+	menu > .holder {
 		left: -75%;
 		width: 75%;
 	}
