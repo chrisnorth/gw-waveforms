@@ -520,12 +520,10 @@ GWViewer.prototype.draw = function(){
 				yorig = this.canvas.tall*((ii+1)/(n+1));
 
 				if(wf.data){
-					pos = {'x':(wf.data[0].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[0].hp*yscale)).toFixed(1)};
-					this.canvas.ctx.moveTo(pos.x,pos.y);
-					old = pos;
-					for(var j = 1; j < wf.data.length; j++){
+					for(var j = 0; j < wf.data.length; j++){
 						pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
-						this.canvas.ctx.lineTo(pos.x,pos.y);
+						if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
+						else this.canvas.ctx.lineTo(pos.x,pos.y);
 					}
 				}
 				this.canvas.ctx.stroke();
