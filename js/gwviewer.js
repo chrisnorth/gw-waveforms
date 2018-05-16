@@ -301,7 +301,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 			'success': function(wavefiles,attrs){
 
 				this.log('loaded waveform',wavefiles,this.cat)
-				this.setAxis('x',4500);
+				//this.setAxis('x',4500);
 				for(var i = 0; i < this.cat.length; i++){
 					if(!this.cat.data[i].waveform){
 						console.log(this.cat.data[i].name)
@@ -431,8 +431,8 @@ GWViewer.prototype.draw = function(){
 			this.ctx = this.c.getContext('2d');
 			this.ctx.clearRect(0,0,this.wide,this.tall);
 			this.ctx.beginPath();
-			var fs = this.getFontsize();
-			this.ctx.font = fs+"px Helvetica";
+			this.fs = this.getFontsize();
+			this.ctx.font = this.fs+"px Helvetica";
 			this.ctx.fillStyle = 'rgb(255,255,255)';
 			this.ctx.lineWidth = 1.5;
 			//var loading = 'Loading waveform...';
@@ -471,6 +471,7 @@ GWViewer.prototype.draw = function(){
 		this.canvas.ctx.clearRect(0,0,this.canvas.wide,this.canvas.tall);
 		
 		var dy = (this.canvas.tall/this.cat.length);
+
 		// Loop over each waveform
 		for(var i = 0; i < this.cat.length; i++){
 
@@ -486,17 +487,22 @@ GWViewer.prototype.draw = function(){
 
 			xscale = this.canvas.wide/this.axes.x;
 			yscale = this.canvas.tall/(typeof this.axes.y==="number" ? this.axes.y : (this.max || 2e6));
+			yorig = (dy*(i+0.5));
 
 			if(wf.data){
-				pos = {'x':(wf.data[0].t*xscale).toFixed(1),'y':((dy*(i+0.5))+Math.round(wf.data[0].hp*yscale)).toFixed(1)};
+				pos = {'x':(wf.data[0].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[0].hp*yscale)).toFixed(1)};
 				this.canvas.ctx.moveTo(pos.x,pos.y);
 				old = pos;
 				for(var j = 1; j < wf.data.length; j++){
-					pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':((dy*(i+0.5))+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
+					pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
 					this.canvas.ctx.lineTo(pos.x,pos.y);
 				}
 			}
 			this.canvas.ctx.stroke();
+console.log(yorig,this.canvas.fs)
+			this.canvas.ctx.beginPath();
+			this.canvas.ctx.fillText(this.cat.data[i].name,5,(yorig-this.canvas.fs/2))
+			this.canvas.ctx.fill();
 		}
 	}
 
