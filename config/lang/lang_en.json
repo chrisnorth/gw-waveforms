@@ -19,7 +19,7 @@
 	"text.gwviewer.filter.detector-H": "H",
 	"text.gwviewer.filter.detector-L": "L",
 	"text.gwviewer.filter.detector-V": "V",
-	"text.gwviewer.filter.object": "Object type",
-	"text.gwviewer.filter.object.BBH": "BBH",
-	"text.gwviewer.filter.object.BNS": "BNS"
+	"text.gwviewer.filter.objType": "Object type",
+	"text.gwviewer.filter.objType.BBH": "BBH",
+	"text.gwviewer.filter.objType.BNS": "BNS"
 }

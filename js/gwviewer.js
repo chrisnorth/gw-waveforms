@@ -71,14 +71,74 @@ GWViewer.prototype.log = function(){
 	return this;
 }
 
+GWViewer.prototype.updateFilters = function(){
+
+	this.log('updateFilters');
+
+	// Parse the form and work out which catalogue events should be visible
+	// Loop over checkboxes
+	for(key in this.filters){
+		if(this.filters[key].type == "slider"){
+			if(!this.filters[key].slider){
+				this.filters[key].slider = {}
+				console.log(key,this.filters[key].slider.values)
+			}
+		}else if(this.filters[key].type == "checkbox"){
+			for(var i = 0; i < this.filters[key].options.length; i++){
+				if(S('#'+this.filters[key].options[i].id).length > 0){
+					this.filters[key].options[i].checked = S('#'+this.filters[key].options[i].id)[0].checked
+				}
+			}
+		}
+	}
+
+	var active = true;	
+	var _obj = this;
+	function inRange(i,key,range){
+		if(!_obj.cat.data[i][key]) return true;
+		var val = _obj.cat.getBest(_obj.cat.dataOrder[i],key);
+		if(isNaN(val)){
+			return false;
+		}else{
+			if(val < range[0]) return false;
+			if(val > range[1]) return false;
+		}
+		return true;
+	}
+
+	// Loop over each waveform
+	for(var i = 0; i < this.cat.length; i++){
+		active = true;
+		for(key in this.filters){
+			a = this.filters[key];
+			if(a.type == "slider"){
+				// Process each slider
+				//console.log(key,inRange(i,key,this.filters[key].slider.values))
+				if(!inRange(i,key,this.filters[key].slider.values)) active = false;
+			}else if(a.type == "checkbox"){
+				for(var b = 0; b < a.options.length; b++){
+					
+					//console.log(a.options[i].id,S('#'+a.options[i].id)[0].checked);
+				}
+			}
+		}
+		this.cat.data[i].waveform.active = active;
+	}
+	
+	this.draw();
+	
+	return this;
+}
+
 GWViewer.prototype.addMenu = function(){
 	
-	var __obj = this;
+	var _obj = this;
+
 	function getDateRange(){
 		var min = new Date();
 		var max = new Date('2000');
-		for(var i = 0; i < __obj.cat.data.length; i++){
-			d = new Date(__obj.cat.data[i].UTC.best);
+		for(var i = 0; i < _obj.cat.data.length; i++){
+			d = new Date(_obj.cat.data[i].UTC.best);
 			if(d < min) min = d;
 			if(d > max) max = d;
 		}
@@ -86,7 +146,7 @@ GWViewer.prototype.addMenu = function(){
 	}
 
 	function makeSlider(key){
-		var a = __obj.filters[key];
+		var a = _obj.filters[key];
 		this.el = S('#'+key);
 		this.range = {};
 		this.values = [0,0];
@@ -113,18 +173,25 @@ GWViewer.prototype.addMenu = function(){
 		this.step = (a.step||1);
 		inputs = { 'start': this.values, 'step': this.step, 'range': this.range, 'connect': true };
 		this.slider = noUiSlider.create(this.el.find('.slider')[0], inputs);
-		var _obj = this;
+
+		var _slider = this;
 		this.slider.on('update', function(values, handle) {
 			var value = values[handle];
-			_obj.values[handle] = parseFloat(value);
-			var min = _obj.values[0];
-			var max = _obj.values[1];
+			var change = false;
+			if(_slider.values[handle] != parseFloat(value)) change = true;
+			_slider.values[handle] = parseFloat(value);
+			var min = _slider.values[0];
+			var max = _slider.values[1];
 			if(a.format=='date'){
 				min = (new Date(min)).toISOString().substr(0,10);
 				max = (new Date(max)).toISOString().substr(0,10);
 			}
-			if(_obj.el.find('.min').length > 0) _obj.el.find('.min').html(min);
-			if(_obj.el.find('.max').length > 0) _obj.el.find('.max').html(max);
+			if(_slider.el.find('.min').length > 0) _slider.el.find('.min').html(min);
+			if(_slider.el.find('.max').length > 0) _slider.el.find('.max').html(max);
+		});
+		this.slider.on('set',function(){
+			console.log('set')
+			_obj.updateFilters();
 		});
 		return this;
 	}
@@ -136,7 +203,7 @@ GWViewer.prototype.addMenu = function(){
 		if(a.type == "slider"){
 			form += '<li class="row range"><div id="'+key+'"><div class="slider"></div><span class="min">'+a.min['default']+'</span> &rarr; <span class="max"></span>'+(a.max.unit ? '<span lang="'+a.max.unit+'" class="translatable"></span>':'')+'</div></li>';
 		}else if(a.type == "checkbox"){
-			for(var i = 0; i < a.options.length; i++) form += '<li class="row"><input type="checkbox" name="'+a.options[i].id+'" id="'+a.options[i].id+'" checked="checked"></input><label for="'+a.options[i].id+'" lang="'+a.options[i].label+'" class="translatable"></label></li>';
+			for(var i = 0; i < a.options.length; i++) form += '<li class="row"><input type="checkbox" name="'+a.options[i].id+'" id="'+a.options[i].id+'"'+(a.options[i].checked ? ' checked="checked"':'')+'></input><label for="'+a.options[i].id+'" lang="'+a.options[i].label+'" class="translatable"></label></li>';
 		}
 		form += '</ol>';
 		S('#filterform').append(form);
@@ -144,7 +211,11 @@ GWViewer.prototype.addMenu = function(){
 			this.filters[key].slider = new makeSlider(key);
 		}
 	}
-	// this.filters[key].slider.set([10,30]);
+
+		
+	S('#filterform').on("change",{gw:this},function(e){
+		_obj.updateFilters();
+	})
 
 	// Add event to expandable lists
 	this.dom.menu.find('.expandable').on('click',{gw:this},function(e){
@@ -242,7 +313,6 @@ GWViewer.prototype.loadLanguage = function(l){
 		var _filestoload = this.languages[l].files.length;
 		var _filesloaded = 0;
 		for(var f = 0; f < this.languages[l].files.length; f++){
-			console.log(this.languages[l].files[f])
 			S().ajax(this.languages[l].files[f],{
 				'dataType': 'json',
 				'this':this,
@@ -316,6 +386,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 						}
 						if(typeof wavefiles[this.cat.data[i].name].wide==="undefined") wavefiles[this.cat.data[i].name].wide = 2000;
 						if(typeof wavefiles[this.cat.data[i].name].tall==="undefined") wavefiles[this.cat.data[i].name].tall = 100;
+						wavefiles[this.cat.data[i].name].active = true;
 						this.cat.data[i].waveform = new WaveForm(wavefiles[this.cat.data[i].name]);
 						this.cat.data[i].waveform.name = this.cat.data[i].name;
 						this.log('get data',i,this.cat.data[i]);
@@ -406,40 +477,47 @@ GWViewer.prototype.draw = function(){
 		// Clear canvas
 		this.canvas.ctx.moveTo(0,0);
 		this.canvas.ctx.clearRect(0,0,this.canvas.wide,this.canvas.tall);
-		
-		var dy = (this.canvas.tall/this.cat.length);
+
+		var n = 0;
+		for(var i = 0; i < this.cat.length; i++){
+			if(this.cat.data[i].waveform.active) n++;
+		}		
+
+		var dy = (this.canvas.tall/n);
 
 		// Loop over each waveform
-		for(var i = 0; i < this.cat.length; i++){
+		for(var i = 0, ii = 0; i < this.cat.length; i++){
 
 			wf = this.cat.data[i].waveform;
 			if(!wf.colour) wf.colour = "white";
-			//wf.parse();
-	
-			this.canvas.ctx.beginPath();
 
-			this.canvas.ctx.strokeStyle = wf.colour;
-			this.canvas.ctx.fillStyle = wf.colour;
-			this.canvas.ctx.lineWidth = 1;
+			if(wf.active){
+				this.canvas.ctx.beginPath();
 
-			xscale = this.canvas.wide/this.axes.x;
-			yscale = this.canvas.tall/(typeof this.axes.y==="number" ? this.axes.y : (this.max || 2e6));
-			yorig = (dy*(i+0.5));
+				this.canvas.ctx.strokeStyle = wf.colour;
+				this.canvas.ctx.fillStyle = wf.colour;
+				this.canvas.ctx.lineWidth = 1;
 
-			if(wf.data){
-				pos = {'x':(wf.data[0].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[0].hp*yscale)).toFixed(1)};
-				this.canvas.ctx.moveTo(pos.x,pos.y);
-				old = pos;
-				for(var j = 1; j < wf.data.length; j++){
-					pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
-					this.canvas.ctx.lineTo(pos.x,pos.y);
+				xscale = this.canvas.wide/this.axes.x;
+				yscale = this.canvas.tall/(typeof this.axes.y==="number" ? this.axes.y : (this.max || 2e6));
+				yorig = (dy*(ii+0.5));
+
+				if(wf.data){
+					pos = {'x':(wf.data[0].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[0].hp*yscale)).toFixed(1)};
+					this.canvas.ctx.moveTo(pos.x,pos.y);
+					old = pos;
+					for(var j = 1; j < wf.data.length; j++){
+						pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
+						this.canvas.ctx.lineTo(pos.x,pos.y);
+					}
 				}
+				this.canvas.ctx.stroke();
+				this.canvas.ctx.beginPath();
+				this.canvas.ctx.fillText(this.cat.data[i].name,5,(yorig-this.canvas.fs/2))
+				this.canvas.ctx.fill();
+
+				ii++;
 			}
-			this.canvas.ctx.stroke();
-console.log(yorig,this.canvas.fs)
-			this.canvas.ctx.beginPath();
-			this.canvas.ctx.fillText(this.cat.data[i].name,5,(yorig-this.canvas.fs/2))
-			this.canvas.ctx.fill();
 		}
 	}
 
@@ -504,7 +582,7 @@ WaveForm.prototype.endData = function(data){
 
 WaveForm.prototype.loadData = function(){
 	if(!this.file){
-		console.log('No file provided to load from');
+		this.log('loadData: No file provided to load from');
 		return this;
 	}
 	S().ajax(this.file,{
