@@ -322,7 +322,6 @@ GWViewer.prototype.loadCatalogue = function(file){
 						if(this.cat.data[i].waveform.file) this.cat.data[i].waveform.loadData();
 					}
 				}
-				this.renderCatalogue();
 
 				// Now that we are getting the data we will add the filters
 				S().ajax('config/filters.json',{
@@ -342,68 +341,6 @@ GWViewer.prototype.loadCatalogue = function(file){
 	return this;
 }
 
-GWViewer.prototype.renderCatalogue = function(){
-
-	function makeCircle(m,u){
-		var r = 3;
-		var v = "?";
-		if(typeof m==="number"){
-			r = Math.sqrt(m*0.5).toFixed(2);
-			v = m;
-		}
-		return '<div style="position:relative;display:inline-block;border-radius:100%;width:'+r+'em;height:'+r+'em;background-color:'+(v=="?" ? 'rgba(255,255,255,0.5)' : 'white')+';color:black;vertical-align:middle;text-align:center;"><div style="position:absolute;left:50%;top:50%;transform:translate3d(-50%,-50%, 0);">'+v+'</div></div>';
-	}
-
-	// Build the list of gravitational waves
-//	var viewer = S('#'+this.attr.id).find('.viewer');
-//	viewer.html('<div class="waves"><ol></ol></div>');
-
-	this.log('renderCatalogue');
-/*
-	for(var i = 0; i < this.cat.length; i++){
-		name = this.cat.data[i].name;
-		var m = [{'v':0,'u':''},{'v':0,'u':''},{'v':0,'u':''}];
-
-		// Create a DOM element for this catalogue item
-		var el = document.createElement("li");
-
-		// Add the DOM element to the list
-		viewer.find('ol')[0].appendChild(el);
-
-		// Turn the element into a stuQuery object
-		this.cat.data[i].waveform.el = S(el);
-
-		// Add the gravitational wave name as the DOM element ID
-		this.cat.data[i].waveform.el.attr('id',name);
-
-		// Build the HTML for the DOM element
-		str = name+' - '+this.cat.getValue(name,'UTC','best');
-		m[1].v = this.cat.getValue(name,'M1','best');
-		m[1].u = this.cat.paramUnit("M1").replace(/_sun/,"<sub>&#9737;</sub>");
-		m[2].v = this.cat.getValue(name,'M2','best');
-		m[2].u = this.cat.paramUnit("M2").replace(/_sun/,"<sub>&#9737;</sub>");
-		m[0].v = this.cat.getValue(name,'Mfinal','best');
-		m[0].u = this.cat.paramUnit("Mfinal").replace(/_sun/,"<sub>&#9737;</sub>");
-		//str += '<br />M<sub>1</sub> mass = '+(typeof m[1].v==="number" ? m[1].v+' '+m[1].u:'');
-		//str += '<br />M<sub>2</sub> mass = '+(typeof m[2].v==="number" ? m[2].v+' '+m[2].u:'');
-		//str += '<br />Final mass = '+(typeof m[0].v==="number" ? m[0].v+' '+m[0].u:'')
-		str += ' (';
-		str += 'Signal-to-noise = '+(typeof this.cat.getValue(name,'rho','best')==="number" ? this.cat.getValue(name,'rho','best'):'')+'; ';
-		str += 'Luminosity distance = '+(typeof this.cat.getValue(name,'DL','best')==="number" ? this.cat.getValue(name,'DL','best'):'')+' '+this.cat.paramUnit("DL");
-		str += ')';
-		str += '<br />';
-		str += makeCircle(m[1].v,m[1].u);
-		str += ' + ';
-		str += makeCircle(m[2].v,m[2].u);
-		str += ' &rarr; ';
-		str += makeCircle(m[0].v,m[0].u);
-
-		// Add the HTML to the element
-		this.cat.data[i].waveform.el.html('<div class="gw-about">'+str+'</div><div class="waveform">Waveform</div>');
-	}
-*/	
-	return this;
-}
 
 GWViewer.prototype.draw = function(){
 
