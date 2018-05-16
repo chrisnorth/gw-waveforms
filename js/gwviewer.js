@@ -463,8 +463,6 @@ GWViewer.prototype.draw = function(){
 			this.ctx.font = this.fs+"px Helvetica";
 			this.ctx.fillStyle = 'rgb(255,255,255)';
 			this.ctx.lineWidth = 1.5;
-			//var loading = 'Loading waveform...';
-			//this.ctx.fillText(loading,(this.wide-this.ctx.measureText(loading).width)/2,(this.tall-fs)/2)
 			this.ctx.fill();
 		}
 
@@ -530,7 +528,7 @@ GWViewer.prototype.draw = function(){
 				}
 				this.canvas.ctx.stroke();
 				this.canvas.ctx.beginPath();
-				this.canvas.ctx.fillText(this.cat.data[i].name,this.canvas.fs,(yorig-this.canvas.fs))
+				this.canvas.ctx.fillText(this.cat.data[i].name,this.canvas.fs,(yorig-4))
 				this.canvas.ctx.fill();
 
 				ii++;
