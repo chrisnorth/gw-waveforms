@@ -1,0 +1,31 @@
+{
+	"GW150914": {
+		"file": "example-data/m1-5-m2-5_compress.txt",
+		"offset": -4.233642578,
+		"colour":"#1576a1"
+	},
+	"LVT151012": {
+		"file": "example-data/m1-5-m2-10_compress.txt",
+		"offset": -2.905273438,
+		"colour":"#0a9676"
+	},
+	"GW151226": {
+		"file": "example-data/m1-10-m2-10_compress.txt",
+		"offset": -1.933959961,
+		"colour":"#c85b26"
+	},
+	"GW170104": {
+		"file": "example-data/m1-10-m2-15_compress.txt",
+		"offset": -1.654052734,
+		"colour":"#c288a5"
+	},
+	"GW170608": {
+		"file": "example-data/m1-15-m2-20_compress.txt",
+		"offset": -1.3227539
+	},
+	"GW170814": {
+		"file": "example-data/m1-30-m2-30_compress.txt",
+		"offset": -1.388305664,
+		"colour":"#eeea87"
+	}
+}
