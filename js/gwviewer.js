@@ -551,7 +551,7 @@ GWViewer.prototype.scaleWaves = function(){
 		if(this.cat.data[i].waveform.max > max) max = this.cat.data[i].waveform.max;
 		if(this.cat.data[i].waveform.active) n++;
 	}
-	this.axes.y = max*(n-1);
+	this.axes.y = max*(n);
 	this.draw();
 	return this;
 }
