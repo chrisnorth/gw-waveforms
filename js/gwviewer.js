@@ -530,7 +530,7 @@ GWViewer.prototype.draw = function(){
 				}
 				this.canvas.ctx.stroke();
 				this.canvas.ctx.beginPath();
-				this.canvas.ctx.fillText(this.cat.data[i].name,5,(yorig-this.canvas.fs/2))
+				this.canvas.ctx.fillText(this.cat.data[i].name,this.canvas.fs,(yorig-this.canvas.fs/2))
 				this.canvas.ctx.fill();
 
 				ii++;
