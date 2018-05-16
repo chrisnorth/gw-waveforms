@@ -97,6 +97,7 @@ GWViewer.prototype.updateFilters = function(){
 	function inRange(i,key,range){
 		if(!_obj.cat.data[i][key]) return true;
 		var val = _obj.cat.getBest(_obj.cat.dataOrder[i],key);
+		if(_obj.filters[key].format=="date") val = (new Date(val)).getTime();
 		if(isNaN(val)){
 			//return false;
 		}else{
@@ -129,6 +130,7 @@ GWViewer.prototype.updateFilters = function(){
 		active = true;
 		for(key in this.filters){
 			a = this.filters[key];
+			console.log(key,a.type)
 			if(a.type == "slider"){
 				// Process each slider
 				//console.log(key,inRange(i,key,this.filters[key].slider.values))
@@ -142,7 +144,8 @@ GWViewer.prototype.updateFilters = function(){
 		this.cat.data[i].waveform.active = active;
 	}
 	
-	this.draw();
+	//this.draw();
+	this.scaleWaves();
 	
 	return this;
 }
@@ -207,7 +210,6 @@ GWViewer.prototype.addMenu = function(){
 			if(_slider.el.find('.max').length > 0) _slider.el.find('.max').html(max);
 		});
 		this.slider.on('set',function(){
-			console.log('set')
 			_obj.updateFilters();
 		});
 		return this;
@@ -500,8 +502,6 @@ GWViewer.prototype.draw = function(){
 			if(this.cat.data[i].waveform.active) n++;
 		}		
 
-		var dy = (this.canvas.tall/n);
-
 		// Loop over each waveform
 		for(var i = 0, ii = 0; i < this.cat.length; i++){
 
@@ -517,7 +517,7 @@ GWViewer.prototype.draw = function(){
 
 				xscale = this.canvas.wide/this.axes.x;
 				yscale = this.canvas.tall/(typeof this.axes.y==="number" ? this.axes.y : (this.max || 2e6));
-				yorig = (dy*(ii+0.5));
+				yorig = this.canvas.tall*((ii+1)/(n+1));
 
 				if(wf.data){
 					pos = {'x':(wf.data[0].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[0].hp*yscale)).toFixed(1)};
@@ -546,10 +546,12 @@ GWViewer.prototype.draw = function(){
 GWViewer.prototype.scaleWaves = function(){
 	this.log('scaleWaves')
 	var max = 0;
+	var n = 0;
 	for(var i = 0; i < this.cat.length; i++){
 		if(this.cat.data[i].waveform.max > max) max = this.cat.data[i].waveform.max;
+		if(this.cat.data[i].waveform.active) n++;
 	}
-	this.axes.y = max;
+	this.axes.y = max*(n-1);
 	this.draw();
 	return this;
 }

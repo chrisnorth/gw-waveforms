@@ -68,7 +68,7 @@
 		"min": { "label": "", "default": 0, "value": 0 },
 		"max": { "label": "", "default": 0.3, "value": 0.3 }
 	},
-	"date": {
+	"UTC": {
 		"label": "data.date.name",
 		"type":"slider",
 		"format": "date",
