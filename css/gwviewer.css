@@ -136,7 +136,7 @@ input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger
 menu > .holder {
 	border-right: 1px solid #888;
 	position: absolute;
-	background: rgba(0,0,0,0.8);
+	background: rgba(68,68,68,0.8);
 	top: 0px;
 	display: block;
 	position: absolute;

@@ -23,6 +23,10 @@
 		"file": "example-data/m1-15-m2-20_compress.txt",
 		"offset": -1.3227539
 	},
+	"GW170814": {
+		"file": "example-data/fig1-waveform-H.txt",
+		"offset": 0.2500497972500000388
+	},
 	"GW170817": {
 		"file": "example-data/m1-30-m2-30_compress.txt",
 		"offset": -1.388305664,

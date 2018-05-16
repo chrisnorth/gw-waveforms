@@ -144,7 +144,6 @@ GWViewer.prototype.updateFilters = function(){
 		this.cat.data[i].waveform.active = active;
 	}
 	
-	//this.draw();
 	this.scaleWaves();
 	
 	return this;
@@ -523,7 +522,8 @@ GWViewer.prototype.draw = function(){
 
 				if(wf.data){
 					for(var j = 0; j < wf.data.length; j++){
-						pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
+						//pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
+						pos = {'x':(wf.data[j].t*xscale),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
 						if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
 						else this.canvas.ctx.lineTo(pos.x,pos.y);
 					}
@@ -626,23 +626,31 @@ WaveForm.prototype.parse = function(){
 	var xscale = 1000;	// into milliseconds
 	var yscale = 1e24;
 
-//strain * 1e23
-
 	if(!this.datastr) return this;
 	// Parse the data string
 	var d = this.datastr;
 	d = d.substr(0,d.lastIndexOf('\n'));
 	d = d.split('\n');
+	// Re-write badly formatted headings
+	if(d[0].indexOf("  ") > 0) d[0] = d[0].replace(/time \(seconds\)/g,"t").replace(/strain \* 1.e21/g,"strain*1e21").replace(/ {2,}/g," ");
+
 	this.data = new Array(d.length-1);
 	var ids = d[0].replace(/^# /,'').split(/ /);
 	var idx = {};
 	var scaling = 1;
 	for(var j = 0; j < ids.length; j++) idx[ids[j]] = j;
-	if(typeof idx.t==="undefined") return this;
+	if(typeof idx.t==="undefined"){
+		if(typeof idx['time (seconds)']==="number"){
+			idx.t = idx['time (seconds)'];
+		}else return this;
+	}
 	if(typeof idx.hp==="undefined"){
 		if(typeof idx['strain*1e23']==="number"){
 			idx.hp = idx['strain*1e23'];
 			scaling = 1e-23;
+		}else if(typeof idx['strain*1e21']==="number"){
+			idx.hp = idx['strain*1e21'];
+			scaling = 1e-21;
 		}else return this;
 	}
 	this.max = -1e12;
