@@ -98,14 +98,32 @@ GWViewer.prototype.updateFilters = function(){
 		if(!_obj.cat.data[i][key]) return true;
 		var val = _obj.cat.getBest(_obj.cat.dataOrder[i],key);
 		if(isNaN(val)){
-			return false;
+			//return false;
 		}else{
 			if(val < range[0]) return false;
 			if(val > range[1]) return false;
 		}
 		return true;
 	}
+	function isChecked(i,key){
+		if(!_obj.cat.data[i][key]) return true;
+		var best = _obj.cat.getBest(_obj.cat.dataOrder[i],key);
+		var good = 0;
+		for(var o = 0; o < _obj.filters[key].options.length; o++){
+			if(_obj.filters[key].options[o].checked){
+				if(_obj.filters[key].options[o].contains){
+					// The string contains this option
+					if(best.indexOf(_obj.filters[key].options[o].value) >= 0) good++;
+				}else{
+					if(best == _obj.filters[key].options[o].value) return true;
+				}
+			}
+		}
+		if(good == 0) return false;
+		return true;
+	}
 
+	var active;
 	// Loop over each waveform
 	for(var i = 0; i < this.cat.length; i++){
 		active = true;
@@ -114,14 +132,13 @@ GWViewer.prototype.updateFilters = function(){
 			if(a.type == "slider"){
 				// Process each slider
 				//console.log(key,inRange(i,key,this.filters[key].slider.values))
-				if(!inRange(i,key,this.filters[key].slider.values)) active = false;
+				if(!inRange(i,key,a.slider.values)) active = false;
+				//if(!active) console.log(i,key)
 			}else if(a.type == "checkbox"){
-				for(var b = 0; b < a.options.length; b++){
-					
-					//console.log(a.options[i].id,S('#'+a.options[i].id)[0].checked);
-				}
+				if(!isChecked(i,key)) active = false;
 			}
 		}
+		//console.log(this.cat.dataOrder[i],active)
 		this.cat.data[i].waveform.active = active;
 	}
 	
@@ -374,7 +391,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 				//this.setAxis('x',4500);
 				for(var i = 0; i < this.cat.length; i++){
 					if(!this.cat.data[i].waveform){
-						console.log(this.cat.data[i].name)
+						//console.log(this.cat.data[i].name)
 						if(!wavefiles[this.cat.data[i].name]) wavefiles[this.cat.data[i].name] = {};
 						wavefiles[this.cat.data[i].name].callback = {
 							'onload': function(a){

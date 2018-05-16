@@ -3,26 +3,26 @@
 		"label": "text.gwviewer.filter.observingrun",
 		"type":"checkbox",
 		"options":[
-			{"id": "o1", "label":"text.gwviewer.filter.observingrun.O1", "checked": true },
-			{"id": "o2", "label":"text.gwviewer.filter.observingrun.O2", "checked": true },
-			{"id": "o3", "label":"text.gwviewer.filter.observingrun.O3", "checked": true }
+			{"id": "o1", "label":"text.gwviewer.filter.observingrun.O1", "checked": true, "value": "o1" },
+			{"id": "o2", "label":"text.gwviewer.filter.observingrun.O2", "checked": true, "value": "o2" },
+			{"id": "o3", "label":"text.gwviewer.filter.observingrun.O3", "checked": true, "value": "o3" }
 		]
 	},
-	"detector": {
+	"net": {
 		"label": "text.gwviewer.filter.detector",
 		"type":"checkbox",
 		"options":[
-			{"id": "detector-H", "label": "text.gwviewer.filter.detector-H", "checked": true },
-			{"id": "detector-L", "label": "text.gwviewer.filter.detector-L", "checked": true },
-			{"id": "detector-V", "label": "text.gwviewer.filter.detector-V", "checked": true }
+			{"id": "detector-H", "label": "text.gwviewer.filter.detector-H", "checked": true, "value": "H", "contains": true },
+			{"id": "detector-L", "label": "text.gwviewer.filter.detector-L", "checked": true, "value": "L", "contains": true },
+			{"id": "detector-V", "label": "text.gwviewer.filter.detector-V", "checked": true, "value": "V", "contains": true }
 		]
 	},
 	"objType": {
 		"label": "text.gwviewer.filter.objType",
 		"type":"checkbox",
 		"options":[
-			{"id": "objType-BBH", "label":"text.gwviewer.filter.objType.BBH", "checked": true },
-			{"id": "objType-BNS", "label":"text.gwviewer.filter.objType.BNS", "checked": true }
+			{"id": "objType-BBH", "label":"text.gwviewer.filter.objType.BBH", "checked": true, "value": "BBH" },
+			{"id": "objType-BNS", "label":"text.gwviewer.filter.objType.BNS", "checked": true, "value": "BNS" }
 		]
 	},
 	"M1": {
