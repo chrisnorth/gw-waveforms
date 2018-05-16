@@ -226,9 +226,9 @@ menu > .holder {
 	input.hamburger:checked, input.hamburger:checked + label.hamburger {
 		left: 75%;
 	}
-	input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger:checked ~ footer {
+	/*input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger:checked ~ footer {
 		margin-left: 75%;
-	}
+	}*/
 	menu > .holder {
 		left: -75%;
 		width: 75%;
