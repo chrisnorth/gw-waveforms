@@ -65,6 +65,7 @@ body {
 #gwviewer ol { list-style: none; margin: 0px; padding: 0px; }
 #gwviewer ol li .gw-about { display: none; }
 pre { max-width: 100%; overflow-x: auto; }
+a, a:visited { color: #d2bdc7; }
 
 .hamburger {
 	cursor: pointer;
@@ -147,7 +148,9 @@ menu > .holder {
 }
 /*menu .holder .menu { padding-top: 3em; }*/
 menu h1 { position: fixed; z-index: 10; top: 0px; width: 360px; display: block; border-right: 1px solid #888; }
-menu h1, menu h2, menu h3 { height: 3em; line-height: 2.5em; font-size: 1em; padding: 0.25em 1em; }
+menu h1, menu h2, menu h3 { height: 3em; line-height: 2.5em; }
+menu h1, menu h2, menu h3, menu p { font-size: 1em; padding: 0.25em 1em; }
+menu p { padding: 1em; line-height: 1.25em; }
 #heading, menu h1, menu section { border-bottom: 1px solid #888; }
 menu h1, menu h2 { background-color: #666666; }
 menu h3 { background-color: #444444; border-top: 1px solid #888; }

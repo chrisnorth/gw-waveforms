@@ -54,7 +54,7 @@ function GWViewer(attr) {
 
 	// Update DOM
 	//this.dom.main.html('<div class="viewer"></div>');
-	if(this.dom.menu.length == 1) this.dom.menu.html('<div class="menu"><section id="language" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist" class="expander"></ol></section><section class="collapse"><h2 id="order" lang="text.gwviewer.orderby" class="translatable expandable" tabindex="0">Order by</h2><ol class="expander"><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section><section id="filter" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.filter" lang-title="text.gwviewer.filter.title" class="translatable">Filter</span></h2><form class="expander" id="filterform"></form></section></div>');
+	if(this.dom.menu.length == 1) this.dom.menu.html('<div class="menu"><section id="language" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist" class="expander"></ol></section><section class="collapse"><h2 id="order" lang="text.gwviewer.orderby" class="translatable expandable" tabindex="0">Order by</h2><ol class="expander"><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section><section id="filter" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.filter" lang-title="text.gwviewer.filter.title" class="translatable">Filter</span></h2><form class="expander" id="filterform"></form></section><section id="about" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gen.about" lang-title="text.gen.about" class="translatable">About</span></h2><div class="expander row"><p class="translatable" lang="text.gwviewer.help.about"></p></div></section></div>');
 	S('.version').html(this.version);
 	
 	this.loadCatalogue();
@@ -239,11 +239,14 @@ GWViewer.prototype.addMenu = function(){
 	this.dom.menu.find('.expandable').on('click',{gw:this},function(e){
 		var section = S(e.currentTarget).parent();
 		section.toggleClass('collapse');
-		var growDiv = e.currentTarget.nextSibling;
-		if(growDiv.clientHeight) {
-			growDiv.style.height = 0;
-		}else{
-			growDiv.style.height = growDiv.scrollHeight + "px";
+		var exp = section.find('.expander');
+		for(var s = 0; s < exp.length ; s++){
+			var growDiv = exp[s];
+			if(growDiv.clientHeight) {
+				growDiv.style.height = 0;
+			}else{
+				growDiv.style.height = growDiv.scrollHeight + "px";
+			}
 		}
 	});
 
@@ -258,17 +261,6 @@ GWViewer.prototype.addMenu = function(){
 		e.data.gw.cat.orderData(by,rev);
 		e.data.gw.draw();
 
-
-/*
-		var container = S('#'+e.data.gw.attr.id).find('.viewer ol')[0];
-		var tmp = document.createElement('ol');
-		console.log(e.data.gw.cat.dataOrder)
-		for(var i = 0; i < e.data.gw.cat.dataOrder.length; i++){
-			console.log(e.data.gw.cat.dataOrder[i],S('#'+e.data.gw.cat.dataOrder[i]),document.getElementById('#' + e.data.gw.cat.dataOrder[i]))
-			tmp.appendChild( S('#'+e.data.gw.cat.dataOrder[i])[0] );
-		}
-		container.parentNode.replaceChild(tmp, container);
-*/
 	});
 
 	this.updateLanguage()

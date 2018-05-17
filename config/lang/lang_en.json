@@ -1,4 +1,6 @@
 {
+	"text.gen.about": "About",
+	"text.gwviewer.help.about": "This web-app was written and is maintained by <a href=\"http://blogs.cardiff.ac.uk/chrisnorth\">Chris North</a> (<a href=\"http://www.astro.cf.ac.uk/research/gravity\">Cardiff University</a>) and Stuart Lowe (ODI Leeds). <a href=\"http://chrisnorth.github.io/plotgw/github.com/chrisnorth/gw-waveforms\">Source code is available on GitHub</a>.",
 	"text.gwviewer.information.title": "Gravitational Wave Viewer",
 	"text.gwviewer.orderby": "Order by",
 	"text.gwviewer.orderby.date-oldest": "Date (oldest)",
