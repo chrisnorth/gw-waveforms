@@ -96,15 +96,13 @@ GWViewer.prototype.updateFilters = function(){
 	var _obj = this;
 	function inRange(i,key,range){
 		if(!_obj.cat.data[i][key]) return true;
-		var val = _obj.cat.getBest(_obj.cat.dataOrder[i],key);
-		if(_obj.filters[key].format=="date") val = (new Date(val)).getTime();
-		if(isNaN(val)){
-			//return false;
-		}else{
-			if(val < range[0]) return false;
-			if(val > range[1]) return false;
+		var valrange = [_obj.cat.getMinVal(_obj.cat.dataOrder[i],key),_obj.cat.getMaxVal(_obj.cat.dataOrder[i],key)];
+		if(_obj.filters[key].format=="date"){
+			valrange[0] = (new Date(valrange[0])).getTime();
+			valrange[1] = (new Date(valrange[1])).getTime();
 		}
-		return true;
+		if((valrange[0] >= range[0] && valrange[0] <= range[1]) || valrange[1] >= range[0] && valrange[1] <= range[1]) return true;
+		return false;
 	}
 	function isChecked(i,key){
 		if(!_obj.cat.data[i][key]) return true;
@@ -423,7 +421,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 }
 
 
-GWViewer.prototype.draw = function(){
+GWViewer.prototype.draw = function(format){
 
 	var now = new Date();
 
@@ -481,6 +479,10 @@ GWViewer.prototype.draw = function(){
 	if(!this.canvas){
 		this.canvas = new Canvas(this.dom.main,this.attr.id+'-canvas');
 	}
+
+	var svg = "";
+	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by Stuart</desc>';
+
 	
 	if(this.canvas.ctx){
 
@@ -500,6 +502,7 @@ GWViewer.prototype.draw = function(){
 			if(!wf.colour) wf.colour = "white";
 
 			if(wf.active){
+			
 				this.canvas.ctx.beginPath();
 
 				this.canvas.ctx.strokeStyle = wf.colour;
@@ -511,12 +514,31 @@ GWViewer.prototype.draw = function(){
 				yorig = this.canvas.tall*((ii+1)/(n+1));
 
 				if(wf.data){
+
+					if(format=="svg") svg += '<path d="';
+					var prev = "", path = "";
+					var oldpos = {'x':-100,'y':-100};
+
 					for(var j = 0; j < wf.data.length; j++){
 						//pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
 						pos = {'x':(wf.data[j].t*xscale),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
 						if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
 						else this.canvas.ctx.lineTo(pos.x,pos.y);
+						if(format=="svg"){
+							if(j==0) svg += 'M '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
+							else{
+								//console.log(j,Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y))
+								if(Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y) > 0.5) svg += ' L '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
+							}
+							//if(path!=prev) svg += path;
+							//prev = path;
+							oldpos.x = pos.x;
+							oldpos.y = pos.y;
+						}
 					}
+
+					if(format=="svg") svg += '" stroke="'+wf.colour+'" stroke-width="1" />';
+
 				}
 				this.canvas.ctx.stroke();
 				this.canvas.ctx.beginPath();
@@ -527,9 +549,13 @@ GWViewer.prototype.draw = function(){
 			}
 		}
 	}
+	if(format=="svg") svg += '</svg>';
 
 	diff = ((new Date()) - now);
-	this.log('Draw time = '+diff+' ms')
+	this.log('Draw time = '+diff+' ms');
+	//console.log(svg.length)
+	if(format=="svg") S('#gwviewer').append(svg);
+	//if(format=="svg") return svg;
 	return this;
 }
 
