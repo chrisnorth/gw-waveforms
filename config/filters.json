@@ -1,11 +1,11 @@
 {
-	"observingrun": {
+	"obsrun": {
 		"label": "text.gwviewer.filter.observingrun",
 		"type":"checkbox",
 		"options":[
-			{"id": "o1", "label":"text.gwviewer.filter.observingrun.O1", "checked": true, "value": "o1" },
-			{"id": "o2", "label":"text.gwviewer.filter.observingrun.O2", "checked": true, "value": "o2" },
-			{"id": "o3", "label":"text.gwviewer.filter.observingrun.O3", "checked": true, "value": "o3" }
+			{"id": "o1", "label":"text.gwviewer.filter.observingrun.O1", "checked": true, "value": "O1" },
+			{"id": "o2", "label":"text.gwviewer.filter.observingrun.O2", "checked": true, "value": "O2" },
+			{"id": "o3", "label":"text.gwviewer.filter.observingrun.O3", "checked": true, "value": "O3" }
 		]
 	},
 	"net": {
