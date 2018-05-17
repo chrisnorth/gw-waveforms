@@ -47,14 +47,15 @@ function GWViewer(attr) {
 	// Set up the viewer in the DOM
 	if(S('#'+attr.id).length == 0) S('body').append('<div id="'+attr.id+'">GW Viewer</div>');
 	this.dom.main = S('#'+attr.id);
+/*
 	if(!this.dom.menu){
 		this.dom.main.append('<div id="gw-menu"></div>');
 		this.dom.menu = S('#gw-menu');
 	}
-
+*/
 	// Update DOM
 	//this.dom.main.html('<div class="viewer"></div>');
-	if(this.dom.menu.length == 1) this.dom.menu.html('<div class="menu"><section id="language" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist" class="expander"></ol></section><section class="collapse"><h2 id="order" lang="text.gwviewer.orderby" class="translatable expandable" tabindex="0">Order by</h2><ol class="expander"><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section><section id="filter" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.filter" lang-title="text.gwviewer.filter.title" class="translatable">Filter</span></h2><form class="expander" id="filterform"></form></section><section id="about" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gen.about" lang-title="text.gen.about" class="translatable">About</span></h2><div class="expander row"><p class="translatable" lang="text.gwviewer.help.about"></p></div></section></div>');
+	if(this.dom.menu) this.dom.menu.html('<div class="menu"><section id="language" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist" class="expander"></ol></section><section class="collapse"><h2 id="order" lang="text.gwviewer.orderby" class="translatable expandable" tabindex="0">Order by</h2><ol class="expander"><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section><section id="filter" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.filter" lang-title="text.gwviewer.filter.title" class="translatable">Filter</span></h2><form class="expander" id="filterform"></form></section><section id="about" class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gen.about" lang-title="text.gen.about" class="translatable">About</span></h2><div class="expander row"><p class="translatable" lang="text.gwviewer.help.about"></p></div></section></div>');
 	S('.version').html(this.version);
 	
 	this.loadCatalogue();
@@ -136,6 +137,7 @@ GWViewer.prototype.updateFilters = function(){
 			}else if(a.type == "checkbox"){
 				if(!isChecked(i,key)) active = false;
 			}
+			console.log(key,active)
 		}
 		this.cat.data[i].waveform.active = active;
 		if(active && !this.cat.data[i].waveform.data && !this.cat.data[i].waveform.loading){
@@ -162,30 +164,37 @@ GWViewer.prototype.addMenu = function(){
 		return [min,max];
 	}
 
-	function makeSlider(key){
+	function getRange(key){
 		var a = _obj.filters[key];
-		this.el = S('#'+key);
-		this.range = {};
-		this.values = [0,0];
+		var range = {};
+		var values = [0,0];
 		var dates;
-		if(typeof a.min['default']==="number") this.range.min = a.min['default'];
+		if(typeof a.min['default']==="number") range.min = a.min['default'];
 		else{
 			if(a.format=='date'){
 				if(!dates) dates = getDateRange();
-				this.range.min = (dates[0]).getTime();
+				range.min = (dates[0]).getTime();
 			}
 		}
-		if(typeof a.max['default']==="number") this.range.max = a.max['default'];
+		if(typeof a.max['default']==="number") range.max = a.max['default'];
 		else{
 			if(a.format=='date'){
 				if(!dates) dates = getDateRange();
-				this.range.max = (dates[1]).getTime();
+				range.max = (dates[1]).getTime();
 			}
 		}
 		// Set the starting values to either a specified value or the range default
-		this.values[0] = (typeof a.min.value==="number" ? a.min.value : this.range.min);
-		this.values[1] = (typeof a.max.value==="number" ? a.max.value : this.range.max);
-		
+		values[0] = (typeof a.min.value==="number" ? a.min.value : range.min);
+		values[1] = (typeof a.max.value==="number" ? a.max.value : range.max);
+		return {'range':range,'values':values };
+	}
+
+	function makeSlider(key){
+		var a = _obj.filters[key];
+		this.el = S('#'+key);
+		var b = getRange(key);
+		this.values = b.values;
+		this.range = b.range;
 		
 		this.step = (a.step||1);
 		inputs = { 'start': this.values, 'step': this.step, 'range': this.range, 'connect': true };
@@ -213,42 +222,52 @@ GWViewer.prototype.addMenu = function(){
 		return this;
 	}
 
-	for(key in this.filters){
-		a = this.filters[key]
-		form = '';
-		form += '<h3 lang="'+a.label+'" class="translatable"></h3><ol>';
-		if(a.type == "slider"){
-			form += '<li class="row range"><div id="'+key+'"><div class="slider"></div><span class="min">'+a.min['default']+'</span> &rarr; <span class="max"></span>'+(a.max.unit ? '<span lang="'+a.max.unit+'" class="translatable"></span>':'')+'</div></li>';
-		}else if(a.type == "checkbox"){
-			for(var i = 0; i < a.options.length; i++) form += '<li class="row"><input type="checkbox" name="'+a.options[i].id+'" id="'+a.options[i].id+'"'+(a.options[i].checked ? ' checked="checked"':'')+'></input><label for="'+a.options[i].id+'" lang="'+a.options[i].label+'" class="translatable"></label></li>';
+	if(S('#filterform').length > 0){
+		for(key in this.filters){
+			a = this.filters[key]
+			form = '';
+			form += '<h3 lang="'+a.label+'" class="translatable"></h3><ol>';
+			if(a.type == "slider"){
+				form += '<li class="row range"><div id="'+key+'"><div class="slider"></div><span class="min">'+a.min['default']+'</span> &rarr; <span class="max"></span>'+(a.max.unit ? '<span lang="'+a.max.unit+'" class="translatable"></span>':'')+'</div></li>';
+			}else if(a.type == "checkbox"){
+				for(var i = 0; i < a.options.length; i++) form += '<li class="row"><input type="checkbox" name="'+a.options[i].id+'" id="'+a.options[i].id+'"'+(a.options[i].checked ? ' checked="checked"':'')+'></input><label for="'+a.options[i].id+'" lang="'+a.options[i].label+'" class="translatable"></label></li>';
+			}
+			form += '</ol>';
+			S('#filterform').append(form);
+			if(this.filters[key].type == "slider"){
+				this.filters[key].slider = {'values':[]};
+				this.filters[key].slider = new makeSlider(key);
+			}
 		}
-		form += '</ol>';
-		S('#filterform').append(form);
-		if(this.filters[key].type == "slider"){
-			this.filters[key].slider = new makeSlider(key);
+		S('#filterform').on("change",{gw:this},function(e){
+			_obj.updateFilters();
+			_obj.scaleWaves();
+		})
+	}else{
+		for(key in this.filters){
+			if(this.filters[key].type == "slider"){
+				var b = getRange(key);
+				this.filters[key].slider = {'values':b.values};
+			}
 		}
 	}
 
-		
-	S('#filterform').on("change",{gw:this},function(e){
-		_obj.updateFilters();
-		_obj.scaleWaves();
-	})
-
 	// Add event to expandable lists
-	this.dom.menu.find('.expandable').on('click',{gw:this},function(e){
-		var section = S(e.currentTarget).parent();
-		section.toggleClass('collapse');
-		var exp = section.find('.expander');
-		for(var s = 0; s < exp.length ; s++){
-			var growDiv = exp[s];
-			if(growDiv.clientHeight) {
-				growDiv.style.height = 0;
-			}else{
-				growDiv.style.height = growDiv.scrollHeight + "px";
+	if(this.dom.menu){
+		this.dom.menu.find('.expandable').on('click',{gw:this},function(e){
+			var section = S(e.currentTarget).parent();
+			section.toggleClass('collapse');
+			var exp = section.find('.expander');
+			for(var s = 0; s < exp.length ; s++){
+				var growDiv = exp[s];
+				if(growDiv.clientHeight) {
+					growDiv.style.height = 0;
+				}else{
+					growDiv.style.height = growDiv.scrollHeight + "px";
+				}
 			}
-		}
-	});
+		});
+	}
 
 	// Add events to order buttons
 	S('button.order').on('click',{gw:this},function(e){
@@ -408,7 +427,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 						}
 						if(typeof wavefiles[this.cat.data[i].name].wide==="undefined") wavefiles[this.cat.data[i].name].wide = 2000;
 						if(typeof wavefiles[this.cat.data[i].name].tall==="undefined") wavefiles[this.cat.data[i].name].tall = 100;
-						wavefiles[this.cat.data[i].name].active = true;
+						wavefiles[this.cat.data[i].name].active = false;
 						this.cat.data[i].waveform = new WaveForm(wavefiles[this.cat.data[i].name]);
 						this.cat.data[i].waveform.name = this.cat.data[i].name;
 						
@@ -425,13 +444,6 @@ GWViewer.prototype.loadCatalogue = function(file){
 
 						console.log('need to update filters')			
 						this.updateFilters();
-						for(var i = 0; i < this.cat.length; i++){
-							if(this.cat.data[i].waveform.active && this.cat.data[i].waveform.file && !this.cat.data[i].waveform.data && !this.cat.data[i].waveform.loading){
-								this.log('get data',i,this.cat.data[i],this.cat.data[i].waveform.active);
-								this.cat.data[i].waveform.loadData();
-							}
-						}
-
 					}
 				});
 			}
