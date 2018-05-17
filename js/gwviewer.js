@@ -290,14 +290,17 @@ GWViewer.prototype.loadLanguageList = function(file){
 			});			
 
 			this.loadLanguage();
+			this.loadLanguage('en',false);
 		}
 	});
 	return this;
 }
 
-GWViewer.prototype.loadLanguage = function(l){
+GWViewer.prototype.loadLanguage = function(l,update){
 
 	this.log('loadLanguage');
+	
+	if(typeof update!=="boolean") update = true;
 
 	// If no user-provided language then use the system default
 	if(!l) l = this.lang;
@@ -311,9 +314,11 @@ GWViewer.prototype.loadLanguage = function(l){
 			l = "en";
 		}
 	}
-	this.lang = l;
-	S('#languagelist button.selected').removeClass('selected')
-	S('#lang-'+this.lang).addClass('selected');
+	if(update){
+		this.lang = l;
+		S('#languagelist button.selected').removeClass('selected')
+		S('#lang-'+this.lang).addClass('selected');
+	}
 
 	this.log('loading',l);
 	if(!this.languages[l].dict){
@@ -333,8 +338,9 @@ GWViewer.prototype.loadLanguage = function(l){
 				}
 			})
 		}
-	}else this.updateLanguage();
-
+	}else{
+		this.updateLanguage();
+	}
 	return this;
 }
 
@@ -353,11 +359,11 @@ GWViewer.prototype.updateLanguage = function(){
 			title = el.attr('lang-title');
 			if(this.language[text]) text = this.language[text];
 			else {
-				if(!this.query.translate && this.languages['en'].dict[text]) text = this.languages['en'].dict[text];
+				if(!this.query.translate && this.languages['en'].dict && this.languages['en'].dict[text]) text = this.languages['en'].dict[text];
 			}
 			if(this.language[title]) title = this.language[title];
 			else {
-				if(!this.query.translate && this.languages['en'].dict[title]) title = this.languages['en'].dict[title];
+				if(!this.query.translate && this.languages['en'].dict && this.languages['en'] && this.languages['en'].dict[title]) title = this.languages['en'].dict[title];
 			}
 			el.html(text).attr('title',title);
 		}
