@@ -543,7 +543,6 @@ GWViewer.prototype.draw = function(format){
 				this.canvas.ctx.beginPath();
 
 				this.canvas.ctx.strokeStyle = wf.colour;
-				//this.canvas.ctx.fillStyle = wf.colour;
 				this.canvas.ctx.lineWidth = 1;
 
 				xscale = this.canvas.wide/this.axes.x;
@@ -574,8 +573,10 @@ GWViewer.prototype.draw = function(format){
 				}
 				this.canvas.ctx.stroke();
 				this.canvas.ctx.beginPath();
+				this.canvas.ctx.fillStyle = wf.colour;
 				this.canvas.ctx.fillText(this.cat.data[i].name,this.canvas.fs,(yorig-4))
 				this.canvas.ctx.fill();
+				if(format=="svg") svg += '<text class="Label" x="'+this.canvas.fs+'" y="'+(yorig-4)+'" style="text-anchor:left" fill="'+wf.colour+'">'+this.cat.data[i].name+'</text>'
 
 				ii++;
 			}
