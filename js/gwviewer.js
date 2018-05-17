@@ -277,8 +277,8 @@ GWViewer.prototype.addMenu = function(){
 		form += '<h3 lang="text.gwviewer.axes.x.title" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.y.title" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
 		S('#optionsform').append(form);
-		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':0.1,'max':6},'step':0.1,'el':S('#xaxisscale')});
-		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.1,'max':10},'step':0.1,'el':S('#yaxisscale')});
+		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':0.1,'max':5},'step':0.1,'el':S('#xaxisscale')});
+		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
 	}
 
 	if(this.dom.menu){
