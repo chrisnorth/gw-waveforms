@@ -352,9 +352,13 @@ GWViewer.prototype.updateLanguage = function(){
 			text = el.attr('lang');
 			title = el.attr('lang-title');
 			if(this.language[text]) text = this.language[text];
-			else if(this.languages['en'].dict[text]) text = this.languages['en'].dict[text];
+			else {
+				if(!this.query.translate && this.languages['en'].dict[text]) text = this.languages['en'].dict[text];
+			}
 			if(this.language[title]) title = this.language[title];
-			else if(this.languages['en'].dict[title]) title = this.languages['en'].dict[title];
+			else {
+				if(!this.query.translate && this.languages['en'].dict[title]) title = this.languages['en'].dict[title];
+			}
 			el.html(text).attr('title',title);
 		}
 	}
