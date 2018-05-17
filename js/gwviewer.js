@@ -92,7 +92,6 @@ GWViewer.prototype.updateFilters = function(){
 		}
 	}
 
-	var active = true;	
 	var _obj = this;
 	function inRange(i,key,range){
 		if(!_obj.cat.data[i][key]) return true;
@@ -128,7 +127,7 @@ GWViewer.prototype.updateFilters = function(){
 		active = true;
 		for(key in this.filters){
 			a = this.filters[key];
-			console.log(key,a.type)
+			//console.log(key,a.type)
 			if(a.type == "slider"){
 				// Process each slider
 				//console.log(key,inRange(i,key,this.filters[key].slider.values))
@@ -138,11 +137,12 @@ GWViewer.prototype.updateFilters = function(){
 				if(!isChecked(i,key)) active = false;
 			}
 		}
-		//console.log(this.cat.dataOrder[i],active)
 		this.cat.data[i].waveform.active = active;
+		if(active && !this.cat.data[i].waveform.data && !this.cat.data[i].waveform.loading){
+			this.log('get data',i,this.cat.data[i],this.cat.data[i].waveform.active);
+			this.cat.data[i].waveform.loadData();
+		}
 	}
-	
-	this.scaleWaves();
 	
 	return this;
 }
@@ -208,6 +208,7 @@ GWViewer.prototype.addMenu = function(){
 		});
 		this.slider.on('set',function(){
 			_obj.updateFilters();
+			_obj.scaleWaves();
 		});
 		return this;
 	}
@@ -231,6 +232,7 @@ GWViewer.prototype.addMenu = function(){
 		
 	S('#filterform').on("change",{gw:this},function(e){
 		_obj.updateFilters();
+		_obj.scaleWaves();
 	})
 
 	// Add event to expandable lists
@@ -409,11 +411,10 @@ GWViewer.prototype.loadCatalogue = function(file){
 						wavefiles[this.cat.data[i].name].active = true;
 						this.cat.data[i].waveform = new WaveForm(wavefiles[this.cat.data[i].name]);
 						this.cat.data[i].waveform.name = this.cat.data[i].name;
-						this.log('get data',i,this.cat.data[i]);
-						if(this.cat.data[i].waveform.file) this.cat.data[i].waveform.loadData();
+						
 					}
 				}
-
+	
 				// Now that we are getting the data we will add the filters
 				S().ajax('config/filters.json',{
 					'dataType': 'json',
@@ -421,6 +422,16 @@ GWViewer.prototype.loadCatalogue = function(file){
 					'success': function(data,attrs){
 						this.filters = data;
 						this.addMenu();
+
+						console.log('need to update filters')			
+						this.updateFilters();
+						for(var i = 0; i < this.cat.length; i++){
+							if(this.cat.data[i].waveform.active && this.cat.data[i].waveform.file && !this.cat.data[i].waveform.data && !this.cat.data[i].waveform.loading){
+								this.log('get data',i,this.cat.data[i],this.cat.data[i].waveform.active);
+								this.cat.data[i].waveform.loadData();
+							}
+						}
+
 					}
 				});
 			}
