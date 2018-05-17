@@ -38,7 +38,6 @@ function GWViewer(attr) {
 
 	this.axes = {'x':2000,'y':2e6};
 
-	
 	// Create DOM references
 	if(!this.attr.dom) this.attr.dom = {};
 	this.dom = { };
@@ -47,14 +46,8 @@ function GWViewer(attr) {
 	// Set up the viewer in the DOM
 	if(S('#'+attr.id).length == 0) S('body').append('<div id="'+attr.id+'">GW Viewer</div>');
 	this.dom.main = S('#'+attr.id);
-/*
-	if(!this.dom.menu){
-		this.dom.main.append('<div id="gw-menu"></div>');
-		this.dom.menu = S('#gw-menu');
-	}
-*/
+
 	// Update DOM
-	//this.dom.main.html('<div class="viewer"></div>');
 	if(this.dom.menu){
 		html = '<div class="menu">';
 		html += '<section class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.plotgw.lang.title" lang-title="tooltip.plotgw.showlang" class="translatable">Language</span> - <span lang="meta.name" class="translatable">English</span> [<span lang="meta.code" class="translatable">en</span>]</h2><ol id="languagelist" class="expander"></ol></section>';
@@ -550,7 +543,7 @@ GWViewer.prototype.draw = function(format){
 				this.canvas.ctx.beginPath();
 
 				this.canvas.ctx.strokeStyle = wf.colour;
-				this.canvas.ctx.fillStyle = wf.colour;
+				//this.canvas.ctx.fillStyle = wf.colour;
 				this.canvas.ctx.lineWidth = 1;
 
 				xscale = this.canvas.wide/this.axes.x;
@@ -560,29 +553,24 @@ GWViewer.prototype.draw = function(format){
 				if(wf.data){
 
 					if(format=="svg") svg += '<path d="';
-					var prev = "", path = "";
 					var oldpos = {'x':-100,'y':-100};
 
 					for(var j = 0; j < wf.data.length; j++){
-						//pos = {'x':(wf.data[j].t*xscale).toFixed(1),'y':(yorig+Math.round(wf.data[j].hp*yscale)).toFixed(1)};
 						pos = {'x':(wf.data[j].t*xscale),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
 						if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
 						else this.canvas.ctx.lineTo(pos.x,pos.y);
 						if(format=="svg"){
 							if(j==0) svg += 'M '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
 							else{
-								//console.log(j,Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y))
-								if(Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y) > 0.5) svg += ' L '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
+								if(Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y) > 1){
+									svg += ' L '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
+									oldpos.x = pos.x;
+									oldpos.y = pos.y;
+								}
 							}
-							//if(path!=prev) svg += path;
-							//prev = path;
-							oldpos.x = pos.x;
-							oldpos.y = pos.y;
 						}
 					}
-
-					if(format=="svg") svg += '" stroke="'+wf.colour+'" stroke-width="1" />';
-
+					if(format=="svg") svg += '" stroke="'+wf.colour+'" stroke-width="1.5" />';
 				}
 				this.canvas.ctx.stroke();
 				this.canvas.ctx.beginPath();
@@ -597,7 +585,7 @@ GWViewer.prototype.draw = function(format){
 
 	diff = ((new Date()) - now);
 	this.log('Draw time = '+diff+' ms');
-	//console.log(svg.length)
+	console.log(svg.length)
 	if(format=="svg") S('#gwviewer').append(svg);
 	//if(format=="svg") return svg;
 	return this;
