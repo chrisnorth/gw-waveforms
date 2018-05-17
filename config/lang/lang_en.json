@@ -23,5 +23,6 @@
 	"text.gwviewer.filter.detector-V": "V",
 	"text.gwviewer.filter.objType": "Object type",
 	"text.gwviewer.filter.objType.BBH": "BBH",
-	"text.gwviewer.filter.objType.BNS": "BNS"
+	"text.gwviewer.filter.objType.BNS": "BNS",
+	"text.gwviewer.viewoptions": "View options"
 }
