@@ -123,6 +123,10 @@ input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger
 	background-position: top center;
 	color: white;
 	text-align: right;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
 }
 #heading h1 {
 	font-size: 1em;
@@ -202,6 +206,7 @@ menu ol li button { padding-left: 1em; }
 menu nav a {
 	text-align: right;
 }
+#main { padding-top: 3em; }
 menu, footer, #main {
 	width: 100%;
 	transition: margin-left 0.3s ease-in;
