@@ -2,34 +2,41 @@
 	"GW150914": {
 		"file": "example-data/waveform_GW150914_compress.txt",
 		"offset": -0.22443,
+		"tmerge":0.0,
 		"colour":"#1576a1"
 	},
 	"LVT151012": {
 		"file": "example-data/waveform_LVT151012_compress.txt",
 		"offset": -0.73809,
+		"tmerge":0.0,
 		"colour":"#0a9676"
 	},
 	"GW151226": {
 		"file": "example-data/waveform_GW151226_compress.txt",
 		"offset": -1.87995,
+		"tmerge":0.0,
 		"colour":"#c85b26"
 	},
 	"GW170104": {
 		"file": "example-data/waveform_GW170104_compress.txt",
 		"offset": -0.37932,
+		"tmerge":0.0,
 		"colour":"#c288a5"
 	},
 	"GW170608": {
 		"file": "example-data/waveform_GW170608_compress.txt",
-		"offset": -2.31224
+		"offset": -2.31224,
+		"tmerge":0.0,
 	},
 	"GW170814": {
 		"file": "example-data/waveform_GW170814_compress.txt",
 		"offset": -0.30342,
+		"tmerge":0.0,
 		"colour":"#eeea87"
 	},
 	"GW170817": {
 		"file": "example-data/waveform_GW170817_compress.txt",
-		"offset": -56.78917
+		"offset": -56.78917,
+		"tmerge":0.0
 	}
 }
