@@ -123,6 +123,10 @@ input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger
 	background-position: top center;
 	color: white;
 	text-align: right;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
 }
 #heading h1 {
 	font-size: 1em;
@@ -156,6 +160,7 @@ menu h1, menu h2 { background-color: #666666; }
 menu h3 { background-color: #444444; border-top: 1px solid #888; }
 menu .expander { list-style: none; padding-left: 0px; height: 0px; overflow: hidden; transition: height 0.5s ease-in;  }
 menu h2, menu h3, menu button { cursor: pointer; position: relative; }
+menu .expandable { user-select: none; -moz-user-select: none; -webkit-user-select: none; }
 menu .expandable:after {
 	content: "";
 	width: 0.5em;
@@ -201,6 +206,7 @@ menu ol li button { padding-left: 1em; }
 menu nav a {
 	text-align: right;
 }
+#main { padding-top: 3em; }
 menu, footer, #main {
 	width: 100%;
 	transition: margin-left 0.3s ease-in;
