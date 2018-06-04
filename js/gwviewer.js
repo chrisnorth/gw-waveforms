@@ -1,11 +1,11 @@
 /*!
 	Gravitational Wave Viewer
 	Created by Chris North and Stuart Lowe
-	
+
 	Requires stuquery
 */
 function GWViewer(attr) {
-	
+
 	this.version = "0.1";
 	if(!attr) attr = {};
 	if(typeof attr.id!=="string") attr.id = "gw-viewer";
@@ -66,10 +66,10 @@ function GWViewer(attr) {
 		this.dom.menu.html(html);
 	}
 	S('.version').html(this.version);
-	
+
 	this.loadCatalogue();
 	this.loadLanguageList();
-	
+
 	return this;
 }
 
@@ -154,12 +154,12 @@ GWViewer.prototype.updateFilters = function(){
 			this.cat.data[i].waveform.loadData();
 		}
 	}
-	
+
 	return this;
 }
 
 GWViewer.prototype.addMenu = function(){
-	
+
 	var _obj = this;
 
 	function getDateRange(){
@@ -206,7 +206,7 @@ GWViewer.prototype.addMenu = function(){
 
 		return new buildSlider(b);
 	}
-	
+
 	function buildSlider(attr){
 		if(!attr) return {};
 		if(!attr.values) return {};
@@ -271,7 +271,7 @@ GWViewer.prototype.addMenu = function(){
 			}
 		}
 	}
-	
+
 	if(this.dom.menu){
 		form = '';
 		form += '<h3 lang="text.gwviewer.axes.x.title" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
@@ -315,7 +315,7 @@ GWViewer.prototype.addMenu = function(){
 
 	return this;
 }
- 
+
 // Get the list of languages
 GWViewer.prototype.loadLanguageList = function(file){
 
@@ -337,7 +337,7 @@ GWViewer.prototype.loadLanguageList = function(file){
 				el = S(e.currentTarget);
 				l = el.attr('lang');
 				if(l) e.data.me.loadLanguage(l);
-			});			
+			});
 
 			this.loadLanguage();
 			this.loadLanguage('en',false);
@@ -349,12 +349,12 @@ GWViewer.prototype.loadLanguageList = function(file){
 GWViewer.prototype.loadLanguage = function(l,update){
 
 	this.log('loadLanguage');
-	
+
 	if(typeof update!=="boolean") update = true;
 
 	// If no user-provided language then use the system default
 	if(!l) l = this.lang;
-	
+
 	// Is the language in our list of known languages?
 	if(!this.languages[l]){
 		l = (l.indexOf('-') > 0 ? l.substring(0,l.indexOf('-')) : l.substring(0,2));
@@ -400,7 +400,7 @@ GWViewer.prototype.updateLanguage = function(){
 
 	if(this.languages[this.lang].dict){
 		this.language = this.languages[this.lang].dict;
-	
+
 		// Now update any elements that need updating
 		var e = S('.translatable');
 		for(var i = 0; i < e.length; i++){
@@ -418,7 +418,7 @@ GWViewer.prototype.updateLanguage = function(){
 			el.html(text).attr('title',title);
 		}
 	}
-	
+
 	return this;
 }
 
@@ -459,10 +459,10 @@ GWViewer.prototype.loadCatalogue = function(file){
 						wavefiles[this.cat.data[i].name].active = false;
 						this.cat.data[i].waveform = new WaveForm(wavefiles[this.cat.data[i].name]);
 						this.cat.data[i].waveform.name = this.cat.data[i].name;
-						
+
 					}
 				}
-	
+
 				// Now that we are getting the data we will add the filters
 				S().ajax('config/filters.json',{
 					'dataType': 'json',
@@ -471,7 +471,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 						this.filters = data;
 						this.addMenu();
 
-						console.log('need to update filters')			
+						console.log('need to update filters')
 						this.updateFilters();
 					}
 				});
@@ -508,7 +508,7 @@ GWViewer.prototype.draw = function(format){
 			this.tall = window.innerHeight;//this.container[0].offsetHeight;
 			if(S('#heading').length==1) this.tall -= S('#heading')[0].offsetHeight;
 		}
-		if(this.c && this.c.getContext){  
+		if(this.c && this.c.getContext){
 			this.setWH(this.wide,this.tall);
 			this.ctx = this.c.getContext('2d');
 			this.ctx.clearRect(0,0,this.wide,this.tall);
@@ -547,7 +547,7 @@ GWViewer.prototype.draw = function(format){
 	var svg = "";
 	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by Stuart</desc>';
 
-	
+
 	if(this.canvas.ctx){
 
 		// Clear canvas
@@ -557,7 +557,8 @@ GWViewer.prototype.draw = function(format){
 		var n = 0;
 		for(var i = 0; i < this.cat.length; i++){
 			if(this.cat.data[i].waveform.active) n++;
-		}		
+		}
+		var tscale=1000; //to ms
 
 		// Loop over each waveform
 		for(var i = 0, ii = 0; i < this.cat.length; i++){
@@ -566,13 +567,14 @@ GWViewer.prototype.draw = function(format){
 			if(!wf.colour) wf.colour = "white";
 
 			if(wf.active){
-			
+
 				this.canvas.ctx.beginPath();
 
 				this.canvas.ctx.strokeStyle = wf.colour;
 				this.canvas.ctx.lineWidth = 1;
 
 				xscale = this.canvas.wide/this.axes.x.scale;
+				xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
 				yscale = this.canvas.tall/(typeof this.axes.y.scale==="number" ? this.axes.y.scale : (this.max || 2e6));
 				yorig = this.canvas.tall*((ii+1)/(n+1));
 
@@ -582,7 +584,8 @@ GWViewer.prototype.draw = function(format){
 					var oldpos = {'x':-100,'y':-100};
 
 					for(var j = 0; j < wf.data.length; j++){
-						pos = {'x':(wf.data[j].t*xscale),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
+						var xoffset = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
+						pos = {'x':(xorig+wf.data[j].t*xscale-xoffset),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
 						if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
 						else this.canvas.ctx.lineTo(pos.x,pos.y);
 						if(format=="svg"){
@@ -736,9 +739,9 @@ WaveForm.prototype.parse = function(){
 	for(var row = 1; row < d.length; row++){
 		if(d[row]){
 			cols = d[row].split(/ /);
-			this.data[row-1] = {'t':parseFloat(cols[idx.t]-this.offset)*xscale,'hp':parseFloat(cols[idx.hp])*yscale*scaling};
+			this.data[row-1] = {'t':parseFloat(cols[idx.t])*xscale,'hp':parseFloat(cols[idx.hp])*yscale*scaling};
 			// Find the maximum amplitude
-			v = Math.abs(this.data[row-1].hp); 
+			v = Math.abs(this.data[row-1].hp);
 			if(v > this.max) this.max = v;
 		}
 	}
