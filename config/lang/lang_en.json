@@ -31,5 +31,6 @@
 	"text.gwviewer.axes.y": "Y-axis",
 	"text.gwviewer.axes.x.range":"Range",
 	"text.gwviewer.axes.y.scaling":"Scaling",
-	"text.gwviewer.option.mergealign": "Align mergers"
+	"text.gwviewer.option.mergealign": "Align mergers",
+	"text.gwviewer.option.gridlines": "Show gridlines"
 }
