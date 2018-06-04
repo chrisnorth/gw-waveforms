@@ -582,25 +582,24 @@ GWViewer.prototype.draw = function(format){
 		
 		// Draw grid lines
 		if(this.axes.x.gridlines){
-			var w = Math.ceil(this.axes.x.scale/tscale);
+			var w = Math.ceil(this.axes.x.scale/this.axes.x.ticks);
 			this.canvas.ctx.strokeStyle = "rgba(255,255,255,0.3)";
 			this.canvas.ctx.fillStyle = "rgba(255,255,255,0.3)";
 			this.canvas.ctx.lineWidth = 1;
-			for(var i = -w; i < w ; i += this.axes.x.ticks/tscale){
-				x = Math.round(i*tscale*xscale + xorig) + 0.5;
+			for(var i = -w; i < w ; i++){
+				j = i*this.axes.x.ticks/tscale;
+				x = Math.round(i*this.axes.x.ticks*xscale + xorig) + 0.5;
 				if(x > 0){
 					this.canvas.ctx.beginPath();
 					this.canvas.ctx.moveTo(x,0);
 					this.canvas.ctx.lineTo(x,this.canvas.tall);
 					this.canvas.ctx.stroke();
-					if((i-Math.round(i)) == 0){
+					if((j-Math.round(j)) == 0){
 						this.canvas.ctx.beginPath();
-						console.log(x,this.canvas.fs)
-						this.canvas.ctx.fillText(i+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
+						this.canvas.ctx.fillText(j+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
 						this.canvas.ctx.fill();
 					}
 				}
-				
 			}
 		}
 
