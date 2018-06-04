@@ -287,8 +287,11 @@ GWViewer.prototype.addMenu = function(){
 
 	if(this.dom.menu){
 		form = '';
-		form += '<h3 lang="text.gwviewer.axes.x" class="translatable"></h3><p lang="text.gwviewer.axes.x.range" class="translatable"></p><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
-		form += '<h3 lang="text.gwviewer.axes.y" class="translatable"></h3><p lang="text.gwviewer.axes.y.scaling" class="translatable"></p><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.x.range" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<ol class="top"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
+		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable"></h3><ol><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
 
 		S('#optionsform').append(form);
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
