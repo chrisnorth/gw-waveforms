@@ -39,7 +39,7 @@ function GWViewer(attr) {
 	this.axes = {
 		'x':{
 			'scale':2200,
-			'ticks': 500,
+			'ticks': 1000,
 			'gridlines': (typeof this.query.gridlines==="boolean" ? this.query.gridlines : true)
 		},
 		'y':{
