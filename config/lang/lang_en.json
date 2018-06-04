@@ -27,6 +27,9 @@
 	"text.gwviewer.viewoptions": "View options",
 	"data.time.name": "Time",
 	"data.time.unit": "s",
-	"text.gwviewer.axes.x.title":"x-axis range",
-	"text.gwviewer.axes.y.title":"y-axis scaling"
+	"text.gwviewer.axes.x": "X-axis",
+	"text.gwviewer.axes.y": "Y-axis",
+	"text.gwviewer.axes.x.range":"Range",
+	"text.gwviewer.axes.y.scaling":"Scaling",
+	"text.gwviewer.option.mergealign": "Align mergers"
 }

@@ -157,7 +157,8 @@ menu h1, menu h2, menu h3, menu p { font-size: 1em; padding: 0.25em 1em; }
 menu p { padding: 1em; line-height: 1.25em; }
 #heading, menu h1, menu section { border-bottom: 1px solid #888; }
 menu h1, menu h2 { background-color: #666666; }
-menu h3 { background-color: #444444; border-top: 1px solid #888; }
+menu h3, menu p { background-color: #444444; }
+menu h3 { border-top: 1px solid #888; }
 menu .expander { list-style: none; padding-left: 0px; height: 0px; overflow: hidden; transition: height 0.5s ease-in;  }
 menu h2, menu h3, menu button { cursor: pointer; position: relative; }
 menu .expandable { user-select: none; -moz-user-select: none; -webkit-user-select: none; }
