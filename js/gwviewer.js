@@ -32,6 +32,10 @@ function GWViewer(attr) {
 		return r;
 	}
 	this.query = query();
+	
+	var _obj = this;
+	// We'll need to change the sizes when the window changes size
+	window.addEventListener('resize',function(e){ _obj.resize(); });
 
 	this.languages = {};
 	this.lang = (this.query.lang ? this.query.lang : (navigator) ? (navigator.userLanguage||navigator.systemLanguage||navigator.language||browser.language) : "");
@@ -80,6 +84,13 @@ GWViewer.prototype.log = function(){
 		var args = Array.prototype.slice.call(arguments, 0);
 		if(console && typeof console.log==="function") console.log('GWViewer',args);
 	}
+	return this;
+}
+
+GWViewer.prototype.resize = function(){
+	this.log('resize');
+	this.canvas = null;
+	this.draw();
 	return this;
 }
 
