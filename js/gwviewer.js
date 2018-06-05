@@ -32,13 +32,19 @@ function GWViewer(attr) {
 		return r;
 	}
 	this.query = query();
+	
+	var _obj = this;
+	// We'll need to change the sizes when the window changes size
+	window.addEventListener('resize',function(e){ _obj.resize(); });
 
 	this.languages = {};
 	this.lang = (this.query.lang ? this.query.lang : (navigator) ? (navigator.userLanguage||navigator.systemLanguage||navigator.language||browser.language) : "");
 
 	this.axes = {
 		'x':{
-			'scale':2000
+			'scale':2200,
+			'ticks': 1000,
+			'gridlines': (typeof this.query.gridlines==="boolean" ? this.query.gridlines : true)
 		},
 		'y':{
 			'scale':2e6
@@ -78,6 +84,13 @@ GWViewer.prototype.log = function(){
 		var args = Array.prototype.slice.call(arguments, 0);
 		if(console && typeof console.log==="function") console.log('GWViewer',args);
 	}
+	return this;
+}
+
+GWViewer.prototype.resize = function(){
+	this.log('resize');
+	this.canvas = null;
+	this.draw();
 	return this;
 }
 
@@ -274,17 +287,30 @@ GWViewer.prototype.addMenu = function(){
 
 	if(this.dom.menu){
 		form = '';
-		form += '<h3 lang="text.gwviewer.axes.x" class="translatable"></h3><p lang="text.gwviewer.axes.x.range" class="translatable"></p><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol><ol><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
-		form += '<h3 lang="text.gwviewer.axes.y" class="translatable"></h3><p lang="text.gwviewer.axes.y.scaling" class="translatable"></p><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.x.range" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<ol class="top"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
+		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable"></h3><ol><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
 
 		S('#optionsform').append(form);
-		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':0.1,'max':5},'step':0.1,'el':S('#xaxisscale')});
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
+		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':0.1,'max':5},'step':0.1,'el':S('#xaxisscale')});
+		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks/1000],'range':{'min':0.25,'max':1},'snap':true,'step':0.25,'el':S('#xaxisticks')});
+
 		// Add event to mergealign checkbox
 		S('#mergealign').on("change",{'gw':this},function(e){
 			e.data.gw.query.mergealign = e.currentTarget.checked;
 			e.data.gw.scaleWaves();
 		})
+		S('#gridlines').on("change",{'gw':this},function(e){
+			e.data.gw.axes.x.gridlines = e.currentTarget.checked;
+			e.data.gw.scaleWaves();
+		})
+	}else{
+		this.axes.y.slider = { values: [this.axes.y.scale/2e6] }
+		this.axes.x.slider = { values: [this.axes.x.scale/1000] }
+		this.axes.x.tickslider = { values: [this.axes.x.ticks/1000] }
 	}
 
 	if(this.dom.menu){
@@ -564,7 +590,32 @@ GWViewer.prototype.draw = function(format){
 		for(var i = 0; i < this.cat.length; i++){
 			if(this.cat.data[i].waveform.active) n++;
 		}
-		var tscale=1000; //to ms
+		var tscale = 1000; //to ms
+		var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
+		var xscale = this.canvas.wide/this.axes.x.scale;
+		
+		// Draw grid lines
+		if(this.axes.x.gridlines){
+			var w = Math.ceil(this.axes.x.scale/this.axes.x.ticks);
+			this.canvas.ctx.strokeStyle = "rgba(255,255,255,0.3)";
+			this.canvas.ctx.fillStyle = "rgba(255,255,255,0.3)";
+			this.canvas.ctx.lineWidth = 1;
+			for(var i = -w; i < w ; i++){
+				j = i*this.axes.x.ticks/tscale;
+				x = Math.round(i*this.axes.x.ticks*xscale + xorig) + 0.5;
+				if(x > 0){
+					this.canvas.ctx.beginPath();
+					this.canvas.ctx.moveTo(x,0);
+					this.canvas.ctx.lineTo(x,this.canvas.tall);
+					this.canvas.ctx.stroke();
+					if((j-Math.round(j)) == 0){
+						this.canvas.ctx.beginPath();
+						this.canvas.ctx.fillText(j+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
+						this.canvas.ctx.fill();
+					}
+				}
+			}
+		}
 
 		// Loop over each waveform
 		for(var i = 0, ii = 0; i < this.cat.length; i++){
@@ -579,8 +630,6 @@ GWViewer.prototype.draw = function(format){
 				this.canvas.ctx.strokeStyle = wf.colour;
 				this.canvas.ctx.lineWidth = 1;
 
-				xscale = this.canvas.wide/this.axes.x.scale;
-				xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
 				yscale = this.canvas.tall/(typeof this.axes.y.scale==="number" ? this.axes.y.scale : (this.max || 2e6));
 				yorig = this.canvas.tall*((ii+1)/(n+1));
 
@@ -637,6 +686,7 @@ GWViewer.prototype.scaleWaves = function(){
 		if(this.cat.data[i].waveform.active) n++;
 	}
 	this.axes.x.scale = this.axes.x.slider.values[0]*1000;
+	this.axes.x.ticks = this.axes.x.tickslider.values[0]*1000;
 	this.axes.y.scaling = this.axes.y.slider.values[0];
 	this.axes.y.scale = max*(n)/this.axes.y.scaling;
 
