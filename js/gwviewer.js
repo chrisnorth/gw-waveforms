@@ -295,8 +295,14 @@ GWViewer.prototype.addMenu = function(){
 
 		S('#optionsform').append(form);
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
-		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':0.1,'max':5},'step':0.1,'el':S('#xaxisscale')});
-		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks/1000],'range':{'min':0.25,'max':1},'snap':true,'step':0.25,'el':S('#xaxisticks')});
+		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':0.1,'max':60},'step':0.1,'el':S('#xaxisscale')});
+		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks/1000],'range': {
+			'min': [ 0.1 ],
+			'15%': [ 0.25, 0.25 ],
+			'30%': [ 0.5, 0.5 ],
+			'45%': [ 1, 1 ],
+			'max': [ 5 ]
+		},'snap':true,'el':S('#xaxisticks')});
 
 		// Add event to mergealign checkbox
 		S('#mergealign').on("change",{'gw':this},function(e){
@@ -596,23 +602,32 @@ GWViewer.prototype.draw = function(format){
 		
 		// Draw grid lines
 		if(this.axes.x.gridlines){
-			var w = Math.ceil(this.axes.x.scale/this.axes.x.ticks);
+			var w = Math.ceil(this.axes.x.scale/tscale);
 			this.canvas.ctx.strokeStyle = "rgba(255,255,255,0.3)";
 			this.canvas.ctx.fillStyle = "rgba(255,255,255,0.3)";
 			this.canvas.ctx.lineWidth = 1;
-			for(var i = -w; i < w ; i++){
-				j = i*this.axes.x.ticks/tscale;
-				x = Math.round(i*this.axes.x.ticks*xscale + xorig) + 0.5;
-				if(x > 0){
+			var lines = {};
+			spacing = this.axes.x.ticks/tscale;
+			// Get positive lines
+			for(var i = 0; i < this.axes.x.scale; i += this.axes.x.ticks){
+				x = Math.round(i*xscale + xorig) + 0.5;
+				if(x > 0) lines[x] = i/tscale;
+			}
+			// Get negative lines
+			for(var i = this.axes.x.ticks; i > -this.axes.x.scale; i -= this.axes.x.ticks){
+				x = Math.round(i*xscale + xorig) + 0.5;
+				if(x > 0) lines[x] = i/tscale;
+			}
+			for(var i in lines){//= 0; i < lines.length; i++){
+				x = parseFloat(i);
+				this.canvas.ctx.beginPath();
+				this.canvas.ctx.moveTo(x,0);
+				this.canvas.ctx.lineTo(x,this.canvas.tall);
+				this.canvas.ctx.stroke();
+				if(typeof lines[i]!=="undefined"){
 					this.canvas.ctx.beginPath();
-					this.canvas.ctx.moveTo(x,0);
-					this.canvas.ctx.lineTo(x,this.canvas.tall);
-					this.canvas.ctx.stroke();
-					if((j-Math.round(j)) == 0){
-						this.canvas.ctx.beginPath();
-						this.canvas.ctx.fillText(j+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
-						this.canvas.ctx.fill();
-					}
+					this.canvas.ctx.fillText(lines[i]+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
+					this.canvas.ctx.fill();
 				}
 			}
 		}
