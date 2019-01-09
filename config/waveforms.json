@@ -11,6 +11,12 @@
 		"tmerge":0.0,
 		"colour":"#0a9676"
 	},
+	"GW151012": {
+		"file": "example-data/waveform_LVT151012_compress.txt",
+		"offset": -0.73809,
+		"tmerge":0.0,
+		"colour":"#0a9676"
+	},
 	"GW151226": {
 		"file": "example-data/waveform_GW151226_compress.txt",
 		"offset": -1.87995,

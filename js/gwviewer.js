@@ -32,7 +32,7 @@ function GWViewer(attr) {
 		return r;
 	}
 	this.query = query();
-	
+
 	var _obj = this;
 	// We'll need to change the sizes when the window changes size
 	window.addEventListener('resize',function(e){ _obj.resize(); });
@@ -464,6 +464,8 @@ GWViewer.prototype.loadCatalogue = function(file){
 
 	this.log('loadCatalogue')
 	if(!file || typeof file!=="string") file = 'gwcat/data/events.json';
+	// if(!gwoscfile || typeof gwoscfile!=="string") gwoscfile = 'gwcat/data/gwosc.json';
+	gwoscfile = 'gwcat/data/gwosc.json';
 	var _obj = this;
 
 	function loaded(){
@@ -517,7 +519,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 		});
 	}
 
-	this.cat = new GWCat(loaded,{'fileIn':file});
+	this.cat = new GWCat(loaded,{'fileIn':file,'datasrc':'gwosc',gwoscFile:gwoscfile});
 
 	return this;
 }
@@ -599,7 +601,7 @@ GWViewer.prototype.draw = function(format){
 		var tscale = 1000; //to ms
 		var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
 		var xscale = this.canvas.wide/this.axes.x.scale;
-		
+
 		// Draw grid lines
 		if(this.axes.x.gridlines){
 			var w = Math.ceil(this.axes.x.scale/tscale);
