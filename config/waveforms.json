@@ -5,12 +5,6 @@
 		"tmerge":0.0,
 		"colour":"#1576a1"
 	},
-	"LVT151012": {
-		"file": "example-data/waveform_LVT151012_compress.txt",
-		"offset": -0.73809,
-		"tmerge":0.0,
-		"colour":"#0a9676"
-	},
 	"GW151012": {
 		"file": "example-data/waveform_LVT151012_compress.txt",
 		"offset": -0.73809,
@@ -34,6 +28,16 @@
 		"offset": -2.31224,
 		"tmerge":0.0
 	},
+	"GW170729": {
+		"file": "example-data/waveform_GW170104_compress.txt",
+		"offset": -0.37932,
+		"tmerge":0.0
+	},
+	"GW170809": {
+		"file": "example-data/waveform_GW170104_compress.txt",
+		"offset": -0.37932,
+		"tmerge":0.0
+	},
 	"GW170814": {
 		"file": "example-data/waveform_GW170814_compress.txt",
 		"offset": -0.30342,
@@ -43,6 +47,16 @@
 	"GW170817": {
 		"file": "example-data/waveform_GW170817_compress.txt",
 		"offset": -56.78917,
+		"tmerge":0.0
+	},
+	"GW170818": {
+		"file": "example-data/waveform_GW170104_compress.txt",
+		"offset": -0.37932,
+		"tmerge":0.0
+	},
+	"GW170823": {
+		"file": "example-data/waveform_GW170104_compress.txt",
+		"offset": -0.37932,
 		"tmerge":0.0
 	}
 }
