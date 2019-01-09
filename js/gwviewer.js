@@ -652,7 +652,6 @@ GWViewer.prototype.draw = function(format){
 
 					if(format=="svg") svg += '<path d="';
 					var oldpos = {'x':-100,'y':-100};
-
 					for(var j = 0; j < wf.data.length; j++){
 						var xoffset = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
 						pos = {'x':(xorig+wf.data[j].t*xscale-xoffset),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
@@ -782,7 +781,7 @@ WaveForm.prototype.parse = function(){
 	// Parse the data string
 	var d = this.datastr;
 	d = d.substr(0,d.lastIndexOf('\n'));
-	d = d.split('\n');
+	d = d.split(/[\n\r]+/);
 	// Re-write badly formatted headings
 	if(d[0].indexOf("  ") > 0) d[0] = d[0].replace(/time \(seconds\)/g,"t").replace(/strain \* 1.e21/g,"strain*1e21").replace(/ {2,}/g," ");
 
