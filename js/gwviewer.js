@@ -653,17 +653,19 @@ GWViewer.prototype.draw = function(format){
 					if(format=="svg") svg += '<path d="';
 					var oldpos = {'x':-100,'y':-100};
 					for(var j = 0; j < wf.data.length; j++){
-						var xoffset = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
-						pos = {'x':(xorig+wf.data[j].t*xscale-xoffset),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
-						if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
-						else this.canvas.ctx.lineTo(pos.x,pos.y);
-						if(format=="svg"){
-							if(j==0) svg += 'M '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
-							else{
-								if(Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y) > 1){
-									svg += ' L '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
-									oldpos.x = pos.x;
-									oldpos.y = pos.y;
+						if(wf.data[j]){
+							var xoffset = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
+							pos = {'x':(xorig+wf.data[j].t*xscale-xoffset),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
+							if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
+							else this.canvas.ctx.lineTo(pos.x,pos.y);
+							if(format=="svg"){
+								if(j==0) svg += 'M '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
+								else{
+									if(Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y) > 1){
+										svg += ' L '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
+										oldpos.x = pos.x;
+										oldpos.y = pos.y;
+									}
 								}
 							}
 						}
