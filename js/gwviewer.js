@@ -227,10 +227,11 @@ GWViewer.prototype.addMenu = function(){
 		this.values = attr.values;
 		this.range = attr.range;
 		this.step = (attr.step||1);
+		this.snap = (attr.snap||false);
 		this.connect = (this.values.length==2) ? true : false;
 		this.el = attr.el;
 
-		var inputs = { 'start': this.values, 'step': this.step, 'range': this.range, 'connect': this.connect };
+		var inputs = { 'start': this.values, 'step': this.step, 'range': this.range, 'connect': this.connect, 'snap': this.snap };
 		this.slider = noUiSlider.create(this.el.find('.slider')[0], inputs);
 
 		var _slider = this;
@@ -295,13 +296,19 @@ GWViewer.prototype.addMenu = function(){
 
 		S('#optionsform').append(form);
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
-		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':0.1,'max':60},'step':0.1,'el':S('#xaxisscale')});
+		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':[0.1,0.1],'40%':[2.5,0.5],'70%':[20,5],'max':[200]},'step':0.1,'el':S('#xaxisscale')});
 		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks/1000],'range': {
-			'min': [ 0.1 ],
-			'15%': [ 0.25, 0.25 ],
-			'30%': [ 0.5, 0.5 ],
-			'45%': [ 1, 1 ],
-			'max': [ 5 ]
+			'min': 0.1,
+			'10%': 0.2,
+			'20%': 0.25,
+			'30%': 0.5,
+			'40%': 1,
+			'50%': 2,
+			'60%': 5,
+			'70%': 10,
+			'80%': 20,
+			'90%': 50,
+			'max': 100
 		},'snap':true,'el':S('#xaxisticks')});
 
 		// Add event to mergealign checkbox
