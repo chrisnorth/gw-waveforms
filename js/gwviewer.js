@@ -40,16 +40,35 @@ function GWViewer(attr) {
 	this.languages = {};
 	this.lang = (this.query.lang ? this.query.lang : (navigator) ? (navigator.userLanguage||navigator.systemLanguage||navigator.language||browser.language) : "");
 
+	// Define the two axes
 	this.axes = {
 		'x':{
 			'scale':2200,
-			'ticks': 1000,
+			'ticks': {
+				'value' : 1000,
+				'range': {
+					'min': 0.1,
+					'10%': 0.2,
+					'20%': 0.25,
+					'30%': 0.5,
+					'40%': 1,
+					'50%': 2,
+					'60%': 5,
+					'70%': 10,
+					'80%': 20,
+					'90%': 50,
+					'max': 100
+				}
+			},
 			'gridlines': (typeof this.query.gridlines==="boolean" ? this.query.gridlines : true)
 		},
 		'y':{
 			'scale':2e6
 		}
 	}
+
+	// Define the options
+	this.option = { 'lineWidth': {'value':1,'range':{'min':0.5,'max':5}, 'step': 0.5 } };
 
 	// Create DOM references
 	if(!this.attr.dom) this.attr.dom = {};
@@ -150,16 +169,12 @@ GWViewer.prototype.updateFilters = function(){
 		active = true;
 		for(key in this.filters){
 			a = this.filters[key];
-			//console.log(key,a.type)
 			if(a.type == "slider"){
 				// Process each slider
-				//console.log(key,inRange(i,key,this.filters[key].slider.values))
 				if(!inRange(i,key,a.slider.values)) active = false;
-				//if(!active) console.log(i,key)
 			}else if(a.type == "checkbox"){
 				if(!isChecked(i,key)) active = false;
 			}
-			//console.log(key,active)
 		}
 		this.cat.data[i].waveform.active = active;
 		if(active && !this.cat.data[i].waveform.data && !this.cat.data[i].waveform.loading){
@@ -293,23 +308,13 @@ GWViewer.prototype.addMenu = function(){
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable"></h3><ol><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.option.lineWidth" class="translatable"></h3><ol><li class="row range" id="lineWidth"><div><div class="slider"></div><span class="min"></span></li></ol>';
 
 		S('#optionsform').append(form);
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
 		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':[0.1,0.1],'40%':[2.5,0.5],'70%':[20,5],'max':[200]},'step':0.1,'el':S('#xaxisscale')});
-		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks/1000],'range': {
-			'min': 0.1,
-			'10%': 0.2,
-			'20%': 0.25,
-			'30%': 0.5,
-			'40%': 1,
-			'50%': 2,
-			'60%': 5,
-			'70%': 10,
-			'80%': 20,
-			'90%': 50,
-			'max': 100
-		},'snap':true,'el':S('#xaxisticks')});
+		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks.value/1000],'range': this.axes.x.ticks.range,'snap':true,'el':S('#xaxisticks')});
+		this.option.lineWidth.slider = new buildSlider({'values':[this.option.lineWidth.value],'range':this.option.lineWidth.range,'step':this.option.lineWidth.step,'el':S('#lineWidth')});
 
 		// Add event to mergealign checkbox
 		S('#mergealign').on("change",{'gw':this},function(e){
@@ -321,9 +326,10 @@ GWViewer.prototype.addMenu = function(){
 			e.data.gw.scaleWaves();
 		})
 	}else{
-		this.axes.y.slider = { values: [this.axes.y.scale/2e6] }
-		this.axes.x.slider = { values: [this.axes.x.scale/1000] }
-		this.axes.x.tickslider = { values: [this.axes.x.ticks/1000] }
+		this.axes.y.slider = { values: [this.axes.y.scale/2e6] };
+		this.axes.x.slider = { values: [this.axes.x.scale/1000] };
+		this.axes.x.tickslider = { values: [this.axes.x.ticks.value/1000] };
+		this.option.lineWidth.slider = { 'values': [this.option.lineWidth.value] } ;
 	}
 
 	if(this.dom.menu){
@@ -535,6 +541,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 GWViewer.prototype.draw = function(format){
 
 	var now = new Date();
+	var lw = this.option.lineWidth.slider.values[0];
 
 	function Canvas(el,idinner){
 		this.container = el;
@@ -563,7 +570,7 @@ GWViewer.prototype.draw = function(format){
 			this.fs = this.getFontsize();
 			this.ctx.font = this.fs+"px Helvetica";
 			this.ctx.fillStyle = 'rgb(255,255,255)';
-			this.ctx.lineWidth = 1.5;
+			this.ctx.lineWidth = lw;
 			this.ctx.fill();
 		}
 
@@ -592,8 +599,7 @@ GWViewer.prototype.draw = function(format){
 	}
 
 	var svg = "";
-	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by Stuart</desc>';
-
+	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by GWViewer</desc>';
 
 	if(this.canvas.ctx){
 
@@ -614,16 +620,16 @@ GWViewer.prototype.draw = function(format){
 			var w = Math.ceil(this.axes.x.scale/tscale);
 			this.canvas.ctx.strokeStyle = "rgba(255,255,255,0.3)";
 			this.canvas.ctx.fillStyle = "rgba(255,255,255,0.3)";
-			this.canvas.ctx.lineWidth = 1;
+			this.canvas.ctx.lineWidth = 1.5;
 			var lines = {};
-			spacing = this.axes.x.ticks/tscale;
+			spacing = this.axes.x.ticks.value/tscale;
 			// Get positive lines
-			for(var i = 0; i < this.axes.x.scale; i += this.axes.x.ticks){
+			for(var i = 0; i < this.axes.x.scale; i += this.axes.x.ticks.value){
 				x = Math.round(i*xscale + xorig) + 0.5;
 				if(x > 0) lines[x] = i/tscale;
 			}
 			// Get negative lines
-			for(var i = this.axes.x.ticks; i > -this.axes.x.scale; i -= this.axes.x.ticks){
+			for(var i = this.axes.x.ticks.value; i > -this.axes.x.scale; i -= this.axes.x.ticks.value){
 				x = Math.round(i*xscale + xorig) + 0.5;
 				if(x > 0) lines[x] = i/tscale;
 			}
@@ -652,7 +658,7 @@ GWViewer.prototype.draw = function(format){
 				this.canvas.ctx.beginPath();
 
 				this.canvas.ctx.strokeStyle = wf.colour;
-				this.canvas.ctx.lineWidth = 1;
+				this.canvas.ctx.lineWidth = lw;
 
 				yscale = this.canvas.tall/(typeof this.axes.y.scale==="number" ? this.axes.y.scale : (this.max || 2e6));
 				yorig = this.canvas.tall*((ii+1)/(n+1));
@@ -711,7 +717,7 @@ GWViewer.prototype.scaleWaves = function(){
 		if(this.cat.data[i].waveform.active) n++;
 	}
 	this.axes.x.scale = this.axes.x.slider.values[0]*1000;
-	this.axes.x.ticks = this.axes.x.tickslider.values[0]*1000;
+	this.axes.x.ticks.value = this.axes.x.tickslider.values[0]*1000;
 	this.axes.y.scaling = this.axes.y.slider.values[0];
 	this.axes.y.scale = max*(n)/this.axes.y.scaling;
 

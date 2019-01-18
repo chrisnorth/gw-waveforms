@@ -31,5 +31,6 @@
 	"text.gwviewer.axes.x.ticks":"Grid spacing",
 	"text.gwviewer.axes.y.scaling":"Vertical scaling",
 	"text.gwviewer.option.mergealign": "Align mergers",
-	"text.gwviewer.option.gridlines": "Show gridlines"
+	"text.gwviewer.option.gridlines": "Show gridlines",
+	"text.gwviewer.option.lineWidth": "Line thickness"
 }
