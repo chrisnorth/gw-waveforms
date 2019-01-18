@@ -194,7 +194,7 @@ menu button, menu .row {
 	background: #444444;
 	color: #efefef;
 }
-menu .row input[type=checkbox] { display: inline-block; float: left; height: 2em; width: 2em; margin: 0.75em 0.75em 0.25em 1em; }
+menu .row input[type=checkbox], menu .row input[type=radio] { display: inline-block; float: left; height: 2em; width: 2em; margin: 0.75em 0.75em 0.25em 1em; }
 menu .row label { line-height: 2.5em; display: block; cursor: pointer; }
 menu .range > div { line-height: 2.5em; padding-left: 1.5em; padding-right: 1.5em; padding-top: 1em; text-align: center; }
 menu .range .min, menu .range .max { display: inline-block; }

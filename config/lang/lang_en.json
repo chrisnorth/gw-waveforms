@@ -32,5 +32,9 @@
 	"text.gwviewer.axes.y.scaling":"Vertical scaling",
 	"text.gwviewer.option.mergealign": "Align mergers",
 	"text.gwviewer.option.gridlines": "Show gridlines",
-	"text.gwviewer.option.lineWidth": "Line thickness"
+	"text.gwviewer.option.lineWidth": "Line thickness",
+	"text.gwviewer.option.colourscheme": "Colour scheme",
+	"text.gwviewer.option.colourscheme.default": "Default",
+	"text.gwviewer.option.colourscheme.bw": "Black on white",
+	"text.gwviewer.option.colourscheme.wb": "White on black"
 }

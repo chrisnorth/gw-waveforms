@@ -69,6 +69,32 @@ function GWViewer(attr) {
 
 	// Define the options
 	this.option = { 'lineWidth': {'value':1,'range':{'min':0.2,'max':5}, 'step': 0.2 } };
+	
+	// Define colours (empty uses defaults)
+	this.colourschemes = {
+		'default': {
+			'background': '',
+			'gridline': '',
+			'gridlinelabel': '',
+			'waveform': '',
+			'waveformlabel': ''
+		},
+		'bw': {
+			'background': 'white',
+			'gridline': 'rgba(0,0,0,0.3)',
+			'gridlinelabel': 'rgb(0,0,0)',
+			'waveform': 'rgb(0,0,0)',
+			'waveformlabel': 'rgb(0,0,0)'
+		},
+		'wb': {
+			'background': 'black',
+			'gridline': 'rgba(255,255,255,0.3)',
+			'gridlinelabel': 'rgb(255,255,255)',
+			'waveform': 'rgb(255,255,255)',
+			'waveformlabel': 'rgb(255,255,255)'
+		}
+	};
+	this.colourscheme = 'default';
 
 	// Create DOM references
 	if(!this.attr.dom) this.attr.dom = {};
@@ -309,12 +335,25 @@ GWViewer.prototype.addMenu = function(){
 		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable"></h3><ol><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.option.lineWidth" class="translatable"></h3><ol><li class="row range" id="lineWidth"><div><div class="slider"></div><span class="min"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.option.colourscheme" class="translatable"></h3><ol id="colourscheme-switcher"></ol>';
 
 		S('#optionsform').append(form);
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
 		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':[0.1,0.1],'40%':[2.5,0.5],'70%':[20,5],'max':[200]},'step':0.1,'el':S('#xaxisscale')});
 		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks.value/1000],'range': this.axes.x.ticks.range,'snap':true,'el':S('#xaxisticks')});
 		this.option.lineWidth.slider = new buildSlider({'values':[this.option.lineWidth.value],'range':this.option.lineWidth.range,'step':this.option.lineWidth.step,'el':S('#lineWidth')});
+
+		// Build colour scheme options
+		opt = '';
+		for(var c in this.colourschemes) opt += '<li class="row"><input type="radio" class="colourchanger" name="colourscheme" id="colourscheme-'+c+'" value="'+c+'"'+(c==this.colourscheme ? ' checked="checked"':'')+'></input><label for="colourscheme-'+c+'" lang="text.gwviewer.option.colourscheme.'+c+'" class="translatable"></label></li>';
+		S('#colourscheme-switcher').html(opt);
+		S('.colourchanger').on("change",{'gw':this},function(e){
+			var c = e.currentTarget.value;
+			if(e.data.gw.colourschemes[c]){
+				e.data.gw.colourscheme = c;
+				e.data.gw.draw();
+			}
+		});
 
 		// Add event to mergealign checkbox
 		S('#mergealign').on("change",{'gw':this},function(e){
@@ -601,6 +640,9 @@ GWViewer.prototype.draw = function(format){
 	var svg = "";
 	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by GWViewer</desc>';
 
+	// Set background colour
+	S('#gwviewer').css({'background':(this.colourschemes[this.colourscheme].background || '')});
+
 	if(this.canvas.ctx){
 
 		// Clear canvas
@@ -618,8 +660,8 @@ GWViewer.prototype.draw = function(format){
 		// Draw grid lines
 		if(this.axes.x.gridlines){
 			var w = Math.ceil(this.axes.x.scale/tscale);
-			this.canvas.ctx.strokeStyle = "rgba(255,255,255,0.3)";
-			this.canvas.ctx.fillStyle = "rgba(255,255,255,0.3)";
+			this.canvas.ctx.strokeStyle = (this.colourschemes[this.colourscheme].gridline || "rgba(255,255,255,0.3)");
+			this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].gridlinelabel || "rgba(255,255,255,0.3)");
 			this.canvas.ctx.lineWidth = 1.5;
 			var lines = {};
 			spacing = this.axes.x.ticks.value/tscale;
@@ -657,7 +699,7 @@ GWViewer.prototype.draw = function(format){
 
 				this.canvas.ctx.beginPath();
 
-				this.canvas.ctx.strokeStyle = wf.colour;
+				this.canvas.ctx.strokeStyle = (this.colourschemes[this.colourscheme].waveform || wf.colour);
 				this.canvas.ctx.lineWidth = lw;
 
 				yscale = this.canvas.tall/(typeof this.axes.y.scale==="number" ? this.axes.y.scale : (this.max || 2e6));
@@ -689,7 +731,7 @@ GWViewer.prototype.draw = function(format){
 				}
 				this.canvas.ctx.stroke();
 				this.canvas.ctx.beginPath();
-				this.canvas.ctx.fillStyle = wf.colour;
+				this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].waveformlabel || wf.colour);
 				this.canvas.ctx.fillText(this.cat.data[i].name,this.canvas.fs,(yorig-4))
 				this.canvas.ctx.fill();
 				if(format=="svg") svg += '<text class="Label" x="'+this.canvas.fs+'" y="'+(yorig-4)+'" style="text-anchor:left" fill="'+wf.colour+'">'+this.cat.data[i].name+'</text>'
