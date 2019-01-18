@@ -113,6 +113,7 @@ function GWViewer(attr) {
 		html += '<section class="collapse"><h2 tabindex="0" class="translatable expandable" lang="text.gwviewer.orderby">Order by</h2><ol class="expander"><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section>';
 		html += '<section class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.filter" lang-title="text.gwviewer.filter.title" class="translatable">Filter</span></h2><form class="expander" id="filterform"></form></section>';
 		html += '<section class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.viewoptions" lang-title="text.gwviewer.viewoptions" class="translatable">View options</span></h2><form class="expander" id="optionsform"></form></section>';
+		html += '<section class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.save" lang-title="text.gwviewer.save" class="translatable">Save</span></h2><ol class="expander" id="saveform"><li><button id="save-svg" lang="text.gwviewer.save.svg" lang-title="text.gwviewer.save.svg" class="translatable">Save as SVG</button></li><li><button id="save-png" lang="text.gwviewer.save.png" lang-title="text.gwviewer.save.png" class="translatable">Save as PNG</button></li></ol></section>';
 		html += '</div>';
 		this.dom.menu.html(html);
 	}
@@ -359,11 +360,15 @@ GWViewer.prototype.addMenu = function(){
 		S('#mergealign').on("change",{'gw':this},function(e){
 			e.data.gw.query.mergealign = e.currentTarget.checked;
 			e.data.gw.scaleWaves();
-		})
+		});
 		S('#gridlines').on("change",{'gw':this},function(e){
 			e.data.gw.axes.x.gridlines = e.currentTarget.checked;
 			e.data.gw.scaleWaves();
-		})
+		});
+		// Add save options
+		S('#save-svg').on("click",{'gw':this},function(e){ e.data.gw.save('svg'); });
+		S('#save-png').on("click",{'gw':this},function(e){ e.data.gw.save('png'); });
+
 	}else{
 		this.axes.y.slider = { values: [this.axes.y.scale/2e6] };
 		this.axes.x.slider = { values: [this.axes.x.scale/1000] };
