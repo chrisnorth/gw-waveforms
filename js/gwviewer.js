@@ -638,7 +638,7 @@ GWViewer.prototype.draw = function(format){
 	}
 
 	var svg = "";
-	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by GWViewer</desc>';
+	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by GWViewer '+this.version+'</desc>';
 
 	// Set background colour
 	S('#gwviewer').css({'background':(this.colourschemes[this.colourscheme].background || '')});
@@ -675,16 +675,18 @@ GWViewer.prototype.draw = function(format){
 				x = Math.round(i*xscale + xorig) + 0.5;
 				if(x > 0) lines[x] = i/tscale;
 			}
-			for(var i in lines){//= 0; i < lines.length; i++){
+			for(var i in lines){
 				x = parseFloat(i);
 				this.canvas.ctx.beginPath();
 				this.canvas.ctx.moveTo(x,0);
 				this.canvas.ctx.lineTo(x,this.canvas.tall);
+				if(format == "svg") svg += '<path d="M '+x+',0 L '+x+','+this.canvas.tall+'" stroke="'+(this.colourschemes[this.colourscheme].gridline || "rgba(255,255,255,0.3)")+'" fill="'+(this.colourschemes[this.colourscheme].gridline || "rgba(255,255,255,0.3)")+'" stroke-width="1.5"></path>';
 				this.canvas.ctx.stroke();
 				if(typeof lines[i]!=="undefined"){
 					this.canvas.ctx.beginPath();
 					this.canvas.ctx.fillText(lines[i]+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
 					this.canvas.ctx.fill();
+					svg += '<text x="'+(x+4)+'" y="'+(this.canvas.tall-4)+'" fill="'+(this.colourschemes[this.colourscheme].gridlinelabel || "rgba(255,255,255,0.3)")+'">'+lines[i]+' '+this.language['data.time.unit']+'</text>';
 				}
 			}
 		}
@@ -727,14 +729,14 @@ GWViewer.prototype.draw = function(format){
 							}
 						}
 					}
-					if(format=="svg") svg += '" stroke="'+wf.colour+'" stroke-width="1.5" />';
+					if(format=="svg") svg += '" stroke="'+(this.colourschemes[this.colourscheme].waveform || wf.colour)+'" stroke-width="'+lw+'" fill="none" />';
 				}
 				this.canvas.ctx.stroke();
 				this.canvas.ctx.beginPath();
 				this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].waveformlabel || wf.colour);
 				this.canvas.ctx.fillText(this.cat.data[i].name,this.canvas.fs,(yorig-4))
 				this.canvas.ctx.fill();
-				if(format=="svg") svg += '<text class="Label" x="'+this.canvas.fs+'" y="'+(yorig-4)+'" style="text-anchor:left" fill="'+wf.colour+'">'+this.cat.data[i].name+'</text>'
+				if(format=="svg") svg += '<text class="Label" x="'+this.canvas.fs+'" y="'+(yorig-4)+'" style="text-anchor:left" fill="'+(this.colourschemes[this.colourscheme].waveformlabel || wf.colour)+'">'+this.cat.data[i].name+'</text>';
 
 				ii++;
 			}
@@ -745,9 +747,8 @@ GWViewer.prototype.draw = function(format){
 	diff = ((new Date()) - now);
 	this.log('Draw time = '+diff+' ms');
 
-	if(format=="svg") S('#gwviewer').append(svg);
-	//if(format=="svg") return svg;
-	return this;
+	//if(format=="svg") S('#gwviewer').append(svg);
+	return (svg||this);
 }
 
 GWViewer.prototype.scaleWaves = function(){
@@ -773,6 +774,49 @@ GWViewer.prototype.setAxis = function(t,size){
 	return this;
 }
 
+GWViewer.prototype.save = function(type){
+
+	// Bail out if there is no Blob function to save with
+	if(typeof Blob!=="function") return this;
+	var opts = { 'type': '', 'file': '' };
+
+	function save(content){
+		var asBlob = new Blob([content], {type:opts.type});
+		function destroyClickedElement(event){ document.body.removeChild(event.target); }
+
+		var dl = document.createElement("a");
+		dl.download = opts.file;
+		dl.innerHTML = "Download File";
+		if(window.webkitURL != null){
+			// Chrome allows the link to be clicked
+			// without actually adding it to the DOM.
+			dl.href = window.webkitURL.createObjectURL(asBlob);
+		}else{
+			// Firefox requires the link to be added to the DOM
+			// before it can be clicked.
+			dl.href = window.URL.createObjectURL(asBlob);
+			dl.onclick = destroyClickedElement;
+			dl.style.display = "none";
+			document.body.appendChild(dl);
+		}
+		dl.click();
+	
+	}
+
+	if(type == "svg"){
+		svg = this.draw('svg');
+		opts.type = 'image/json';
+		opts.file = 'waveform.svg';
+		save(svg);
+	}
+	if(type == "png"){
+		opts.type = "image/png";
+		opts.file = "timeseries.png";
+		this.canvas.c.toBlob(save,opts.type);
+	}
+
+	return this;
+}
 
 // Object to process wave forms
 function WaveForm(attr){
