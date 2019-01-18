@@ -68,7 +68,7 @@ function GWViewer(attr) {
 	}
 
 	// Define the options
-	this.option = { 'lineWidth': {'value':1,'range':{'min':0.5,'max':5}, 'step': 0.5 } };
+	this.option = { 'lineWidth': {'value':1,'range':{'min':0.2,'max':5}, 'step': 0.2 } };
 
 	// Create DOM references
 	if(!this.attr.dom) this.attr.dom = {};
