@@ -95,6 +95,10 @@ function GWViewer(attr) {
 		}
 	};
 	this.colourscheme = 'default';
+	
+	this.labelpositions = {'hidden':{},'startmerger':{},'endmerger':{},'auto':{}};
+	this.labelposition = 'auto';
+
 
 	// Create DOM references
 	if(!this.attr.dom) this.attr.dom = {};
@@ -337,6 +341,7 @@ GWViewer.prototype.addMenu = function(){
 		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.option.lineWidth" class="translatable"></h3><ol><li class="row range" id="lineWidth"><div><div class="slider"></div><span class="min"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.option.colourscheme" class="translatable"></h3><ol id="colourscheme-switcher"></ol>';
+		form += '<h3 lang="text.gwviewer.option.labelposition" class="translatable"></h3><ol id="labelposition-switcher"></ol>';
 
 		S('#optionsform').append(form);
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
@@ -352,6 +357,18 @@ GWViewer.prototype.addMenu = function(){
 			var c = e.currentTarget.value;
 			if(e.data.gw.colourschemes[c]){
 				e.data.gw.colourscheme = c;
+				e.data.gw.draw();
+			}
+		});
+
+		// Build label position options
+		opt = '';
+		for(var p in this.labelpositions) opt += '<li class="row"><input type="radio" class="labelposition" name="labelposition" id="labelposition-'+p+'" value="'+p+'"'+(p==this.labelposition ? ' checked="checked"':'')+'></input><label for="labelposition-'+p+'" lang="text.gwviewer.option.labelposition.'+p+'" class="translatable"></label></li>';
+		S('#labelposition-switcher').html(opt);
+		S('.labelposition').on("change",{'gw':this},function(e){
+			var p = e.currentTarget.value;
+			if(e.data.gw.labelpositions[p]){
+				e.data.gw.labelposition = p;
 				e.data.gw.draw();
 			}
 		});
@@ -696,6 +713,8 @@ GWViewer.prototype.draw = function(format){
 			}
 		}
 
+		var dy = this.canvas.tall*(1/(n+1));
+
 		// Loop over each waveform
 		for(var i = 0, ii = 0; i < this.cat.length; i++){
 
@@ -711,14 +730,15 @@ GWViewer.prototype.draw = function(format){
 
 				yscale = this.canvas.tall/(typeof this.axes.y.scale==="number" ? this.axes.y.scale : (this.max || 2e6));
 				yorig = this.canvas.tall*((ii+1)/(n+1));
+				xoffset = 0;
 
 				if(wf.data){
 
+					xoffset = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
 					if(format=="svg") svg += '<path d="';
 					var oldpos = {'x':-100,'y':-100};
 					for(var j = 0; j < wf.data.length; j++){
 						if(wf.data[j]){
-							var xoffset = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
 							pos = {'x':(xorig+wf.data[j].t*xscale-xoffset),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
 							if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
 							else this.canvas.ctx.lineTo(pos.x,pos.y);
@@ -737,11 +757,30 @@ GWViewer.prototype.draw = function(format){
 					if(format=="svg") svg += '" stroke="'+(this.colourschemes[this.colourscheme].waveform || wf.colour)+'" stroke-width="'+lw+'" fill="none" />';
 				}
 				this.canvas.ctx.stroke();
-				this.canvas.ctx.beginPath();
-				this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].waveformlabel || wf.colour);
-				this.canvas.ctx.fillText(this.cat.data[i].name,this.canvas.fs,(yorig-4))
-				this.canvas.ctx.fill();
-				if(format=="svg") svg += '<text class="Label" x="'+this.canvas.fs+'" y="'+(yorig-4)+'" style="text-anchor:left" fill="'+(this.colourschemes[this.colourscheme].waveformlabel || wf.colour)+'">'+this.cat.data[i].name+'</text>';
+
+				// Only draw labels if they are visible
+				if(this.labelposition != "hidden"){
+
+					this.canvas.ctx.beginPath();
+					this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].waveformlabel || wf.colour);
+					this.canvas.ctx.textBaseline = "middle";
+
+					x = 0;
+					y = (yorig-(dy-this.canvas.fs)/2);
+					w = this.canvas.ctx.measureText(this.cat.data[i].name).width;
+					// If we are "auto" or "endmerger" we try setting the x-position to the merger
+					if(this.labelposition == "auto" || this.labelposition == "endmerger"){
+						x = (xorig+wf.tmerge*xscale-xoffset) + this.canvas.fs/2;
+						// If the text label doesn't fit on the screen we'll clear the x-position
+						if(this.labelposition == "auto" && x + w > this.canvas.wide) x = 0;
+					}
+					// Fall back to start if the x-value hasn't been set yet
+					if(x==0) x = this.canvas.fs/2;
+					
+					this.canvas.ctx.fillText(this.cat.data[i].name,x,y);
+					this.canvas.ctx.fill();
+					if(format=="svg") svg += '<text class="Label" x="'+x+'" y="'+y+'" style="text-anchor:left" fill="'+(this.colourschemes[this.colourscheme].waveformlabel || wf.colour)+'">'+this.cat.data[i].name+'</text>';
+				}
 
 				ii++;
 			}
