@@ -44,6 +44,7 @@ function GWViewer(attr) {
 	this.axes = {
 		'x':{
 			'scale':2200,
+			'offset': 0,
 			'ticks': {
 				'value' : 1000,
 				'range': {
@@ -335,6 +336,7 @@ GWViewer.prototype.addMenu = function(){
 	if(this.dom.menu){
 		form = '';
 		form += '<h3 lang="text.gwviewer.axes.x.range" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.x.offset" class="translatable"></h3><ol><li class="row range" id="xaxisoffset"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable"></h3><ol><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
@@ -346,6 +348,7 @@ GWViewer.prototype.addMenu = function(){
 		S('#optionsform').append(form);
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
 		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':[0.1,0.1],'40%':[2.5,0.5],'70%':[20,5],'max':[200]},'step':0.1,'el':S('#xaxisscale')});
+		this.axes.x.offsetslider = new buildSlider({'values':[this.axes.x.offset/1000],'range':{'min':[-200,5],'20%':[-20,0.5],'35%':[-2.5,0.1],'50%':[0,0.1],'65%':[2.5,0.5],'80%':[20,5],'max':[200]},'step':0.5,'el':S('#xaxisoffset')});
 		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks.value/1000],'range': this.axes.x.ticks.range,'snap':true,'el':S('#xaxisticks')});
 		this.option.lineWidth.slider = new buildSlider({'values':[this.option.lineWidth.value],'range':this.option.lineWidth.range,'step':this.option.lineWidth.step,'el':S('#lineWidth')});
 
@@ -389,6 +392,7 @@ GWViewer.prototype.addMenu = function(){
 	}else{
 		this.axes.y.slider = { values: [this.axes.y.scale/2e6] };
 		this.axes.x.slider = { values: [this.axes.x.scale/1000] };
+		this.axes.x.offsetslider = { values: [this.axes.x.offset/1000] };
 		this.axes.x.tickslider = { values: [this.axes.x.ticks.value/1000] };
 		this.option.lineWidth.slider = { 'values': [this.option.lineWidth.value] } ;
 	}
@@ -678,6 +682,8 @@ GWViewer.prototype.draw = function(format){
 		var tscale = 1000; //to ms
 		var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
 		var xscale = this.canvas.wide/this.axes.x.scale;
+		var toffset = this.axes.x.offsetslider.values[0]*tscale;
+		var xoffset = (toffset*xscale);
 
 		// Draw grid lines
 		if(this.axes.x.gridlines){
@@ -688,13 +694,13 @@ GWViewer.prototype.draw = function(format){
 			var lines = {};
 			spacing = this.axes.x.ticks.value/tscale;
 			// Get positive lines
-			for(var i = 0; i < this.axes.x.scale; i += this.axes.x.ticks.value){
-				x = Math.round(i*xscale + xorig) + 0.5;
+			for(var i = 0; i < this.axes.x.scale+toffset; i += this.axes.x.ticks.value){
+				x = Math.round(i*xscale + xorig) + 0.5 - xoffset;
 				if(x > 0) lines[x] = i/tscale;
 			}
 			// Get negative lines
-			for(var i = this.axes.x.ticks.value; i > -this.axes.x.scale; i -= this.axes.x.ticks.value){
-				x = Math.round(i*xscale + xorig) + 0.5;
+			for(var i = this.axes.x.ticks.value; i > -(this.axes.x.scale+toffset); i -= this.axes.x.ticks.value){
+				x = Math.round(i*xscale + xorig) + 0.5 - xoffset;
 				if(x > 0) lines[x] = i/tscale;
 			}
 			for(var i in lines){
@@ -730,16 +736,17 @@ GWViewer.prototype.draw = function(format){
 
 				yscale = this.canvas.tall/(typeof this.axes.y.scale==="number" ? this.axes.y.scale : (this.max || 2e6));
 				yorig = this.canvas.tall*((ii+1)/(n+1));
-				xoffset = 0;
+				xoffsetwf = 0;
 
 				if(wf.data){
 
-					xoffset = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
+					xoffsetwf = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
+					xoffsetwf += xoffset;
 					if(format=="svg") svg += '<path d="';
 					var oldpos = {'x':-100,'y':-100};
 					for(var j = 0; j < wf.data.length; j++){
 						if(wf.data[j]){
-							pos = {'x':(xorig+wf.data[j].t*xscale-xoffset),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
+							pos = {'x':(xorig+wf.data[j].t*xscale-xoffsetwf),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
 							if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
 							else this.canvas.ctx.lineTo(pos.x,pos.y);
 							if(format=="svg"){
@@ -770,7 +777,7 @@ GWViewer.prototype.draw = function(format){
 					w = this.canvas.ctx.measureText(this.cat.data[i].name).width;
 					// If we are "auto" or "endmerger" we try setting the x-position to the merger
 					if(this.labelposition == "auto" || this.labelposition == "endmerger"){
-						x = (xorig+wf.tmerge*xscale-xoffset) + this.canvas.fs/2;
+						x = (xorig+wf.tmerge*xscale-xoffsetwf) + this.canvas.fs/2;
 						// If the text label doesn't fit on the screen we'll clear the x-position
 						if(this.labelposition == "auto" && x + w > this.canvas.wide) x = 0;
 					}
