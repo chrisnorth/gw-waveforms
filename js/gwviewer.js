@@ -45,6 +45,13 @@ function GWViewer(attr) {
 		'x':{
 			'scale':2200,
 			'offset': 0,
+			'logoffset': {
+				'value' : -2,
+				'range' : {
+					'min': -5,
+					'max': 2
+				}
+			},
 			'ticks': {
 				'value' : 1000,
 				'range': {
@@ -70,7 +77,7 @@ function GWViewer(attr) {
 
 	// Define the options
 	this.option = { 'lineWidth': {'value':1,'range':{'min':0.2,'max':5}, 'step': 0.2 } };
-	
+
 	// Define colours (empty uses defaults)
 	this.colourschemes = {
 		'default': {
@@ -96,7 +103,7 @@ function GWViewer(attr) {
 		}
 	};
 	this.colourscheme = 'default';
-	
+
 	this.labelpositions = {'hidden':{},'startmerger':{},'endmerger':{},'auto':{}};
 	this.labelposition = 'auto';
 
@@ -286,7 +293,11 @@ GWViewer.prototype.addMenu = function(){
 			var value = values[handle];
 			var change = false;
 			if(_slider.values[handle] != parseFloat(value)) change = true;
-			_slider.values[handle] = parseFloat(value);
+			if (attr.log){
+				_slider.values[handle] = 10**parseFloat(value);
+			}else{
+				_slider.values[handle] = parseFloat(value);
+			}
 			var min = _slider.values[0];
 			var max = _slider.values[1];
 			if(attr.format && attr.format=='date'){
@@ -335,8 +346,10 @@ GWViewer.prototype.addMenu = function(){
 
 	if(this.dom.menu){
 		form = '';
-		form += '<h3 lang="text.gwviewer.axes.x.range" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
-		form += '<h3 lang="text.gwviewer.axes.x.offset" class="translatable"></h3><ol><li class="row range" id="xaxisoffset"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<ol class="top"><li class="row"><input type="checkbox" name="xlog" id="xlog"'+(this.axes.x.logscale ? ' checked="checked"':'')+'></input><label for="xlog" lang="text.gwviewer.axes.x.logscale" class="translatable"></label></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.x.range" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<h3 id="xoffset-title" lang="text.gwviewer.axes.x.offset" class="translatable"></h3><ol><li class="row range" id="xaxisoffset"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<h3 id="xlogoffset-title" lang="text.gwviewer.axes.x.logoffset" class="translatable disabled"></h3><ol><li class="row range disabled" id="xaxislogoffset"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable"></h3><ol><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
@@ -349,6 +362,7 @@ GWViewer.prototype.addMenu = function(){
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
 		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':[0.1,0.1],'40%':[2.5,0.5],'70%':[20,5],'max':[200]},'step':0.1,'el':S('#xaxisscale')});
 		this.axes.x.offsetslider = new buildSlider({'values':[this.axes.x.offset/1000],'range':{'min':[-200,5],'20%':[-20,0.5],'35%':[-2.5,0.1],'50%':[0,0.1],'65%':[2.5,0.5],'80%':[20,5],'max':[200]},'step':0.5,'el':S('#xaxisoffset')});
+		this.axes.x.logoffsetslider = new buildSlider({'values':[this.axes.x.logoffset.value],'range':this.axes.x.logoffset.range,'step':1,'el':S('#xaxislogoffset'),'log':true});
 		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks.value/1000],'range': this.axes.x.ticks.range,'snap':true,'el':S('#xaxisticks')});
 		this.option.lineWidth.slider = new buildSlider({'values':[this.option.lineWidth.value],'range':this.option.lineWidth.range,'step':this.option.lineWidth.step,'el':S('#lineWidth')});
 
@@ -376,6 +390,24 @@ GWViewer.prototype.addMenu = function(){
 			}
 		});
 
+		// Add event to xlog checkbox
+		S('#xlog').on("change",{'gw':this},function(e){
+			e.data.gw.axes.x.logscale = e.currentTarget.checked;
+			if (e.data.gw.axes.x.logscale){
+				S('#xaxisoffset').addClass('disabled');
+				S('#xaxislogoffset').removeClass('disabled');
+				S('#xoffset-title').addClass('disabled');
+				S('#xlogoffset-title').removeClass('disabled');
+				_obj.log('xlog');
+			}else{
+				S('#xaxisoffset').removeClass('disabled');
+				S('#xaxislogoffset').addClass('disabled');
+				S('#xoffset-title').removeClass('disabled');
+				S('#xoffset-title').addClass('disabled');
+				_obj.log('xlin');
+			}
+			e.data.gw.scaleWaves();
+		});
 		// Add event to mergealign checkbox
 		S('#mergealign').on("change",{'gw':this},function(e){
 			e.data.gw.query.mergealign = e.currentTarget.checked;
@@ -393,6 +425,7 @@ GWViewer.prototype.addMenu = function(){
 		this.axes.y.slider = { values: [this.axes.y.scale/2e6] };
 		this.axes.x.slider = { values: [this.axes.x.scale/1000] };
 		this.axes.x.offsetslider = { values: [this.axes.x.offset/1000] };
+		this.axes.x.logoffsetslider = { values: [this.axes.x.logoffset.value] };
 		this.axes.x.tickslider = { values: [this.axes.x.ticks.value/1000] };
 		this.option.lineWidth.slider = { 'values': [this.option.lineWidth.value] } ;
 	}
@@ -680,10 +713,18 @@ GWViewer.prototype.draw = function(format){
 			if(this.cat.data[i].waveform.active) n++;
 		}
 		var tscale = 1000; //to ms
-		var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
-		var xscale = this.canvas.wide/this.axes.x.scale;
-		var toffset = this.axes.x.offsetslider.values[0]*tscale;
-		var xoffset = (toffset*xscale);
+		if (this.axes.x.logscale){
+			var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
+			var tlogoffset = Math.log10(0.001*tscale); //set to 0.01s
+			// xlogscale = log(t)->x position
+			var xlogscale = this.canvas.wide/(Math.log10(this.axes.x.scale)-tlogoffset);
+			var xlogoffset = (tlogoffset*xlogscale);
+		}else{
+			var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
+			var xscale = this.canvas.wide/this.axes.x.scale;
+			var toffset = this.axes.x.offsetslider.values[0]*tscale;
+			var xoffset = (toffset*xscale);
+		}
 
 		// Draw grid lines
 		if(this.axes.x.gridlines){
@@ -692,17 +733,32 @@ GWViewer.prototype.draw = function(format){
 			this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].gridlinelabel || "rgba(255,255,255,0.3)");
 			this.canvas.ctx.lineWidth = 1.5;
 			var lines = {};
-			spacing = this.axes.x.ticks.value/tscale;
-			// Get positive lines
-			for(var i = 0; i < this.axes.x.scale+toffset; i += this.axes.x.ticks.value){
-				x = Math.round(i*xscale + xorig) + 0.5 - xoffset;
-				if(x > 0) lines[x] = i/tscale;
+			if (this.axes.x.logscale){
+				spacing = Math.log10(this.axes.x.ticks.value/tscale);
+				// Get log lines
+				for(var i = tlogoffset; i < Math.log10(this.axes.x.scale)+tlogoffset; i += 1){
+					x = Math.round(i * xlogscale + xorig) + 0.5 - xlogoffset;
+					if(x > 0) lines[x] = (10**i)/tscale;
+					x2 = Math.round((i+Math.log10(2)) * xlogscale + xorig) + 0.5 - xlogoffset;
+					if(x2 > 0) lines[x2] = 2*(10**i)/tscale;
+					x5 = Math.round((i+Math.log10(5)) * xlogscale + xorig) + 0.5 - xlogoffset;
+					if(x5 > 0) lines[x5] = 5*(10**i)/tscale;
+				}
+			}else{
+				spacing = this.axes.x.ticks.value/tscale;
+				// Get positive lines
+				for(var i = 0; i < this.axes.x.scale+toffset; i += this.axes.x.ticks.value){
+					x = Math.round(i*xscale + xorig) + 0.5 - xoffset;
+					if(x > 0) lines[x] = i/tscale;
+				}
+				// Get negative lines
+				for(var i = this.axes.x.ticks.value; i > -(this.axes.x.scale+toffset); i -= this.axes.x.ticks.value){
+					x = Math.round(i*xscale + xorig) + 0.5 - xoffset;
+					if(x > 0) lines[x] = i/tscale;
+				}
+
 			}
-			// Get negative lines
-			for(var i = this.axes.x.ticks.value; i > -(this.axes.x.scale+toffset); i -= this.axes.x.ticks.value){
-				x = Math.round(i*xscale + xorig) + 0.5 - xoffset;
-				if(x > 0) lines[x] = i/tscale;
-			}
+			console.log('lines',lines)
 			for(var i in lines){
 				x = parseFloat(i);
 				this.canvas.ctx.beginPath();
@@ -746,7 +802,11 @@ GWViewer.prototype.draw = function(format){
 					var oldpos = {'x':-100,'y':-100};
 					for(var j = 0; j < wf.data.length; j++){
 						if(wf.data[j]){
-							pos = {'x':(xorig+wf.data[j].t*xscale-xoffsetwf),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
+							if (this.axes.x.logscale){
+								pos = {'x':(xorig+Math.log10(wf.data[j].t-wf.offset*tscale)*xlogscale-xlogoffset),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
+							}else{
+								pos = {'x':(xorig+wf.data[j].t*xscale-xoffsetwf),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
+							}
 							if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
 							else this.canvas.ctx.lineTo(pos.x,pos.y);
 							if(format=="svg"){
@@ -777,13 +837,17 @@ GWViewer.prototype.draw = function(format){
 					w = this.canvas.ctx.measureText(this.cat.data[i].name).width;
 					// If we are "auto" or "endmerger" we try setting the x-position to the merger
 					if(this.labelposition == "auto" || this.labelposition == "endmerger"){
-						x = (xorig+wf.tmerge*xscale-xoffsetwf) + this.canvas.fs/2;
+						if (this.axes.x.logscale){
+							x = (xorig+Math.log10(wf.tmerge-wf.offset*tscale)*xlogscale-xlogoffset) + this.canvas.fs/2;
+						}else{
+							x = (xorig+wf.tmerge*xscale-xoffsetwf) + this.canvas.fs/2;
+						}
 						// If the text label doesn't fit on the screen we'll clear the x-position
 						if(this.labelposition == "auto" && x + w > this.canvas.wide) x = 0;
 					}
 					// Fall back to start if the x-value hasn't been set yet
 					if(x==0) x = this.canvas.fs/2;
-					
+
 					this.canvas.ctx.fillText(this.cat.data[i].name,x,y);
 					this.canvas.ctx.fill();
 					if(format=="svg") svg += '<text class="Label" x="'+x+'" y="'+y+'" style="text-anchor:left" fill="'+(this.colourschemes[this.colourscheme].waveformlabel || wf.colour)+'">'+this.cat.data[i].name+'</text>';
@@ -810,8 +874,13 @@ GWViewer.prototype.scaleWaves = function(){
 		if(this.cat.data[i].waveform.max > max) max = this.cat.data[i].waveform.max;
 		if(this.cat.data[i].waveform.active) n++;
 	}
-	this.axes.x.scale = this.axes.x.slider.values[0]*1000;
-	this.axes.x.ticks.value = this.axes.x.tickslider.values[0]*1000;
+	if (this.axes.x.logscale){
+		this.axes.x.scale = this.axes.x.slider.values[0]*1000;
+		this.axes.x.ticks.value = this.axes.x.tickslider.values[0]*1000;
+	}else{
+		this.axes.x.scale = this.axes.x.slider.values[0]*1000;
+		this.axes.x.ticks.value = this.axes.x.tickslider.values[0]*1000;
+	}
 	this.axes.y.scaling = this.axes.y.slider.values[0];
 	this.axes.y.scale = max*(n)/this.axes.y.scaling;
 
@@ -851,7 +920,7 @@ GWViewer.prototype.save = function(type){
 			document.body.appendChild(dl);
 		}
 		dl.click();
-	
+
 	}
 
 	if(type == "svg"){

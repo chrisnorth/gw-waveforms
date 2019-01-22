@@ -1,4 +1,4 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -60,7 +60,7 @@ body {
 #gwviewer .waves {
 	max-width: 100%;
 	overflow-x: auto;
-	margin-bottom: 1em;	
+	margin-bottom: 1em;
 }
 #gwviewer ol { list-style: none; margin: 0px; padding: 0px; }
 #gwviewer ol li .gw-about { display: none; }
@@ -69,7 +69,7 @@ a, a:visited { color: #d2bdc7; }
 
 .hamburger {
 	cursor: pointer;
-	display: block; 
+	display: block;
 	width: 3em;
 	height: 3em;
 	position: fixed;
@@ -159,6 +159,7 @@ menu p { padding: 1em; line-height: 1.25em; }
 menu h1, menu h2 { background-color: #666666; }
 menu h3, menu p { background-color: #444444; }
 menu h3, menu .top { border-top: 1px solid #888; }
+menu h3.disabled {color:#888}
 menu .expander { list-style: none; padding-left: 0px; height: 0px; overflow: hidden; transition: height 0.5s ease-in;  }
 menu h2, menu h3, menu button { cursor: pointer; position: relative; }
 menu .expandable { user-select: none; -moz-user-select: none; -webkit-user-select: none; }
@@ -185,7 +186,7 @@ menu button {
 	padding: 0.25em 0.5em;
 }
 menu button, menu .row {
-	text-align: left; 
+	text-align: left;
 	border: 0px;
 	border-radius: 0px;
 	margin: 0;
@@ -200,6 +201,8 @@ menu .range > div { line-height: 2.5em; padding-left: 1.5em; padding-right: 1.5e
 menu .range .min, menu .range .max { display: inline-block; }
 menu .range .min { margin-left: 1em; }
 menu .range .slider { display: block; width: auto; margin: 0 0.25em; }
+menu .disabled {color:#888888}
+menu .disabled .slider-outer {opacity:0.2}
 menu button:last-child { margin-right: 0px; }
 menu button:hover, menu button.selected, menu label:hover { background: #634d72; color: white; }/*#5d2f4f*/
 menu ol { list-style: none; }
