@@ -294,7 +294,7 @@ GWViewer.prototype.addMenu = function(){
 			var change = false;
 			if(_slider.values[handle] != parseFloat(value)) change = true;
 			if (attr.log){
-				_slider.values[handle] = 10**parseFloat(value);
+				_slider.values[handle] = (10**parseFloat(value)).toPrecision(2);
 			}else{
 				_slider.values[handle] = parseFloat(value);
 			}
@@ -352,7 +352,7 @@ GWViewer.prototype.addMenu = function(){
 		form += '<h3 id="xlogoffset-title" lang="text.gwviewer.axes.x.logoffset" class="translatable disabled"></h3><ol><li class="row range disabled" id="xaxislogoffset"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
-		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable"></h3><ol><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable" id="xticks-title"></h3><ol><li class="row range" id="xaxisticks"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.option.lineWidth" class="translatable"></h3><ol><li class="row range" id="lineWidth"><div><div class="slider"></div><span class="min"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.option.colourscheme" class="translatable"></h3><ol id="colourscheme-switcher"></ol>';
@@ -362,7 +362,7 @@ GWViewer.prototype.addMenu = function(){
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
 		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':[0.1,0.1],'40%':[2.5,0.5],'70%':[20,5],'max':[200]},'step':0.1,'el':S('#xaxisscale')});
 		this.axes.x.offsetslider = new buildSlider({'values':[this.axes.x.offset/1000],'range':{'min':[-200,5],'20%':[-20,0.5],'35%':[-2.5,0.1],'50%':[0,0.1],'65%':[2.5,0.5],'80%':[20,5],'max':[200]},'step':0.5,'el':S('#xaxisoffset')});
-		this.axes.x.logoffsetslider = new buildSlider({'values':[this.axes.x.logoffset.value],'range':this.axes.x.logoffset.range,'step':1,'el':S('#xaxislogoffset'),'log':true});
+		this.axes.x.logoffsetslider = new buildSlider({'values':[this.axes.x.logoffset.value],'range':this.axes.x.logoffset.range,'step':0.1,'el':S('#xaxislogoffset'),'log':true});
 		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks.value/1000],'range': this.axes.x.ticks.range,'snap':true,'el':S('#xaxisticks')});
 		this.option.lineWidth.slider = new buildSlider({'values':[this.option.lineWidth.value],'range':this.option.lineWidth.range,'step':this.option.lineWidth.step,'el':S('#lineWidth')});
 
@@ -395,14 +395,18 @@ GWViewer.prototype.addMenu = function(){
 			e.data.gw.axes.x.logscale = e.currentTarget.checked;
 			if (e.data.gw.axes.x.logscale){
 				S('#xaxisoffset').addClass('disabled');
-				S('#xaxislogoffset').removeClass('disabled');
 				S('#xoffset-title').addClass('disabled');
+				S('#xaxisticks').addClass('disabled');
+				S('#xticks-title').addClass('disabled');
+				S('#xaxislogoffset').removeClass('disabled');
 				S('#xlogoffset-title').removeClass('disabled');
 				_obj.log('xlog');
 			}else{
 				S('#xaxisoffset').removeClass('disabled');
-				S('#xaxislogoffset').addClass('disabled');
 				S('#xoffset-title').removeClass('disabled');
+				S('#xaxisticks').removeClass('disabled');
+				S('#xticks-title').removeClass('disabled');
+				S('#xaxislogoffset').addClass('disabled');
 				S('#xoffset-title').addClass('disabled');
 				_obj.log('xlin');
 			}
@@ -715,7 +719,7 @@ GWViewer.prototype.draw = function(format){
 		var tscale = 1000; //to ms
 		if (this.axes.x.logscale){
 			var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
-			var tlogoffset = Math.log10(0.001*tscale); //set to 0.01s
+			var tlogoffset = Math.log10(this.axes.x.logoffsetslider.values[0]*tscale); //set to 0.01s
 			// xlogscale = log(t)->x position
 			var xlogscale = this.canvas.wide/(Math.log10(this.axes.x.scale)-tlogoffset);
 			var xlogoffset = (tlogoffset*xlogscale);
@@ -736,7 +740,7 @@ GWViewer.prototype.draw = function(format){
 			if (this.axes.x.logscale){
 				spacing = Math.log10(this.axes.x.ticks.value/tscale);
 				// Get log lines
-				for(var i = tlogoffset; i < Math.log10(this.axes.x.scale)+tlogoffset; i += 1){
+				for(var i = Math.round(tlogoffset); i < Math.log10(this.axes.x.scale)+tlogoffset; i += 1){
 					x = Math.round(i * xlogscale + xorig) + 0.5 - xlogoffset;
 					if(x > 0) lines[x] = (10**i)/tscale;
 					x2 = Math.round((i+Math.log10(2)) * xlogscale + xorig) + 0.5 - xlogoffset;
