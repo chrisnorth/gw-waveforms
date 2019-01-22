@@ -29,7 +29,21 @@
 	"data.time.unit": "s",
 	"text.gwviewer.axes.x.range":"Time range",
 	"text.gwviewer.axes.x.ticks":"Grid spacing",
+	"text.gwviewer.axes.x.offset":"Time offset",
 	"text.gwviewer.axes.y.scaling":"Vertical scaling",
 	"text.gwviewer.option.mergealign": "Align mergers",
-	"text.gwviewer.option.gridlines": "Show gridlines"
+	"text.gwviewer.option.gridlines": "Show gridlines",
+	"text.gwviewer.option.lineWidth": "Line thickness",
+	"text.gwviewer.option.colourscheme": "Colour scheme",
+	"text.gwviewer.option.colourscheme.default": "Default",
+	"text.gwviewer.option.colourscheme.bw": "Black on white",
+	"text.gwviewer.option.colourscheme.wb": "White on black",
+	"text.gwviewer.option.labelposition": "Label position",
+	"text.gwviewer.option.labelposition.startmerger": "Start",
+	"text.gwviewer.option.labelposition.endmerger": "At merger",
+	"text.gwviewer.option.labelposition.hidden": "Hidden",
+	"text.gwviewer.option.labelposition.auto": "Auto",
+	"text.gwviewer.save": "Save",
+	"text.gwviewer.save.svg": "Save as SVG (vector)",
+	"text.gwviewer.save.png": "Save as PNG (bitmap)"
 }

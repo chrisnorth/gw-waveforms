@@ -40,16 +40,66 @@ function GWViewer(attr) {
 	this.languages = {};
 	this.lang = (this.query.lang ? this.query.lang : (navigator) ? (navigator.userLanguage||navigator.systemLanguage||navigator.language||browser.language) : "");
 
+	// Define the two axes
 	this.axes = {
 		'x':{
 			'scale':2200,
-			'ticks': 1000,
+			'offset': 0,
+			'ticks': {
+				'value' : 1000,
+				'range': {
+					'min': 0.1,
+					'10%': 0.2,
+					'20%': 0.25,
+					'30%': 0.5,
+					'40%': 1,
+					'50%': 2,
+					'60%': 5,
+					'70%': 10,
+					'80%': 20,
+					'90%': 50,
+					'max': 100
+				}
+			},
 			'gridlines': (typeof this.query.gridlines==="boolean" ? this.query.gridlines : true)
 		},
 		'y':{
 			'scale':2e6
 		}
 	}
+
+	// Define the options
+	this.option = { 'lineWidth': {'value':1,'range':{'min':0.2,'max':5}, 'step': 0.2 } };
+
+	// Define colours (empty uses defaults)
+	this.colourschemes = {
+		'default': {
+			'background': '',
+			'gridline': '',
+			'gridlinelabel': '',
+			'waveform': '',
+			'waveformlabel': ''
+		},
+		'bw': {
+			'background': 'white',
+			'gridline': 'rgba(0,0,0,0.3)',
+			'gridlinelabel': 'rgb(0,0,0)',
+			'waveform': 'rgb(0,0,0)',
+			'waveformlabel': 'rgb(0,0,0)'
+		},
+		'wb': {
+			'background': 'black',
+			'gridline': 'rgba(255,255,255,0.3)',
+			'gridlinelabel': 'rgb(255,255,255)',
+			'waveform': 'rgb(255,255,255)',
+			'waveformlabel': 'rgb(255,255,255)'
+		}
+	};
+	this.colourscheme = 'default';
+
+	this.labelpositions = {'hidden':{},'startmerger':{},'endmerger':{},'auto':{}};
+	this.labelposition = 'auto';
+
 
 	// Create DOM references
 	if(!this.attr.dom) this.attr.dom = {};
@@ -68,6 +118,7 @@ function GWViewer(attr) {
 		html += '<section class="collapse"><h2 tabindex="0" class="translatable expandable" lang="text.gwviewer.orderby">Order by</h2><ol class="expander"><li><button class="order selected translatable" lang="text.gwviewer.orderby.date-oldest" order-by="UTC">Date (oldest first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.date-newest" order-by="UTC" order-reverse="true">Date (most recent first)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M1-largest" order-by="M1" order-reverse="true">M1 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.M2-largest" order-by="M2" order-reverse="true">M2 (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.Mfinal-largest" order-by="Mfinal" order-reverse="true">Final mass (largest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-furthest" order-by="DL" order-reverse="true">Luminosity distance (furthest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.dl-nearest" order-by="DL">Luminosity distance (nearest)</button></li><li><button class="order translatable" lang="text.gwviewer.orderby.rho-highest" order-by="rho" order-reverse="true">Signal-to-noise (highest)</button></li></ol></section>';
 		html += '<section class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.filter" lang-title="text.gwviewer.filter.title" class="translatable">Filter</span></h2><form class="expander" id="filterform"></form></section>';
 		html += '<section class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.viewoptions" lang-title="text.gwviewer.viewoptions" class="translatable">View options</span></h2><form class="expander" id="optionsform"></form></section>';
+		html += '<section class="collapse"><h2 tabindex="0" class="expandable"><span lang="text.gwviewer.save" lang-title="text.gwviewer.save" class="translatable">Save</span></h2><ol class="expander" id="saveform"><li><button id="save-svg" lang="text.gwviewer.save.svg" lang-title="text.gwviewer.save.svg" class="translatable">Save as SVG</button></li><li><button id="save-png" lang="text.gwviewer.save.png" lang-title="text.gwviewer.save.png" class="translatable">Save as PNG</button></li></ol></section>';
 		html += '</div>';
 		this.dom.menu.html(html);
 	}
@@ -150,16 +201,12 @@ GWViewer.prototype.updateFilters = function(){
 		active = true;
 		for(key in this.filters){
 			a = this.filters[key];
-			//console.log(key,a.type)
 			if(a.type == "slider"){
 				// Process each slider
-				//console.log(key,inRange(i,key,this.filters[key].slider.values))
 				if(!inRange(i,key,a.slider.values)) active = false;
-				//if(!active) console.log(i,key)
 			}else if(a.type == "checkbox"){
 				if(!isChecked(i,key)) active = false;
 			}
-			//console.log(key,active)
 		}
 		this.cat.data[i].waveform.active = active;
 		if(active && !this.cat.data[i].waveform.data && !this.cat.data[i].waveform.loading){
@@ -227,10 +274,11 @@ GWViewer.prototype.addMenu = function(){
 		this.values = attr.values;
 		this.range = attr.range;
 		this.step = (attr.step||1);
+		this.snap = (attr.snap||false);
 		this.connect = (this.values.length==2) ? true : false;
 		this.el = attr.el;
 
-		var inputs = { 'start': this.values, 'step': this.step, 'range': this.range, 'connect': this.connect };
+		var inputs = { 'start': this.values, 'step': this.step, 'range': this.range, 'connect': this.connect, 'snap': this.snap };
 		this.slider = noUiSlider.create(this.el.find('.slider')[0], inputs);
 
 		var _slider = this;
@@ -288,29 +336,65 @@ GWViewer.prototype.addMenu = function(){
 	if(this.dom.menu){
 		form = '';
 		form += '<h3 lang="text.gwviewer.axes.x.range" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.x.offset" class="translatable"></h3><ol><li class="row range" id="xaxisoffset"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable"></h3><ol><li class="row range" id="xaxisticks"><div><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.option.lineWidth" class="translatable"></h3><ol><li class="row range" id="lineWidth"><div><div class="slider"></div><span class="min"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.option.colourscheme" class="translatable"></h3><ol id="colourscheme-switcher"></ol>';
+		form += '<h3 lang="text.gwviewer.option.labelposition" class="translatable"></h3><ol id="labelposition-switcher"></ol>';
 
 		S('#optionsform').append(form);
 		this.axes.y.slider = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
-		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':0.1,'max':5},'step':0.1,'el':S('#xaxisscale')});
-		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks/1000],'range':{'min':0.25,'max':1},'snap':true,'step':0.25,'el':S('#xaxisticks')});
+		this.axes.x.slider = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':[0.1,0.1],'40%':[2.5,0.5],'70%':[20,5],'max':[200]},'step':0.1,'el':S('#xaxisscale')});
+		this.axes.x.offsetslider = new buildSlider({'values':[this.axes.x.offset/1000],'range':{'min':[-200,5],'20%':[-20,0.5],'35%':[-2.5,0.1],'50%':[0,0.1],'65%':[2.5,0.5],'80%':[20,5],'max':[200]},'step':0.5,'el':S('#xaxisoffset')});
+		this.axes.x.tickslider = new buildSlider({'values':[this.axes.x.ticks.value/1000],'range': this.axes.x.ticks.range,'snap':true,'el':S('#xaxisticks')});
+		this.option.lineWidth.slider = new buildSlider({'values':[this.option.lineWidth.value],'range':this.option.lineWidth.range,'step':this.option.lineWidth.step,'el':S('#lineWidth')});
+
+		// Build colour scheme options
+		opt = '';
+		for(var c in this.colourschemes) opt += '<li class="row"><input type="radio" class="colourchanger" name="colourscheme" id="colourscheme-'+c+'" value="'+c+'"'+(c==this.colourscheme ? ' checked="checked"':'')+'></input><label for="colourscheme-'+c+'" lang="text.gwviewer.option.colourscheme.'+c+'" class="translatable"></label></li>';
+		S('#colourscheme-switcher').html(opt);
+		S('.colourchanger').on("change",{'gw':this},function(e){
+			var c = e.currentTarget.value;
+			if(e.data.gw.colourschemes[c]){
+				e.data.gw.colourscheme = c;
+				e.data.gw.draw();
+			}
+		});
+
+		// Build label position options
+		opt = '';
+		for(var p in this.labelpositions) opt += '<li class="row"><input type="radio" class="labelposition" name="labelposition" id="labelposition-'+p+'" value="'+p+'"'+(p==this.labelposition ? ' checked="checked"':'')+'></input><label for="labelposition-'+p+'" lang="text.gwviewer.option.labelposition.'+p+'" class="translatable"></label></li>';
+		S('#labelposition-switcher').html(opt);
+		S('.labelposition').on("change",{'gw':this},function(e){
+			var p = e.currentTarget.value;
+			if(e.data.gw.labelpositions[p]){
+				e.data.gw.labelposition = p;
+				e.data.gw.draw();
+			}
+		});
 
 		// Add event to mergealign checkbox
 		S('#mergealign').on("change",{'gw':this},function(e){
 			e.data.gw.query.mergealign = e.currentTarget.checked;
 			e.data.gw.scaleWaves();
-		})
+		});
 		S('#gridlines').on("change",{'gw':this},function(e){
 			e.data.gw.axes.x.gridlines = e.currentTarget.checked;
 			e.data.gw.scaleWaves();
-		})
+		});
+		// Add save options
+		S('#save-svg').on("click",{'gw':this},function(e){ e.data.gw.save('svg'); });
+		S('#save-png').on("click",{'gw':this},function(e){ e.data.gw.save('png'); });
+
 	}else{
-		this.axes.y.slider = { values: [this.axes.y.scale/2e6] }
-		this.axes.x.slider = { values: [this.axes.x.scale/1000] }
-		this.axes.x.tickslider = { values: [this.axes.x.ticks/1000] }
+		this.axes.y.slider = { values: [this.axes.y.scale/2e6] };
+		this.axes.x.slider = { values: [this.axes.x.scale/1000] };
+		this.axes.x.offsetslider = { values: [this.axes.x.offset/1000] };
+		this.axes.x.tickslider = { values: [this.axes.x.ticks.value/1000] };
+		this.option.lineWidth.slider = { 'values': [this.option.lineWidth.value] } ;
 	}
 
 	if(this.dom.menu){
@@ -458,6 +542,8 @@ GWViewer.prototype.loadCatalogue = function(file){
 
 	this.log('loadCatalogue')
 	if(!file || typeof file!=="string") file = 'gwcat/data/events.json';
+	// if(!gwoscfile || typeof gwoscfile!=="string") gwoscfile = 'gwcat/data/gwosc.json';
+	gwoscfile = 'gwcat/data/gwosc.json';
 	var _obj = this;
 
 	function loaded(){
@@ -511,7 +597,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 		});
 	}
 
-	this.cat = new GWCat(loaded,{'fileIn':file});
+	this.cat = new GWCat(loaded,{'fileIn':file,'datasrc':'gwosc',gwoscFile:gwoscfile});
 
 	return this;
 }
@@ -520,6 +606,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 GWViewer.prototype.draw = function(format){
 
 	var now = new Date();
+	var lw = this.option.lineWidth.slider.values[0];
 
 	function Canvas(el,idinner){
 		this.container = el;
@@ -548,7 +635,7 @@ GWViewer.prototype.draw = function(format){
 			this.fs = this.getFontsize();
 			this.ctx.font = this.fs+"px Helvetica";
 			this.ctx.fillStyle = 'rgb(255,255,255)';
-			this.ctx.lineWidth = 1.5;
+			this.ctx.lineWidth = lw;
 			this.ctx.fill();
 		}
 
@@ -577,8 +664,10 @@ GWViewer.prototype.draw = function(format){
 	}
 
 	var svg = "";
-	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by Stuart</desc>';
+	if(format=="svg") svg = '<svg height="'+this.canvas.tall+'" version="1.1" width="'+this.canvas.wide+'" viewBox="0 0 '+this.canvas.wide+' '+this.canvas.tall+'" xmlns="http://www.w3.org/2000/svg"><desc>Created by GWViewer '+this.version+'</desc>';
 
+	// Set background colour
+	S('#gwviewer').css({'background':(this.colourschemes[this.colourscheme].background || '')});
 
 	if(this.canvas.ctx){
 
@@ -593,29 +682,44 @@ GWViewer.prototype.draw = function(format){
 		var tscale = 1000; //to ms
 		var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
 		var xscale = this.canvas.wide/this.axes.x.scale;
+		var toffset = this.axes.x.offsetslider.values[0]*tscale;
+		var xoffset = (toffset*xscale);
 
 		// Draw grid lines
 		if(this.axes.x.gridlines){
-			var w = Math.ceil(this.axes.x.scale/this.axes.x.ticks);
-			this.canvas.ctx.strokeStyle = "rgba(255,255,255,0.3)";
-			this.canvas.ctx.fillStyle = "rgba(255,255,255,0.3)";
-			this.canvas.ctx.lineWidth = 1;
-			for(var i = -w; i < w ; i++){
-				j = i*this.axes.x.ticks/tscale;
-				x = Math.round(i*this.axes.x.ticks*xscale + xorig) + 0.5;
-				if(x > 0){
+			var w = Math.ceil(this.axes.x.scale/tscale);
+			this.canvas.ctx.strokeStyle = (this.colourschemes[this.colourscheme].gridline || "rgba(255,255,255,0.3)");
+			this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].gridlinelabel || "rgba(255,255,255,0.3)");
+			this.canvas.ctx.lineWidth = 1.5;
+			var lines = {};
+			spacing = this.axes.x.ticks.value/tscale;
+			// Get positive lines
+			for(var i = 0; i < this.axes.x.scale+toffset; i += this.axes.x.ticks.value){
+				x = Math.round(i*xscale + xorig) + 0.5 - xoffset;
+				if(x > 0) lines[x] = i/tscale;
+			}
+			// Get negative lines
+			for(var i = this.axes.x.ticks.value; i > -(this.axes.x.scale+toffset); i -= this.axes.x.ticks.value){
+				x = Math.round(i*xscale + xorig) + 0.5 - xoffset;
+				if(x > 0) lines[x] = i/tscale;
+			}
+			for(var i in lines){
+				x = parseFloat(i);
+				this.canvas.ctx.beginPath();
+				this.canvas.ctx.moveTo(x,0);
+				this.canvas.ctx.lineTo(x,this.canvas.tall);
+				if(format == "svg") svg += '<path d="M '+x+',0 L '+x+','+this.canvas.tall+'" stroke="'+(this.colourschemes[this.colourscheme].gridline || "rgba(255,255,255,0.3)")+'" fill="'+(this.colourschemes[this.colourscheme].gridline || "rgba(255,255,255,0.3)")+'" stroke-width="1.5"></path>';
+				this.canvas.ctx.stroke();
+				if(typeof lines[i]!=="undefined"){
 					this.canvas.ctx.beginPath();
-					this.canvas.ctx.moveTo(x,0);
-					this.canvas.ctx.lineTo(x,this.canvas.tall);
-					this.canvas.ctx.stroke();
-					if((j-Math.round(j)) == 0){
-						this.canvas.ctx.beginPath();
-						this.canvas.ctx.fillText(j+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
-						this.canvas.ctx.fill();
-					}
+					this.canvas.ctx.fillText(lines[i]+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
+					this.canvas.ctx.fill();
+					svg += '<text x="'+(x+4)+'" y="'+(this.canvas.tall-4)+'" fill="'+(this.colourschemes[this.colourscheme].gridlinelabel || "rgba(255,255,255,0.3)")+'">'+lines[i]+' '+this.language['data.time.unit']+'</text>';
 				}
 			}
 		}
+
+		var dy = this.canvas.tall*(1/(n+1));
 
 		// Loop over each waveform
 		for(var i = 0, ii = 0; i < this.cat.length; i++){
@@ -627,41 +731,63 @@ GWViewer.prototype.draw = function(format){
 
 				this.canvas.ctx.beginPath();
 
-				this.canvas.ctx.strokeStyle = wf.colour;
-				this.canvas.ctx.lineWidth = 1;
+				this.canvas.ctx.strokeStyle = (this.colourschemes[this.colourscheme].waveform || wf.colour);
+				this.canvas.ctx.lineWidth = lw;
 
 				yscale = this.canvas.tall/(typeof this.axes.y.scale==="number" ? this.axes.y.scale : (this.max || 2e6));
 				yorig = this.canvas.tall*((ii+1)/(n+1));
+				xoffsetwf = 0;
 
 				if(wf.data){
 
+					xoffsetwf = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
+					xoffsetwf += xoffset;
 					if(format=="svg") svg += '<path d="';
 					var oldpos = {'x':-100,'y':-100};
-
 					for(var j = 0; j < wf.data.length; j++){
-						var xoffset = (this.query.mergealign) ? 0 : wf.offset*tscale*xscale;
-						pos = {'x':(xorig+wf.data[j].t*xscale-xoffset),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
-						if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
-						else this.canvas.ctx.lineTo(pos.x,pos.y);
-						if(format=="svg"){
-							if(j==0) svg += 'M '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
-							else{
-								if(Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y) > 1){
-									svg += ' L '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
-									oldpos.x = pos.x;
-									oldpos.y = pos.y;
+						if(wf.data[j]){
+							pos = {'x':(xorig+wf.data[j].t*xscale-xoffsetwf),'y':(yorig+Math.round(wf.data[j].hp*yscale))};
+							if(j==0) this.canvas.ctx.moveTo(pos.x,pos.y);
+							else this.canvas.ctx.lineTo(pos.x,pos.y);
+							if(format=="svg"){
+								if(j==0) svg += 'M '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
+								else{
+									if(Math.abs(pos.x-oldpos.x)+Math.abs(pos.y-oldpos.y) > 1){
+										svg += ' L '+pos.x.toFixed(1)+','+pos.y.toFixed(1);
+										oldpos.x = pos.x;
+										oldpos.y = pos.y;
+									}
 								}
 							}
 						}
 					}
-					if(format=="svg") svg += '" stroke="'+wf.colour+'" stroke-width="1.5" />';
+					if(format=="svg") svg += '" stroke="'+(this.colourschemes[this.colourscheme].waveform || wf.colour)+'" stroke-width="'+lw+'" fill="none" />';
 				}
 				this.canvas.ctx.stroke();
-				this.canvas.ctx.beginPath();
-				this.canvas.ctx.fillStyle = wf.colour;
-				this.canvas.ctx.fillText(this.cat.data[i].name,this.canvas.fs,(yorig-4))
-				this.canvas.ctx.fill();
-				if(format=="svg") svg += '<text class="Label" x="'+this.canvas.fs+'" y="'+(yorig-4)+'" style="text-anchor:left" fill="'+wf.colour+'">'+this.cat.data[i].name+'</text>'
+
+				// Only draw labels if they are visible
+				if(this.labelposition != "hidden"){
+
+					this.canvas.ctx.beginPath();
+					this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].waveformlabel || wf.colour);
+					this.canvas.ctx.textBaseline = "middle";
+
+					x = 0;
+					y = (yorig-(dy-this.canvas.fs)/2);
+					w = this.canvas.ctx.measureText(this.cat.data[i].name).width;
+					// If we are "auto" or "endmerger" we try setting the x-position to the merger
+					if(this.labelposition == "auto" || this.labelposition == "endmerger"){
+						x = (xorig+wf.tmerge*xscale-xoffsetwf) + this.canvas.fs/2;
+						// If the text label doesn't fit on the screen we'll clear the x-position
+						if(this.labelposition == "auto" && x + w > this.canvas.wide) x = 0;
+					}
+					// Fall back to start if the x-value hasn't been set yet
+					if(x==0) x = this.canvas.fs/2;
+
+					this.canvas.ctx.fillText(this.cat.data[i].name,x,y);
+					this.canvas.ctx.fill();
+					if(format=="svg") svg += '<text class="Label" x="'+x+'" y="'+y+'" style="text-anchor:left" fill="'+(this.colourschemes[this.colourscheme].waveformlabel || wf.colour)+'">'+this.cat.data[i].name+'</text>';
+				}
 
 				ii++;
 			}
@@ -672,9 +798,8 @@ GWViewer.prototype.draw = function(format){
 	diff = ((new Date()) - now);
 	this.log('Draw time = '+diff+' ms');
 
-	if(format=="svg") S('#gwviewer').append(svg);
-	//if(format=="svg") return svg;
-	return this;
+	//if(format=="svg") S('#gwviewer').append(svg);
+	return (svg||this);
 }
 
 GWViewer.prototype.scaleWaves = function(){
@@ -686,7 +811,7 @@ GWViewer.prototype.scaleWaves = function(){
 		if(this.cat.data[i].waveform.active) n++;
 	}
 	this.axes.x.scale = this.axes.x.slider.values[0]*1000;
-	this.axes.x.ticks = this.axes.x.tickslider.values[0]*1000;
+	this.axes.x.ticks.value = this.axes.x.tickslider.values[0]*1000;
 	this.axes.y.scaling = this.axes.y.slider.values[0];
 	this.axes.y.scale = max*(n)/this.axes.y.scaling;
 
@@ -700,6 +825,49 @@ GWViewer.prototype.setAxis = function(t,size){
 	return this;
 }
 
+GWViewer.prototype.save = function(type){
+
+	// Bail out if there is no Blob function to save with
+	if(typeof Blob!=="function") return this;
+	var opts = { 'type': '', 'file': '' };
+
+	function save(content){
+		var asBlob = new Blob([content], {type:opts.type});
+		function destroyClickedElement(event){ document.body.removeChild(event.target); }
+
+		var dl = document.createElement("a");
+		dl.download = opts.file;
+		dl.innerHTML = "Download File";
+		if(window.webkitURL != null){
+			// Chrome allows the link to be clicked
+			// without actually adding it to the DOM.
+			dl.href = window.webkitURL.createObjectURL(asBlob);
+		}else{
+			// Firefox requires the link to be added to the DOM
+			// before it can be clicked.
+			dl.href = window.URL.createObjectURL(asBlob);
+			dl.onclick = destroyClickedElement;
+			dl.style.display = "none";
+			document.body.appendChild(dl);
+		}
+		dl.click();
+
+	}
+
+	if(type == "svg"){
+		svg = this.draw('svg');
+		opts.type = 'image/json';
+		opts.file = 'waveform.svg';
+		save(svg);
+	}
+	if(type == "png"){
+		opts.type = "image/png";
+		opts.file = "timeseries.png";
+		this.canvas.c.toBlob(save,opts.type);
+	}
+
+	return this;
+}
 
 // Object to process wave forms
 function WaveForm(attr){
@@ -767,7 +935,7 @@ WaveForm.prototype.parse = function(){
 	// Parse the data string
 	var d = this.datastr;
 	d = d.substr(0,d.lastIndexOf('\n'));
-	d = d.split('\n');
+	d = d.split(/[\n\r]+/);
 	// Re-write badly formatted headings
 	if(d[0].indexOf("  ") > 0) d[0] = d[0].replace(/time \(seconds\)/g,"t").replace(/strain \* 1.e21/g,"strain*1e21").replace(/ {2,}/g," ");
 

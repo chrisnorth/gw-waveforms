@@ -1,42 +1,62 @@
 {
 	"GW150914": {
 		"file": "example-data/waveform_GW150914_compress.txt",
-		"offset": -0.22443,
+		"offset": -0.29087,
 		"tmerge":0.0,
 		"colour":"#1576a1"
 	},
-	"LVT151012": {
-		"file": "example-data/waveform_LVT151012_compress.txt",
-		"offset": -0.73809,
+	"GW151012": {
+		"file": "example-data/waveform_GW151012_compress.txt",
+		"offset": -0.80244,
 		"tmerge":0.0,
 		"colour":"#0a9676"
 	},
 	"GW151226": {
 		"file": "example-data/waveform_GW151226_compress.txt",
-		"offset": -1.87995,
+		"offset": -1.92174,
 		"tmerge":0.0,
 		"colour":"#c85b26"
 	},
 	"GW170104": {
 		"file": "example-data/waveform_GW170104_compress.txt",
-		"offset": -0.37932,
+		"offset": -0.45858,
 		"tmerge":0.0,
 		"colour":"#c288a5"
 	},
 	"GW170608": {
 		"file": "example-data/waveform_GW170608_compress.txt",
-		"offset": -2.31224,
+		"offset": -2.33701,
+		"tmerge":0.0
+	},
+	"GW170729": {
+		"file": "example-data/waveform_GW170729_compress.txt",
+		"offset": -0.20505,
+		"tmerge":0.0
+	},
+	"GW170809": {
+		"file": "example-data/waveform_GW170809_compress.txt",
+		"offset": -0.36026,
 		"tmerge":0.0
 	},
 	"GW170814": {
 		"file": "example-data/waveform_GW170814_compress.txt",
-		"offset": -0.30342,
+		"offset": -0.37946,
 		"tmerge":0.0,
 		"colour":"#eeea87"
 	},
 	"GW170817": {
 		"file": "example-data/waveform_GW170817_compress.txt",
-		"offset": -56.78917,
+		"offset": -53.99543,
+		"tmerge":0.0
+	},
+	"GW170818": {
+		"file": "example-data/waveform_GW170818_compress.txt",
+		"offset": -0.32442,
+		"tmerge":0.0
+	},
+	"GW170823": {
+		"file": "example-data/waveform_GW170823_compress.txt",
+		"offset": -0.27993,
 		"tmerge":0.0
 	}
 }
