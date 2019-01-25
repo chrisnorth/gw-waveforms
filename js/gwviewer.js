@@ -331,7 +331,7 @@ GWViewer.prototype.addMenu = function(){
 			el.addClass('disabled');
 		}
 	}
-	
+
 	function updateSliderStates(gw){
 		if(gw.axes.x.logscale){
 			sliderState(gw.sliders.xoffset,false);
@@ -339,6 +339,10 @@ GWViewer.prototype.addMenu = function(){
 
 			sliderState(gw.sliders.xticks,false);
 			S('#xticks-title').addClass('disabled').css({'display':'none'});
+
+			S('#mergealign-outer').removeClass('disabled').css({'display':'none'});
+			S('#mergealign')[0].checked=false
+			gw.query.mergealign=false;
 
 			sliderState(gw.sliders.xlogoffset,true);
 			S('#xlogoffset-title').removeClass('disabled').css({'display':''});
@@ -350,6 +354,10 @@ GWViewer.prototype.addMenu = function(){
 
 			sliderState(gw.sliders.xticks,true);
 			S('#xticks-title').removeClass('disabled').css({'display':''});
+
+			S('#mergealign-outer').removeClass('disabled').css({'display':''});
+			S('#mergealign')[0].checked=false
+			gw.query.mergealign=false;
 
 			sliderState(gw.sliders.xlogoffset,false);
 			S('#xlogoffset-title').addClass('disabled').css({'display':'none'});
@@ -393,7 +401,7 @@ GWViewer.prototype.addMenu = function(){
 		form += '<h3 lang="text.gwviewer.axes.x.range" class="translatable"></h3><ol><li class="row range" id="xaxisscale"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<h3 id="xoffset-title" lang="text.gwviewer.axes.x.offset" class="translatable"></h3><ol><li class="row range" id="xaxisoffset"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<h3 id="xlogoffset-title" lang="text.gwviewer.axes.x.logoffset" class="translatable disabled"></h3><ol><li class="row range" id="xaxislogoffset" disabled=true"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
-		form += '<ol class="top"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
+		form += '<ol class="top" id="mergealign-outer"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable" id="xticks-title"></h3><ol><li class="row range" id="xaxisticks"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
