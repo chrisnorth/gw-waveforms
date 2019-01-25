@@ -1,6 +1,7 @@
 {
 	"text.gen.about": "About",
-	"text.gwviewer.help.about": "This web-app was written and is maintained by <a href=\"http://blogs.cardiff.ac.uk/chrisnorth\">Chris North</a> (<a href=\"http://www.astro.cf.ac.uk/research/gravity\">Cardiff University</a>) and Stuart Lowe. <a href=\"http://chrisnorth.github.io/plotgw/github.com/chrisnorth/gw-waveforms\">Source code is available on GitHub</a>.",
+	"text.gwviewer.help.about": "This web-app was written and is maintained by <a href=\"http://blogs.cardiff.ac.uk/chrisnorth\">Chris North</a> (<a href=\"http://www.cardiff.ac.uk/physics-astronomy/research/research-groups/gravitational-physics\">Cardiff University</a>) and Stuart Lowe. <a href=\"http://github.com/chrisnorth/gw-waveforms\">Source code is available on GitHub</a>.",
+	"text.gwviewer.help.technical": "The waveforms displayed are illustrative only, and do not include many less dominant effects (black hole spins, tidal deformations etc.). For tutorials on generating waveforms, please see the <a href=\"https://www.gw-openscience.org/tutorials/\">Gravitational Wave Open Science Centre</a>.",
 	"text.gwviewer.information.title": "Gravitational Wave Viewer",
 	"text.gwviewer.orderby": "Order by",
 	"text.gwviewer.orderby.date-oldest": "Date (oldest)",
