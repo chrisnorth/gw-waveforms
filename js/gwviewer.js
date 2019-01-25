@@ -69,6 +69,7 @@ function GWViewer(attr) {
 					'max': 100
 				}
 			},
+			'logscale': false,
 			'gridlines': (typeof this.query.gridlines==="boolean" ? this.query.gridlines : true)
 		},
 		'y':{
@@ -315,6 +316,47 @@ GWViewer.prototype.addMenu = function(){
 		return this;
 	}
 
+	function sliderState(slider,enabled){
+		var el = S(slider.el[0]);
+		if(typeof enabled!=="boolean") enabled = !(el.attr('disabled')=="true");
+		if(enabled){
+			el.parent().css({'display':''});
+			el.attr('disabled','');
+			el.find('.noUi-origin').attr('disabled','');
+			el.removeClass('disabled');
+		}else{
+			el.parent().css({'display':'none'});
+			el.attr('disabled','true');
+			el.find('.noUi-origin').attr('disabled','true');
+			el.addClass('disabled');
+		}
+	}
+	
+	function updateSliderStates(gw){
+		if(gw.axes.x.logscale){
+			sliderState(gw.sliders.xoffset,false);
+			S('#xoffset-title').addClass('disabled').css({'display':'none'});
+
+			sliderState(gw.sliders.xticks,false);
+			S('#xticks-title').addClass('disabled').css({'display':'none'});
+
+			sliderState(gw.sliders.xlogoffset,true);
+			S('#xlogoffset-title').removeClass('disabled').css({'display':''});
+
+			gw.log('xlog');
+		}else{
+			sliderState(gw.sliders.xoffset,true);
+			S('#xoffset-title').removeClass('disabled').css({'display':''});
+
+			sliderState(gw.sliders.xticks,true);
+			S('#xticks-title').removeClass('disabled').css({'display':''});
+
+			sliderState(gw.sliders.xlogoffset,false);
+			S('#xlogoffset-title').addClass('disabled').css({'display':'none'});
+
+			gw.log('xlin');
+		}
+	}
 	if(S('#filterform').length > 0){
 		for(key in this.filters){
 			a = this.filters[key]
@@ -392,50 +434,13 @@ GWViewer.prototype.addMenu = function(){
 			}
 		});
 
-		function sliderState(slider,enabled){
-			var el = S(slider.el[0]);
-			if(typeof enabled!=="boolean") enabled = !(el.attr('disabled')=="true");
-			if(enabled){
-				el.attr('disabled','');
-				el.find('.noUi-origin').attr('disabled','');
-				el.removeClass('disabled');
-			}else{
-				el.attr('disabled','true');
-				el.find('.noUi-origin').attr('disabled','true');
-				el.addClass('disabled');
-			}
-		}
-		// Set the x log-scale slider to disabled
-		sliderState(this.sliders.xlogoffset,false);
+		// Update the enabled/disabled states of the sliders
+		updateSliderStates(this);
 
 		// Add event to xlog checkbox
 		S('#xlog').on("change",{'gw':this},function(e){
 			e.data.gw.axes.x.logscale = e.currentTarget.checked;
-			if (e.data.gw.axes.x.logscale){
-				// Sliders which are disabled
-				sliderState(e.data.gw.sliders.xoffset,false);
-				sliderState(e.data.gw.sliders.xticks,false);
-				// Sliders which are enabled
-				sliderState(e.data.gw.sliders.xlogoffset,true);
-
-				S('#xoffset-title').addClass('disabled');
-				S('#xticks-title').addClass('disabled');
-				S('#xaxislogoffset').removeClass('disabled');
-				S('#xlogoffset-title').removeClass('disabled');
-				_obj.log('xlog');
-			}else{
-				// Sliders which are disabled
-				sliderState(e.data.gw.sliders.xlogoffset,false);
-				// Sliders which are enabled
-				sliderState(e.data.gw.sliders.xoffset,true);
-				sliderState(e.data.gw.sliders.xticks,true);
-
-				S('#xoffset-title').removeClass('disabled');
-				S('#xticks-title').removeClass('disabled');
-				S('#xaxislogoffset').addClass('disabled');
-				S('#xoffset-title').addClass('disabled');
-				_obj.log('xlin');
-			}
+			updateSliderStates(e.data.gw);
 			e.data.gw.scaleWaves();
 		});
 		// Add event to mergealign checkbox
@@ -901,7 +906,7 @@ GWViewer.prototype.scaleWaves = function(){
 		if(this.cat.data[i].waveform.max > max) max = this.cat.data[i].waveform.max;
 		if(this.cat.data[i].waveform.active) n++;
 	}
-	if (this.axes.x.logscale){
+	if(this.axes.x.logscale){
 		this.axes.x.scale = this.sliders.xscale.values[0]*1000;
 		this.axes.x.ticks.value = this.sliders.xticks.values[0]*1000;
 	}else{
