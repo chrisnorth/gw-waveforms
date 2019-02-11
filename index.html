@@ -4,36 +4,39 @@
 	<script type="text/javascript" src="js/lib/stuquery.js"></script>
 	<script type="text/javascript" src="gwcat/js/gwcat.js"></script>
 	<script type="text/javascript" src="js/gwviewer.js"></script>
+	<script type="text/javascript" src="js/lib/nouislider.min.js"></script>
+    <link rel="icon" type="image/vnd.microsoft.icon" href="img/favicon-32x32.png" />
+	<link rel="stylesheet" href="css/lib/nouislider.min.css">
 	<link rel="stylesheet" href="css/gwviewer.css">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta property="og:url"           content="http://chrisnorth.github.io/gw-waveforms/" />
+    <meta property="og:type"          content="website" />
+    <meta property="og:title"         content="Gravitational Wave Viewer" />
+    <meta property="og:description"   content="Explore the LIGO catalogue of gravitataional waves" />
+    <meta property="og:image"         content="http://chrisnorth.github.io/plotgw/img/screenshot.png" />
+    <link rel="icon" type="image/vnd.microsoft.icon" href="http://chrisnorth.github.io/plotgw/img/favicon-32x32.png" />
 </head>
 <body>
-	<h1>GW Viewer demo</h1>
-	<h2>Initialisation</h2>
-	In the &lt;head&gt; of the page, include the <code>gwcat</code> library.
-	<pre><code>
-&lt;script src="js/lib/stuquery.js"&gt;&lt;/script&gt;
-&lt;script src="gwcat/js/gwcat.js"&gt;&lt;/script&gt;
-&lt;script src="js/gwviewer.js"&gt;&lt;/script&gt;
-	</code></pre>
-	<p>To initialise the database of events</p>
-	<pre><code>
-	gwview = new GWViewer({<i>parameters</i>});
-	</code></pre>
-	<ul>
-		<li><b><i>parameters</i></b> [Object, optional]: a dictionary containing input parameters:
-			<ul>
-				<li><i>id</i>: [string] the id of the DOM element we will draw the gravitational waves to</li>
-			</ul>
-		</li>
-	</ul>
-	<h2>Example</h2>
-	<div id="gwviewer"></div>
+
+	<input type="checkbox" id="hamburger" class="hamburger">
+	<label for="hamburger" class="hamburger"><span class="nv">Toggle menu (if not visible)</span></label>
+	<div id="heading"><h1><span class="translatable" lang="text.gwviewer.information.title">Gravitational Wave Viewer</span><span class="version">0.1</span></h1></div>
+	<menu>
+		<div class="holder">Header</div>
+	</menu>
+	<div id="main">
+		<div id="gwviewer"></div>
+	</div>
 
 	<script type="text/javascript">
 	var gwview;
 	S(document).ready(function(){
-		gwview = new GWViewer({'id':'gwviewer'});
+		gwview = new GWViewer({
+			'id': 'gwviewer',
+			'dom': { 'menu': S('menu .holder') }
+		});
 	});
 	</script>
+
 </body>
 </html>
