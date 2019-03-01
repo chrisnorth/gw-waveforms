@@ -12,8 +12,11 @@ function GWViewer(attr) {
 	this.attr = attr;
 
 	this.logging = true;
+	this.logtime = true;
 	if(typeof this.attr.log==="boolean") this.logging = this.attr.log;
+	if(typeof this.attr.logtime==="boolean") this.logtime = this.attr.logtime;
 	if(this.logging && console) console.log('%cGWViewer v'+this.version+'%c','font-weight:bold;font-size:1.25em;','');
+	this.metrics = {};	// Store information about processing times
 
 	function query(){
         var r = {length:0};
@@ -140,12 +143,46 @@ function GWViewer(attr) {
 }
 
 GWViewer.prototype.log = function(){
-	if(this.logging){
+	if(this.logging || arguments[0]=="ERROR"){
 		var args = Array.prototype.slice.call(arguments, 0);
-		if(console && typeof console.log==="function") console.log('GWViewer',args);
+		if(console && typeof console.log==="function"){
+			if(arguments[0] == "ERROR") console.log('%cERROR%c %cGWViewer%c: '+args[1],'color:white;background-color:#D60303;padding:2px;','','font-weight:bold;','',(args.length > 2 ? args.splice(2):""));
+			else if(arguments[0] == "WARNING") console.log('%cWARNING%c %cGWViewer%c: '+args[1],'color:white;background-color:#F9BC26;padding:2px;','','font-weight:bold;','',(args.length > 2 ? args.splice(2):""));
+			else console.log('%cGWViewer%c','font-weight:bold;','',args);
+		}
 	}
 	return this;
 }
+
+GWViewer.prototype.logTime = function(key){
+	if(!this.metrics[key]) this.metrics[key] = {'times':[],'start':''};
+	if(!this.metrics[key].start) this.metrics[key].start = new Date();
+	else{
+		var t,w,v,tot,l,i,ts;
+		t = ((new Date())-this.metrics[key].start);
+		ts = this.metrics[key].times;
+		// Define the weights for each time in the array
+		w = [1,0.75,0.55,0.4,0.28,0.18,0.1,0.05,0.002];
+		// Add this time to the start of the array
+		ts.unshift(t);
+		// Remove old times from the end
+		if(ts.length > w.length-1) ts = ts.slice(0,w.length);
+		// Work out the weighted average
+		l = ts.length;
+		this.metrics[key].av = 0;
+		if(l > 0){
+			for(i = 0, v = 0, tot = 0 ; i < l ; i++){
+				v += ts[i]*w[i];
+				tot += w[i];
+			}
+			this.metrics[key].av = v/tot;
+		}
+		this.metrics[key].times = ts.splice(0);
+		if(this.logtime) console.log('%cGWViewer%c: '+key+' '+t+'ms ('+this.metrics[key].av.toFixed(1)+'ms av)','font-weight:bold;','');
+		delete this.metrics[key].start;
+	}
+	return this;
+};
 
 GWViewer.prototype.resize = function(){
 	this.log('resize');
@@ -330,10 +367,12 @@ GWViewer.prototype.addMenu = function(){
 			el.find('.noUi-origin').attr('disabled','true');
 			el.addClass('disabled');
 		}
+		return;
 	}
 
 	function updateSliderStates(gw){
 		if(gw.axes.x.logscale){
+			gw.log('sliderState',gw.sliders.xoffset);
 			sliderState(gw.sliders.xoffset,false);
 			S('#xoffset-title').addClass('disabled').css({'display':'none'});
 
@@ -341,8 +380,6 @@ GWViewer.prototype.addMenu = function(){
 			S('#xticks-title').addClass('disabled').css({'display':'none'});
 
 			S('#mergealign-outer').removeClass('disabled').css({'display':'none'});
-			S('#mergealign')[0].checked=false
-			gw.query.mergealign=false;
 
 			sliderState(gw.sliders.xlogoffset,true);
 			S('#xlogoffset-title').removeClass('disabled').css({'display':''});
@@ -356,8 +393,6 @@ GWViewer.prototype.addMenu = function(){
 			S('#xticks-title').removeClass('disabled').css({'display':''});
 
 			S('#mergealign-outer').removeClass('disabled').css({'display':''});
-			S('#mergealign')[0].checked=false
-			gw.query.mergealign=false;
 
 			sliderState(gw.sliders.xlogoffset,false);
 			S('#xlogoffset-title').addClass('disabled').css({'display':'none'});
@@ -533,6 +568,9 @@ GWViewer.prototype.loadLanguageList = function(file){
 
 			this.loadLanguage();
 			this.loadLanguage('en',false);
+		},
+		'error': function(){
+			this.log('ERROR','Unable to load '+attr.url);
 		}
 	});
 	return this;
@@ -577,6 +615,9 @@ GWViewer.prototype.loadLanguage = function(l,update){
 					for (var attrname in data) { this.languages[l].dict[attrname] = data[attrname]; }
 					_filesloaded++;
 					if(_filestoload == _filesloaded) this.updateLanguage();
+				},
+				'error': function(){
+					this.log('ERROR','Unable to load '+attr.url);
 				}
 			})
 		}
@@ -663,11 +704,13 @@ GWViewer.prototype.loadCatalogue = function(file){
 					'success': function(data,attrs){
 						this.filters = data;
 						this.addMenu();
-
-						console.log('need to update filters')
+						this.log('need to update filters')
 						this.updateFilters();
 					}
 				});
+			},
+			'error': function(){
+				this.log('ERROR','Unable to load '+attr.url);
 			}
 		});
 	}
@@ -680,7 +723,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 
 GWViewer.prototype.draw = function(format){
 
-	var now = new Date();
+	this.logTime('draw')
 	var lw = this.sliders.lineWidth.values[0];
 
 	function Canvas(el,idinner){
@@ -754,11 +797,11 @@ GWViewer.prototype.draw = function(format){
 			if(this.cat.data[i].waveform.active) n++;
 		}
 		var tscale = 1000; //to ms
-		if (this.axes.x.logscale){
-			var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
-			var tlogoffset = Math.log10(this.sliders.xlogoffset.values[0]*tscale); //set to 0.01s
+		if(this.axes.x.logscale){
+			var xorig = 0;	// Merge align doesn't work for a log scale as we can't have negative values
+			var tlogoffset = Math.log10(parseFloat(this.sliders.xlogoffset.values[0])*tscale); //set to 0.01s
 			// xlogscale = log(t)->x position
-			var xlogscale = this.canvas.wide/(Math.log10(this.axes.x.scale)-tlogoffset);
+			var xlogscale = this.canvas.wide/Math.abs(Math.log10(this.axes.x.scale)-tlogoffset);
 			var xlogoffset = (tlogoffset*xlogscale);
 		}else{
 			var xorig = (this.query.mergealign) ? this.canvas.wide*0.8 : 0;
@@ -774,7 +817,7 @@ GWViewer.prototype.draw = function(format){
 			this.canvas.ctx.fillStyle = (this.colourschemes[this.colourscheme].gridlinelabel || "rgba(255,255,255,0.3)");
 			this.canvas.ctx.lineWidth = 1.5;
 			var lines = {};
-			if (this.axes.x.logscale){
+			if(this.axes.x.logscale){
 				spacing = Math.log10(this.axes.x.ticks.value/tscale);
 				// Get log lines
 				for(var i = Math.round(tlogoffset); i < Math.log10(this.axes.x.scale)+tlogoffset; i += 1){
@@ -899,8 +942,7 @@ GWViewer.prototype.draw = function(format){
 	}
 	if(format=="svg") svg += '</svg>';
 
-	diff = ((new Date()) - now);
-	this.log('Draw time = '+diff+' ms');
+	this.logTime('draw')
 
 	//if(format=="svg") S('#gwviewer').append(svg);
 	return (svg||this);
@@ -992,9 +1034,13 @@ function WaveForm(attr){
 }
 
 WaveForm.prototype.log = function(){
-	if(this.logging){
+	if(this.logging || arguments[0]=="ERROR"){
 		var args = Array.prototype.slice.call(arguments, 0);
-		if(console && typeof console.log==="function") console.log('WaveForm',args);
+		if(console && typeof console.log==="function"){
+			if(arguments[0] == "ERROR") console.log('%cERROR%c %cWaveForm%c: '+args[1],'color:white;background-color:#D60303;padding:2px;','','font-weight:bold;','',(args.length > 2 ? args.splice(2):""));
+			else if(arguments[0] == "WARNING") console.log('%cWARNING%c %cWaveForm%c: '+args[1],'color:white;background-color:#F9BC26;padding:2px;','','font-weight:bold;','',(args.length > 2 ? args.splice(2):""));
+			else console.log('%cWaveForm%c','font-weight:bold;','',args);
+		}
 	}
 	return this;
 }
@@ -1030,6 +1076,9 @@ WaveForm.prototype.loadData = function(){
 			this.log('progress',attrs,this);
 			this.addData(e.target.responseText);
 			if(typeof this.callback.onprogress==="function") this.callback.onprogress.call(this);
+		},
+		'error': function(){
+			this.log('ERROR','Unable to load '+attr.url);
 		}
 	});
 	return this;
