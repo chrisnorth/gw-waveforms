@@ -101,6 +101,9 @@ div.fourcol {
 	width: 500px;
 	display: inline-block;
 }
+.rtl { text-align: right; }
+.rtl div.twocol { float: right; margin-left: 10px; margin-right: 0px; }
+
 div.subt {
 	width: 770px;
 	display: inline-block;

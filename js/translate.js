@@ -229,6 +229,8 @@
 		
 		dir = (dir=="right" ? "rtl" : "ltr");
 		f.attr('dir',dir);
+		S('#translation').removeClass('ltr').removeClass('rtl').addClass(dir).attr('dir',dir);
+		
 		for(var i = 0; i < f.length; i++){
 			if(f[i].value && S(f[i]).hasClass('error')) S(f[i]).removeClass('error').removeClass('blank');
 			else if(!f[i].value) S(f[i]).addClass('error').addClass('blank');
@@ -404,7 +406,7 @@
 		out = '<textarea onfocus="this.select()"'+css+' wrap="off">'+json+"</textarea>";
 		
 		var email;
-		S('#page').html().replace(/\(([a-zA-Z0-9\.\-]+) AT ([a-zA-Z0-9\.\-]+)\)/,function(m,p1,p2){
+		this.page.html().replace(/\(([a-zA-Z0-9\.\-]+) AT ([a-zA-Z0-9\.\-]+)\)/,function(m,p1,p2){
 			email = p1+'@'+p2;
 			return p1;
 		});

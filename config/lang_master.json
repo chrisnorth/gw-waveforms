@@ -2,9 +2,9 @@
     "section.language":{"_title":"About the language","_level":2},
 	"meta.name": {"_title": "Name", "_text": "The name of the language in that language e.g. English, Français, Español, or मानक हिन्दी. It appears in the language menu.","_type":"string"},
 	"meta.code": {"_title": "Language code","_text":"The letter code for the language. Usually this will be a <a href=\"http://www.lingoes.net/en/translator/langcode.htm\" target=\"_lang\">two letter language code</a> e.g. <em><strong>en</strong></em> but may specify a subset of a language e.g. <em><strong>en-GB</strong></em> for British English","_type":"string"},
+	"meta.alignment": {"_title": "Alignment", "_text": "The direction that the language goes. Note that right-to-left text is not currently supported.","_type":"select","_options":[{"name":"Left-to-right","value":"left"},{"name":"Right-to-left","value":"right"}]},
 	"meta.alphabet": {"_title": "Alphabet", "_text": "The alphabet to use","_type":"string"},
 	"meta.numbersystem": {"_title": "Number system", "_text": "The number system used by the language. Note that Non-Arabic numerals are not currently supported in the catalogue plot, but are in the bubble plot.","_type":"string"},
-	"meta.alignment": {"_title": "Alignment", "_text": "The direction that the language goes. Note that right-to-left text is not currently supported.","_type":"select","_options":[{"name":"Left-to-right","value":"left"},{"name":"Right-to-left","value":"right"}]},
 	"meta.translator": {"_title": "Translator","_text":"The name of the translator. Can include a hyperlink","_type":"string"},
 
 	"section.data":{"_title":"Data labels and units","_text":"Don't change the <em>values</em> of the units. Note that parts of the SVG display used in these web-apps don't support HTML code (e.g. &lt;sub&gt;, &lt;sup&gt;), so sub/superscripts should be <a href='https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts'>Unicode characters</a>.","_level":2},
