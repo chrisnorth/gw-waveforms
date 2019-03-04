@@ -62,7 +62,7 @@ body {
 	text-align: left;
 	box-sizing: content-box;
 }
-h1, h2, h3, h4, p, label { line-height: 1.2em; display: block; }
+h1, h2, h3, h4, p, label { line-height: 1.2em; }
 h1 { font-size: 1.75em; }
 h2 { font-size: 1.5em; margin-top: 1em; }
 h3 { font-size: 1.25em; }
@@ -73,6 +73,7 @@ h1, h2, h3, h4 {
 	font-weight: bold;
 	color: blue;
 }
+label { display: inline-block; }
 code { color: #396bad; font-weight: bold; }
 p { margin: 1em 0;}
 span.hl{color:red; font-weight:bold;}

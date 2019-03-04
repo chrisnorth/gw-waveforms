@@ -354,7 +354,8 @@
 			return p1;
 		});
 		etxt = (S('.email a').length == 1) ? S('.email a').html() : S('.email').html();
-		S('.email').html('<a href="mailto:'+email+'?subject='+this.phrasebook['text.gwviewer.information.title'].en.value+': '+this.phrasebook['meta.name'].en.value+' translation&body='+encodeURI('Hi Chris,\n\nHere is an update to the '+this.phrasebook['meta.name'].en.value+' translation.\n\nBest regards,\n\nNAME\n\n\n')+''+encodeURI(json)+'">'+etxt+'</a>')
+		lang = S('#meta-name')[0].value;
+		S('.email').html('<a href="mailto:'+email+'?subject='+this.phrasebook['text.gwviewer.information.title'].en.value+': '+lang+' translation&body='+encodeURI('Hi Chris,\n\nHere is an update to the '+lang+' translation.\n\nBest regards,\n\nNAME\n\n\n')+''+encodeURI(json)+'">'+etxt+'</a>')
 		S('#output').append(out);
 
 		return this;
