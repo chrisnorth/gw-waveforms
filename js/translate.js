@@ -216,6 +216,37 @@
 		return this;
 	};
 
+	Translator.prototype.buildField = function(key,field){
+		var d;
+		var inp = "";
+		var ldef = this.phrasebook["meta.name"][this.langdefault].value;
+		var newk = safeKey(key);
+		var cl = sanitize((field._highlight ? "highlight" : ""))
+		cl = sanitize((this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? cl : "blank error"));
+		var p = (this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? this.phrasebook[key][this.lang].value : "");
+		
+		var inpdef = (this.phrasebook[key] ? this.phrasebook[key][this.langdefault].value : '');
+		if(field._type=="textarea"){
+			css = (field._height) ? ' style="height:'+field._height+'"' : "";
+			inp = '<textarea class="'+cl+'" id="'+newk+'" name="'+newk+'"'+css+'>'+sanitize(p || (field._usedef ? inpdef : ""))+'</textarea>';
+		}else if(field._type=="noedit"){
+			inp = '<input type="hidden" id="'+newk+'" name="'+newk+'" value="'+sanitize(p)+'" />'+sanitize(p);
+			inpdef = "";
+		}else if(field._type=="select"){
+			inp = '<select id="'+newk+'" name="'+newk+'">';
+			for(var o = 0; o < field._options.length ; o++){
+				var seldef = (d && field._options[o].value==d[key]) ? ' selected="selected"' : '';
+				var sel = (p && field._options[o].value==p) ? ' selected="selected"' : (field._usedef) ? seldef : '';
+				inp += '<option value="'+field._options[o].value+'"'+sel+'>'+field._options[o].name+'</option>'
+				if(field._options[o].value == inpdef) inpdef = field._options[o].name;
+			}
+			inp += '</select>';
+		}else if(field._type=="string"){
+			inp = '<input type="text" class="'+cl+'" id="'+newk+'" name="'+newk+'" value="'+sanitize(p || (field._usedef ? inpdef : ""))+'" />';
+		}
+		return this.row((field._title ? field._title : key),field._text,inp,ldef,inpdef);
+	}
+	
 	Translator.prototype.buildForm = function(){
 
 		var d,k,n,css;
@@ -226,6 +257,7 @@
 		var ldef = this.phrasebook["meta.name"][this.langdefault].value;
 		var inpdef = "";
 		k = "";
+		done = {};
 
 		// Loop over the help file keys
 		for(key in this.form){
@@ -233,31 +265,8 @@
 			if(typeof this.form[key]==="object"){
 				newk = safeKey(key);
 				if(this.form[key]._text && this.form[key]._type){
-					inp = "";
-					cl= sanitize((this.form[key]._highlight ? "highlight" : ""))
-					cl= sanitize((this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? cl : "blank error"));
-					p = (this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? this.phrasebook[key][this.lang].value : "");
-					
-					inpdef = (this.phrasebook[key] ? this.phrasebook[key][this.langdefault].value : '');
-					if(this.form[key]._type=="textarea"){
-						css = (this.form[key]._height) ? ' style="height:'+this.form[key]._height+'"' : "";
-						inp = '<textarea class="'+cl+'" id="'+newk+'" name="'+newk+'"'+css+'>'+sanitize(p || (this.form[key]._usedef ? inpdef : ""))+'</textarea>';
-					}else if(this.form[key]._type=="noedit"){
-						inp = '<input type="hidden" id="'+newk+'" name="'+newk+'" value="'+sanitize(p)+'" />'+sanitize(p);
-						inpdef = "";
-					}else if(this.form[key]._type=="select"){
-						inp = '<select id="'+newk+'" name="'+newk+'">';
-						for(var o = 0; o < this.form[key]._options.length ; o++){
-							var seldef = (d && this.form[key]._options[o].value==d[key]) ? ' selected="selected"' : '';
-							var sel = (p && this.form[key]._options[o].value==p) ? ' selected="selected"' : (this.form[key]._usedef) ? seldef : '';
-							inp += '<option value="'+this.form[key]._options[o].value+'"'+sel+'>'+this.form[key]._options[o].name+'</option>'
-							if(this.form[key]._options[o].value == inpdef) inpdef = this.form[key]._options[o].name;
-						}
-						inp += '</select>';
-					}else if(this.form[key]._type=="string"){
-						inp = '<input type="text" class="'+cl+'" id="'+newk+'" name="'+newk+'" value="'+sanitize(p || (this.form[key]._usedef ? inpdef : ""))+'" />';
-					}
-					html += this.row((this.form[key]._title ? this.form[key]._title : key),this.form[key]._text,inp,ldef,inpdef);
+					html += this.buildField(key,this.form[key]);
+					done[key] = true;
 				}else{
 
 					// If this section has a title
@@ -274,6 +283,22 @@
 				}
 			}
 		}
+
+		this.misc = {};
+		// Loop over the default language keys
+		for(key in this.phrasebook){
+			if(this.phrasebook[key][this.langdefault].value && !done[key]){
+				this.misc[key] = true;
+			}
+		}
+
+		if(this.misc){
+			html += '<h2>Misc options</h2>';
+			for(var f in this.misc){
+				html += this.buildField(f,{"_title":f,"_text":f,"_type":"string"});
+			}
+		}
+
 
 		return html;
 	};
@@ -326,7 +351,16 @@
 				val = (S('#'+safeKey(key))[0].value || "");
 				if(val) output[source].json.push('"'+key+'": "'+val+'"');
 			}
-		}		
+		}
+		
+		// Loop over every element not in the master and add it to an appropriate JSON for each output file
+		for(key in this.misc){
+			if(this.phrasebook[key] && this.phrasebook[key][this.langdefault]){
+				source = this.phrasebook[key][this.langdefault].source;
+				val = (S('#'+safeKey(key))[0].value || "");
+				if(val) output[source].json.push('"'+key+'": "'+val+'"');
+			}
+		}
 	
 
 		f = 0;

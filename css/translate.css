@@ -73,6 +73,7 @@ h1, h2, h3, h4 {
 	font-weight: bold;
 	color: blue;
 }
+em { font-style: italic; }
 label { display: inline-block; }
 code { color: #396bad; font-weight: bold; }
 p { margin: 1em 0;}
