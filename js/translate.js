@@ -297,7 +297,7 @@
 		var html = "	<fieldset>";// id=\"fs"+id+"\">";
 		html += "		<legend>"+title+"</legend>";
 		html += "		<div class=\"twocol\">";
-		html += "			<p>"+desc+"</p>";
+		html += "			<label for=\""+id+"\">"+desc+"</label>";
 		html += "		</div>";
 		html += "		<div class=\"fourcol\">";
 		html += "			"+field;
