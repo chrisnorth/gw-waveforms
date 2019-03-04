@@ -205,9 +205,10 @@
 		S('#translation').html(html);
 		
 		S('#translation input, #translation textarea, #translation select').attr('dir',(this.phrasebook && this.phrasebook["meta.alignment"] && this.phrasebook["meta.alignment"][this.lang]=="right" ? "rtl" : "ltr")).on('change',{me:this},function(e){
-			console.log('change');
 			e.data.me.getOutput();
 			e.data.me.percentComplete();
+			if(e.currentTarget.value && S(e.currentTarget).hasClass('error')) S(e.currentTarget).removeClass('error').removeClass('blank');
+			else if(!e.currentTarget.value) S(e.currentTarget).addClass('error').addClass('blank');
 		});
 
 		this.getOutput();
@@ -234,7 +235,7 @@
 				if(this.form[key]._text && this.form[key]._type){
 					inp = "";
 					cl= sanitize((this.form[key]._highlight ? "highlight" : ""))
-					cl= sanitize((this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? cl : "blank"));
+					cl= sanitize((this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? cl : "blank error"));
 					p = (this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? this.phrasebook[key][this.lang].value : "");
 					
 					inpdef = (this.phrasebook[key] ? this.phrasebook[key][this.langdefault].value : '');
