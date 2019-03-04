@@ -1,6 +1,6 @@
 {
     "section.language":{"_title":"About the language","_level":2},
-	"meta.name": {"_title": "Name", "_text": "The name of the language in that language","_type":"string"},
+	"meta.name": {"_title": "Name", "_text": "The name of the language in that language e.g. English, Italiano, Deutsch","_type":"string"},
 	"meta.code": {"_title": "Language code","_text":"The letter code for the language. Usually this will be a <a href=\"http://www.lingoes.net/en/translator/langcode.htm\" target=\"_lang\">two letter language code</a> e.g. <em><strong>en</strong></em> but may specify a subset of a language e.g. <em><strong>en-GB</strong></em> for British English","_type":"string"},
 	"meta.alphabet": {"_title": "Alphabet", "_text": "The alphabet to use","_type":"string"},
 	"meta.numbersystem": {"_title": "Number system", "_text": "The system to use for numbers","_type":"string"},
@@ -30,6 +30,8 @@
 	"text.gwviewer.orderby.dl-furthest": {"_title":"text.gwviewer.orderby.dl-furthest","_text":"Luminosity distance (furthest)","_type":"string"},
 	"text.gwviewer.orderby.dl-nearest": {"_title":"text.gwviewer.orderby.dl-nearest","_text":"Luminosity distance (nearest)","_type":"string"},
 	"text.gwviewer.orderby.rho-highest": {"_title":"text.gwviewer.orderby.rho-highest","_text":"Signal-to-noise (highest)","_type":"string"},
+
+    "section.gwviewer.menu.filter": {"_title":"Filter","_level":4},
 	"text.gwviewer.filter": {"_title":"text.gwviewer.filter","_text":"Filter by","_type":"string"},
 	"text.gwviewer.filter.title": {"_title":"text.gwviewer.filter.title","_text":"Options to filter by","_type":"string"},
 	"text.gwviewer.filter.observingrun": {"_title":"text.gwviewer.filter.observingrun","_text":"Observing run","_type":"string"},
@@ -43,6 +45,8 @@
 	"text.gwviewer.filter.objType": {"_title":"text.gwviewer.filter.objType","_text":"Object type","_type":"string"},
 	"text.gwviewer.filter.objType.BBH": {"_title":"text.gwviewer.filter.objType.BBH","_text":"BBH","_type":"string"},
 	"text.gwviewer.filter.objType.BNS": {"_title":"text.gwviewer.filter.objType.BNS","_text":"BNS","_type":"string"},
+
+    "section.gwviewer.menu.viewoptions": {"_title":"View options","_level":4},
 	"text.gwviewer.viewoptions": {"_title":"text.gwviewer.viewoptions","_text":"View options","_type":"string"},
 	"text.gwviewer.axes.x.logscale": {"_title":"text.gwviewer.axes.x.logscale","_text":"Logarithmic Time scale","_type":"string"},
 	"text.gwviewer.axes.x.range": {"_title":"text.gwviewer.axes.x.range","_text":"Time range","_type":"string"},
@@ -62,6 +66,8 @@
 	"text.gwviewer.option.labelposition.endmerger": {"_title":"text.gwviewer.option.labelposition.endmerger","_text":"At merger","_type":"string"},
 	"text.gwviewer.option.labelposition.hidden": {"_title":"text.gwviewer.option.labelposition.hidden","_text":"Hidden","_type":"string"},
 	"text.gwviewer.option.labelposition.auto": {"_title":"text.gwviewer.option.labelposition.auto","_text":"Auto","_type":"string"},
+
+    "section.gwviewer.menu.save": {"_title":"Save","_level":4},
 	"text.gwviewer.save": {"_title":"text.gwviewer.save","_text":"Save","_type":"string"},
 	"text.gwviewer.save.svg": {"_title":"text.gwviewer.save.svg","_text":"Save as SVG (vector)","_type":"string"},
 	"text.gwviewer.save.png": {"_title":"text.gwviewer.save.png","_text":"Save as PNG (bitmap)","_type":"string"}
