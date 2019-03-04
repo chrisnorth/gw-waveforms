@@ -239,7 +239,7 @@
 		cl = sanitize((this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? cl : "blank error"));
 		var p = (this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? this.phrasebook[key][this.lang].value : "");
 		
-		var inpdef = (this.phrasebook[key] ? this.phrasebook[key][this.langdefault].value : '');
+		var inpdef = (this.phrasebook[key] && this.phrasebook[key][this.langdefault] ? this.phrasebook[key][this.langdefault].value : '');
 		if(field._type=="textarea"){
 			css = (field._height) ? ' style="height:'+field._height+'"' : "";
 			inp = '<textarea class="'+cl+'" id="'+newk+'" name="'+newk+'"'+css+'>'+sanitize(p || (field._usedef ? inpdef : ""))+'</textarea>';
