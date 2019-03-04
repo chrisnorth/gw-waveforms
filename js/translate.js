@@ -214,7 +214,7 @@
 			e.data.me.update();
 		});
 
-		this.getOutput();
+		this.update();
 
 		return this;
 	};
@@ -301,8 +301,10 @@
 		this.misc = {};
 		// Loop over the default language keys
 		for(key in this.phrasebook){
-			if(this.phrasebook[key][this.langdefault].value && !done[key]){
+			if(this.phrasebook[key] && this.phrasebook[key][this.langdefault] && this.phrasebook[key][this.langdefault].value && !done[key]){
 				this.misc[key] = true;
+			}else{
+				this.log('WARNING','Unable to set '+key);
 			}
 		}
 
@@ -318,13 +320,9 @@
 	};
 
 	Translator.prototype.percentComplete = function(){
-		var percent = 100;
-		if(this.lang!="en"){
-			var total = 0;
-			var diff = 0;
-			percent = Math.floor(100*diff/total);
-		}
-		//S("#complete").html(percent);
+		var percent = (100*this.count.done/this.count.total).toFixed(1);
+		S('#progressbar .progress-inner').css({'width':percent+'%'});
+console.log(percent)
 		return this;
 	};
 
@@ -351,6 +349,7 @@
 		var output = {};
 		var lang = this.lang;
 		var i,f,file,k,key,source,val,css,out;
+		this.count = { 'done': 0,'total': 0 };
 
 		if(S('#output').length == 0) S('#translation').after('<div id="output"></div>');
 
@@ -364,6 +363,8 @@
 				source = this.phrasebook[key][this.langdefault].source;
 				val = (S('#'+safeKey(key))[0].value || "");
 				output[source].json.push('"'+key+'": "'+val+'"');
+				if(val) this.count.done++;
+				this.count.total++;
 			}
 		}
 		
@@ -373,10 +374,11 @@
 				source = this.phrasebook[key][this.langdefault].source;
 				val = (S('#'+safeKey(key))[0].value || "");
 				output[source].json.push('"'+key+'": "'+val+'"');
+				if(val) this.count.done++;
+				this.count.total++;
 			}
 		}
 	
-
 		f = 0;
 		S('#output').html('');
 		json = '';
