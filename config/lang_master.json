@@ -1,7 +1,7 @@
 {
     "section.language":{"_title":"About the language","_level":2},
-	"meta.code": {"_title": "Language code","_text":"The letter code for the language","_type":"string"},
 	"meta.name": {"_title": "Name", "_text": "The name of the language in that language","_type":"string"},
+	"meta.code": {"_title": "Language code","_text":"The letter code for the language. Usually this will be a <a href=\"http://www.lingoes.net/en/translator/langcode.htm\" target=\"_lang\">two letter language code</a> e.g. <em><strong>en</strong></em> but may specify a subset of a language e.g. <em><strong>en-GB</strong></em> for British English","_type":"string"},
 	"meta.alphabet": {"_title": "Alphabet", "_text": "The alphabet to use","_type":"string"},
 	"meta.numbersystem": {"_title": "Number system", "_text": "The system to use for numbers","_type":"string"},
 	"meta.alignment": {"_title": "Alignment", "_text": "The side to which text is aligned by default","_type":"select","_options":[{"name":"Left","value":"left"},{"name":"Right","value":"right"}]},

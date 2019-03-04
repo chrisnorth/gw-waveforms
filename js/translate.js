@@ -101,13 +101,19 @@
 
 		html = "<form id=\"langchoice\"><label>Select language (not all are complete):</label><select name=\"lang\">"
 		for(var l in this.langs) html += '<option name="'+l+'" value="'+l+'"'+(this.lang==l ? " selected" : "")+'>'+this.langs[l].name+'</option>';
-		html += "</select></form>";
+		html += "</select> <button id=\"newlang\">Create new language</button></form>";
 
 
 		if(S('#translate_chooser').length == 0) this.page.prepend('<div id="translate_chooser"></div>');
 		if(S('#translation').length == 0) this.page.append('<div id="translation"></div>')
 		S('#translate_chooser').html(html).find('#langchoice select').on('change',{me:this},function(e){ e.data.me.setLanguage(e.currentTarget.value); });
 
+		S('#newlang').on('click',{me:this},function(e){
+			e.preventDefault();
+			var f = S('#translation input, #translation textarea, #translation select');
+			for(var i = 0; i < f.length; i++) f[i].value = "";
+			e.data.me.update();
+		});
 		this.setLanguage(this.lang);
 
 		return this;
@@ -205,14 +211,22 @@
 		S('#translation').html(html);
 		
 		S('#translation input, #translation textarea, #translation select').attr('dir',(this.phrasebook && this.phrasebook["meta.alignment"] && this.phrasebook["meta.alignment"][this.lang]=="right" ? "rtl" : "ltr")).on('change',{me:this},function(e){
-			e.data.me.getOutput();
-			e.data.me.percentComplete();
-			if(e.currentTarget.value && S(e.currentTarget).hasClass('error')) S(e.currentTarget).removeClass('error').removeClass('blank');
-			else if(!e.currentTarget.value) S(e.currentTarget).addClass('error').addClass('blank');
+			e.data.me.update();
 		});
 
 		this.getOutput();
 
+		return this;
+	};
+
+	Translator.prototype.update = function(){
+		this.getOutput();
+		this.percentComplete();
+		var f = S('#translation input, #translation textarea, #translation select');
+		for(var i = 0; i < f.length; i++){
+			if(f[i].value && S(f[i]).hasClass('error')) S(f[i]).removeClass('error').removeClass('blank');
+			else if(!f[i].value) S(f[i]).addClass('error').addClass('blank');
+		}
 		return this;
 	};
 
@@ -349,7 +363,7 @@
 			if(this.phrasebook[key] && this.phrasebook[key][this.langdefault] && this.form[key]["_type"]){
 				source = this.phrasebook[key][this.langdefault].source;
 				val = (S('#'+safeKey(key))[0].value || "");
-				if(val) output[source].json.push('"'+key+'": "'+val+'"');
+				output[source].json.push('"'+key+'": "'+val+'"');
 			}
 		}
 		
@@ -358,7 +372,7 @@
 			if(this.phrasebook[key] && this.phrasebook[key][this.langdefault]){
 				source = this.phrasebook[key][this.langdefault].source;
 				val = (S('#'+safeKey(key))[0].value || "");
-				if(val) output[source].json.push('"'+key+'": "'+val+'"');
+				output[source].json.push('"'+key+'": "'+val+'"');
 			}
 		}
 	
