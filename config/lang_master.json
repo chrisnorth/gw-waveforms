@@ -1,0 +1,11 @@
+{
+    "section.language":{"_title":"About the language","_level":2},
+	"meta.code": {"_title": "Language code","_text":"The letter code for the language","_type":"string"},
+	"meta.name": {"_title": "Name", "_text": "The name of the language in that language","_type":"string"},
+	"meta.alignment": {"_title": "Alignment", "_text": "The side to which text is aligned by default","_type":"select","_options":[{"name":"Left","value":"left"},{"name":"Right","value":"right"}]},
+
+    "section.gwviewer.help": {"_title":"About GW Viewer","_level":3},
+	"text.gwviewer.help.about": {"_title":"About GWViewer","_text": "A description of the app.", "_type": "string"},
+	"text.gwviewer.help.technical": {"_title":"Technical information", "_text": "Some technical information explaining that the waveforms are illustrative only", "_type": "string" },
+	"text.gwviewer.information.title": {"_title":"Title","_text": "The main title", "_type": "string"}
+}
