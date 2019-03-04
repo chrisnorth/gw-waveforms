@@ -76,7 +76,9 @@ function GWViewer(attr) {
 			'gridlines': (typeof this.query.gridlines==="boolean" ? this.query.gridlines : true)
 		},
 		'y':{
-			'scale':2e6
+			'auto':true,
+			'scale':2e6,
+			'spacing':50
 		}
 	}
 
@@ -399,6 +401,14 @@ GWViewer.prototype.addMenu = function(){
 
 			gw.log('xlin');
 		}
+		// BLAH
+		if(gw.axes.y.auto){
+			sliderState(gw.sliders.yspacing,false);
+			S('#yspacing-title').addClass('disabled').css({'display':'none'});
+		}else{
+			sliderState(gw.sliders.yspacing,true);
+			S('#yspacing-title').removeClass('disabled').css({'display':''});
+		}
 	}
 	if(S('#filterform').length > 0){
 		for(key in this.filters){
@@ -439,14 +449,17 @@ GWViewer.prototype.addMenu = function(){
 		form += '<ol class="top" id="mergealign-outer"><li class="row"><input type="checkbox" name="mergealign" id="mergealign"'+(this.query.mergealign ? ' checked="checked"':'')+'></input><label for="mergealign" lang="text.gwviewer.option.mergealign" class="translatable"></label></li></ol>';
 		form += '<ol class="top"><li class="row"><input type="checkbox" name="gridlines" id="gridlines"'+(this.axes.x.gridlines ? ' checked="checked"':'')+'></input><label for="gridlines" lang="text.gwviewer.option.gridlines" class="translatable"></label></li></ol>';
 		form += '<h3 lang="text.gwviewer.axes.x.ticks" class="translatable" id="xticks-title"></h3><ol><li class="row range" id="xaxisticks"><div class="slider-outer"><div class="slider"></div><span class="min"></span> <span lang="data.time.unit" class="translatable"></span></li></ol>';
-		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yaxisscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
+		form += '<ol class="top"><li class="row"><input type="checkbox" name="yaxisauto" id="yaxisauto"'+(this.axes.y.auto ? ' checked="checked"':'')+'></input><label for="yaxisauto" lang="text.gwviewer.axes.y.auto" class="translatable"></label></li></ol>';
+		form += '<h3 id="yspacing-title" lang="text.gwviewer.axes.y.spacing" class="translatable"></h3><ol><li class="row range" id="yspacing"><div><div class="slider"></div><span class="min"></span></li></ol>';
+		form += '<h3 lang="text.gwviewer.axes.y.scaling" class="translatable"></h3><ol><li class="row range" id="yscale"><div><div class="slider"></div><span class="min"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.option.lineWidth" class="translatable"></h3><ol><li class="row range" id="lineWidth"><div><div class="slider"></div><span class="min"></span></li></ol>';
 		form += '<h3 lang="text.gwviewer.option.colourscheme" class="translatable"></h3><ol id="colourscheme-switcher"></ol>';
 		form += '<h3 lang="text.gwviewer.option.labelposition" class="translatable"></h3><ol id="labelposition-switcher"></ol>';
 
 		S('#optionsform').append(form);
 		if(!this.sliders) this.sliders = {};
-		this.sliders.yscale = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yaxisscale')});
+		this.sliders.yspacing = new buildSlider({'values':[this.axes.y.spacing],'range':{'min':10,'max':300},'step':5,'el':S('#yspacing')});
+		this.sliders.yscale = new buildSlider({'values':[this.axes.y.scale/2e6],'range':{'min':0.2,'max':5},'step':0.1,'el':S('#yscale')});
 		this.sliders.xscale = new buildSlider({'values':[this.axes.x.scale/1000],'range':{'min':[0.1,0.1],'40%':[2.5,0.5],'70%':[20,5],'max':[200]},'step':0.1,'el':S('#xaxisscale')});
 		this.sliders.xoffset = new buildSlider({'values':[this.axes.x.offset/1000],'range':{'min':[-200,5],'20%':[-20,0.5],'35%':[-2.5,0.1],'50%':[0,0.1],'65%':[2.5,0.5],'80%':[20,5],'max':[200]},'step':0.5,'el':S('#xaxisoffset')});
 		this.sliders.xlogoffset = new buildSlider({'values':[this.axes.x.logoffset.value],'range':this.axes.x.logoffset.range,'step':0.1,'el':S('#xaxislogoffset'),'log':true});
@@ -495,11 +508,17 @@ GWViewer.prototype.addMenu = function(){
 			e.data.gw.axes.x.gridlines = e.currentTarget.checked;
 			e.data.gw.scaleWaves();
 		});
+		S('#yaxisauto').on("change",{'gw':this},function(e){
+			e.data.gw.axes.y.auto = e.currentTarget.checked;
+			updateSliderStates(e.data.gw);
+			e.data.gw.scaleWaves();
+		});
 		// Add save options
 		S('#save-svg').on("click",{'gw':this},function(e){ e.data.gw.save('svg'); });
 		S('#save-png').on("click",{'gw':this},function(e){ e.data.gw.save('png'); });
 
 	}else{
+		this.sliders.yspacing = { values: [this.axes.y.spacing] };
 		this.sliders.yscale = { values: [this.axes.y.scale/2e6] };
 		this.sliders.xscale = { values: [this.axes.x.scale/1000] };
 		this.sliders.xoffset = { values: [this.axes.x.offset/1000] };
@@ -858,8 +877,9 @@ GWViewer.prototype.draw = function(format){
 			}
 		}
 
-		var dy = this.canvas.tall*(1/(n+1));
-
+		var dy = this.axes.y.spacing/2;
+		if(this.axes.y.auto) dy = this.canvas.tall*(1/(n+1));
+	
 		// Loop over each waveform
 		for(var i = 0, ii = 0; i < this.cat.length; i++){
 
@@ -874,7 +894,7 @@ GWViewer.prototype.draw = function(format){
 				this.canvas.ctx.lineWidth = lw;
 
 				yscale = this.canvas.tall/(typeof this.axes.y.scale==="number" ? this.axes.y.scale : (this.max || 2e6));
-				yorig = this.canvas.tall*((ii+1)/(n+1));
+				yorig = dy*(ii+1);
 				xoffsetwf = 0;
 
 				if(wf.data){
@@ -965,6 +985,7 @@ GWViewer.prototype.scaleWaves = function(){
 	}
 	this.axes.y.scaling = this.sliders.yscale.values[0];
 	this.axes.y.scale = max*(n)/this.axes.y.scaling;
+	this.axes.y.spacing = this.sliders.yspacing.values[0];
 
 	this.draw();
 	return this;

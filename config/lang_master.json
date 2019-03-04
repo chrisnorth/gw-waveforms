@@ -258,6 +258,8 @@
 	"text.gwviewer.axes.x.ticks": {"_title":"Grid spacing","_text":"Title for the grid spacing slider bar","_type":"string"},
 	"text.gwviewer.axes.x.offset": {"_title":"Time offset (linear)","_text":"Title for the linear time offset slider bar","_type":"string"},
 	"text.gwviewer.axes.x.logoffset": {"_title":"Time offset (log)","_text":"Title for the log time offset slider bar","_type":"string"},
+	"text.gwviewer.axes.y.auto": {"_title":"Vertical spacing","_text":"Check box to switch between automatic or fixed vertical scaling.","_type":"string"},
+	"text.gwviewer.axes.y.spacing": {"_title":"Vertical spacing","_text":"Title for the vertical spacing slider bar. The units are pixels.","_type":"string"},
 	"text.gwviewer.axes.y.scaling": {"_title":"Vertical scaling","_text":"Title for the vertical scaling slider bar","_type":"string"},
 	"text.gwviewer.option.mergealign": {"_title":"Align mergers","_text":"Align mergers","_type":"string"},
 	"text.gwviewer.option.gridlines": {"_title":"Show gridlines","_text":"Show gridlines","_type":"string"},
