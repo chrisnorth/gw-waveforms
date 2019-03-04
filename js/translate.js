@@ -210,7 +210,7 @@
 
 		S('#translation').html(html);
 		
-		S('#translation input, #translation textarea, #translation select').attr('dir',(this.phrasebook && this.phrasebook["meta.alignment"] && this.phrasebook["meta.alignment"][this.lang]=="right" ? "rtl" : "ltr")).on('change',{me:this},function(e){
+		S('#translation input, #translation textarea, #translation select').on('change',{me:this},function(e){
 			e.data.me.update();
 		});
 
@@ -223,6 +223,12 @@
 		this.getOutput();
 		this.percentComplete();
 		var f = S('#translation input, #translation textarea, #translation select');
+
+		var dir = (this.phrasebook && this.phrasebook["meta.alignment"]) ? this.phrasebook["meta.alignment"][this.lang]=="right" : "";
+		if(S('#meta-alignment').length == 1) dir = S('#meta-alignment')[0].value;
+		
+		dir = (dir=="right" ? "rtl" : "ltr");
+		f.attr('dir',dir);
 		for(var i = 0; i < f.length; i++){
 			if(f[i].value && S(f[i]).hasClass('error')) S(f[i]).removeClass('error').removeClass('blank');
 			else if(!f[i].value) S(f[i]).addClass('error').addClass('blank');
