@@ -12,7 +12,7 @@
 	"text.gen.about": {"_title":"About","_text":"The title of the about menu item","_type":"string"},
 	"text.gwviewer.help.about": {"_title":"Description","_text":"The description for the about menu item.","_type":"string"},
 	"text.gwviewer.help.technical": {"_title":"Technical description","_text":"The techical description","_type":"string"},
-    "section.gwviewer.menu.about": {"_title":"Order by","_level":4},
+    "section.gwviewer.menu.orderby": {"_title":"Order by","_level":4},
 	"text.gwviewer.orderby": {"_title":"Order by","_text":"The title for the order by menu item","_type":"string"},
 	"text.gwviewer.orderby.date-oldest": "Date (oldest)",
 	"text.gwviewer.orderby.date-newest": "Date (most recent)",

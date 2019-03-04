@@ -1,3 +1,48 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block; }
+
+body {
+  line-height: 1em; }
+
+ol, ul {
+  list-style: none; }
+
+blockquote, q {
+  quotes: none; }
+
+blockquote:before, blockquote:after, q:before, q:after {
+  content: '';
+  content: none; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+/* apply a natural box layout model to all elements */
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* End of reset */
+
+
 html,body {
 	height: auto;
 }
@@ -15,13 +60,17 @@ body {
 	padding: 2em;
 	margin: 1em auto;
 	text-align: left;
+	box-sizing: content-box;
 }
+h1, h2, h3, h4, p { line-height: 1.2em; }
 h1 { font-size: 1.75em; }
-h2 { font-size: 1.5em; }
-h4 { font-size: 1em; }
-h1, h2, h3 {
+h2 { font-size: 1.5em; margin-top: 1em; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1.1em; }
+h1, h2, h3, h4 {
 	/*font-family: 'SecretTypewriterRegular';*/
 	opacity: 0.7;
+	font-weight: bold;
 	color: blue;
 }
 code { color: #396bad; font-weight: bold; }
@@ -32,15 +81,19 @@ span.hl{color:red; font-weight:bold;}
 	margin-bottom: 20px;
 }
 #complete { font-weight: bold; }
+.warning { padding: 0.5em; background-color: #fff6bf; color: #817134; font-size: 1.2em; }
 div.twocol {
-	width: 280px;
+	width: 290px;
 	float: left;
-	margin-right:10px;
+	margin-right: 10px;
 	display: inline-block;
 	color: #333333;
 }
+div.twocol p:first-child {
+	margin-top: 0.5em;
+}
 div.fourcol {
-	width: 490px;
+	width: 500px;
 	display: inline-block;
 }
 div.subt {
@@ -50,14 +103,13 @@ div.subt {
 div.subt p {
 	margin-top:-1em;
 }
-div.fourcol div.default{
+div.fourcol div.default {
 	background-color:#ddd;
-	margin-top:5px;
+	padding:0.5em;
 }
 fieldset {
-	padding: 0.5em 0;
+	margin: 0.5em 0;
 	border: 0px;
-	margin: 0px 0px 0.5em 0px;
 }
 fieldset.same {
 	background-color: #ffcccc;
@@ -83,14 +135,23 @@ legend {
 }
 input {
 	width:100%;
+	padding: 0 0.25em;
+}
+select, input {
 	font-family: inherit;
 	font-size: 1em;
+	line-height: 1.5em;
+}
+select {
+	padding: 0.25em;
 }
 textarea {
 	width:100%;
-	height: 20em;
+	height: 5em;
 	font-family: inherit;
 	font-size: 1em;
+	line-height: 1.5em;
+	padding: 0.25em;
 }
 input.blank, textarea.blank{
 	border:solid 2px red;

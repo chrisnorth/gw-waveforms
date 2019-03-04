@@ -215,23 +215,16 @@
 		return this;
 	};
 
-	Translator.prototype.buildForm = function(m,p,d,k){
+	Translator.prototype.buildForm = function(){
 
-		// m = this.masterbook
-		// p = this.phrasebook
-		// d = this.phrasebookdefault
-		// k = ""
-
+		var d,k,n,css;
 		var html = "";
 		var newk = "";
 		var inp = "";
 		var arr = false;
-		var n;
-		var css;
 		var ldef = this.phrasebook["meta.name"][this.langdefault].value;
-		var inpdef="";
-
-		if(!k) k = "";
+		var inpdef = "";
+		k = "";
 
 		// Loop over the help file keys
 		for(key in this.form){
@@ -317,7 +310,7 @@
 	
 		var output = {};
 		var lang = this.lang;
-		var i,f,file,key,source,val,css,out;
+		var i,f,file,k,key,source,val,css,out;
 
 		if(S('#output').length == 0) S('#translation').after('<div id="output"></div>');
 
@@ -339,18 +332,28 @@
 		S('#output').html('');
 		json = '';
 		for(file in output){
+			if(f > 0) json += '\n\n';
 			json += output[file].file+':\n';
 			json += '{\n';
 			for(i = 0; i < output[file].json.length; i++){
 				if(i > 0) json += ',\n';
 				json += '\t'+output[file].json[i];
 			}
-			json += '\n}\n\n';
+			json += '\n}';
+			f++;
 		}
 		json = sanitize(json);
 			
-		css = (json) ? ' style="height:'+(json.split("\n").length+(this.langs[this.langdefault].files.length*2))+'em;font-family:monospace;"' : ''
+		css = (json) ? ' style="height:'+((json.split("\n").length+((this.langs[this.langdefault].files.length)*2))+5)+'em;overflow-x:hidden;font-family:monospace;"' : ''
 		out = '<textarea onfocus="this.select()"'+css+' wrap="off">'+json+"</textarea>";
+		
+		var email;
+		S('#page').html().replace(/\(([a-zA-Z0-9\.\-]+) AT ([a-zA-Z0-9\.\-]+)\)/,function(m,p1,p2){
+			email = p1+'@'+p2;
+			return p1;
+		});
+		etxt = (S('.email a').length == 1) ? S('.email a').html() : S('.email').html();
+		S('.email').html('<a href="mailto:'+email+'?subject='+this.phrasebook['text.gwviewer.information.title'].en.value+': '+this.phrasebook['meta.name'].en.value+' translation&body='+encodeURI('Hi Chris,\n\nHere is an update to the '+this.phrasebook['meta.name'].en.value+' translation.\n\nBest regards,\n\nNAME\n\n\n')+''+encodeURI(json)+'">'+etxt+'</a>')
 		S('#output').append(out);
 
 		return this;
