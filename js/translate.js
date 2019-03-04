@@ -322,7 +322,6 @@
 	Translator.prototype.percentComplete = function(){
 		var percent = (100*this.count.done/this.count.total).toFixed(1);
 		S('#progressbar .progress-inner').css({'width':percent+'%'});
-console.log(percent)
 		return this;
 	};
 
@@ -347,9 +346,9 @@ console.log(percent)
 	Translator.prototype.getOutput = function(){
 	
 		var output = {};
-		var lang = this.lang;
 		var i,f,file,k,key,source,val,css,out;
 		this.count = { 'done': 0,'total': 0 };
+		var lang = (S('#meta-code')[0].value || this.lang);
 
 		if(S('#output').length == 0) S('#translation').after('<div id="output"></div>');
 
