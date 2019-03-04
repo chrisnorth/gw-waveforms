@@ -111,7 +111,7 @@
 		this.setLanguage(this.lang);
 
 		return this;
-	}
+	};
 
 	Translator.prototype.log = function(){
 		if(this.logging || arguments[0]=="ERROR"){
@@ -123,7 +123,7 @@
 			}
 		}
 		return this;
-	}
+	};
 
 	Translator.prototype.setLanguage = function(lang){
 		this.log('setLanguage',lang)
@@ -134,7 +134,7 @@
 		this.loadLanguage(this.lang);
 
 		return this;
-	}
+	};
 
 	Translator.prototype.loadLanguage = function(lang){
 		this.log('loadLanguage',lang);
@@ -181,7 +181,7 @@
 		}
 
 		return this;
-	}
+	};
 	
 	Translator.prototype.processLanguage = function(lang){
 		this.log('processLanguage',lang);
@@ -195,7 +195,7 @@
 		this.rebuildForm();
 
 		return this;
-	}
+	};
 
 	Translator.prototype.rebuildForm = function(){
 		this.log('rebuildForm',this.phrasebook);
@@ -208,23 +208,12 @@
 			console.log('change');
 			e.data.me.getOutput();
 			e.data.me.percentComplete();
-			console.log(this);
 		});
 
-		return;
-
-		// Update the text direction when the appropriate select box changes
-		$('#translation select[name=".meta.alignment"]').on('change',function(e){
-			$('#translation input, #translation textarea, #translation select').attr('dir',($(this).val()=="right" ? "rtl" : "ltr" ));
-		});
-
-		//this.getOutput();
-		//this.percentComplete();
+		this.getOutput();
 
 		return this;
-
-	}
-
+	};
 
 	Translator.prototype.buildForm = function(m,p,d,k){
 
@@ -248,21 +237,22 @@
 		for(key in this.form){
 
 			if(typeof this.form[key]==="object"){
+				newk = safeKey(key);
 				if(this.form[key]._text && this.form[key]._type){
 					inp = "";
 					cl= sanitize((this.form[key]._highlight ? "highlight" : ""))
 					cl= sanitize((this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? cl : "blank"));
 					p = (this.phrasebook && this.phrasebook[key] && this.phrasebook[key][this.lang] ? this.phrasebook[key][this.lang].value : "");
 					
-					inpdef = (this.phrasebook[key] ? this.phrasebook[key].en.value : '');
+					inpdef = (this.phrasebook[key] ? this.phrasebook[key][this.langdefault].value : '');
 					if(this.form[key]._type=="textarea"){
 						css = (this.form[key]._height) ? ' style="height:'+this.form[key]._height+'"' : "";
-						inp = '<textarea class="'+cl+'" name="'+newk+'"'+css+'>'+sanitize(p || (this.form[key]._usedef ? inpdef : ""))+'</textarea>';
+						inp = '<textarea class="'+cl+'" id="'+newk+'" name="'+newk+'"'+css+'>'+sanitize(p || (this.form[key]._usedef ? inpdef : ""))+'</textarea>';
 					}else if(this.form[key]._type=="noedit"){
-						inp = '<input type="hidden" name="'+newk+'" value="'+sanitize(p)+'" />'+sanitize(p);
+						inp = '<input type="hidden" id="'+newk+'" name="'+newk+'" value="'+sanitize(p)+'" />'+sanitize(p);
 						inpdef = "";
 					}else if(this.form[key]._type=="select"){
-						inp = '<select name="'+newk+'">';
+						inp = '<select id="'+newk+'" name="'+newk+'">';
 						for(var o = 0; o < this.form[key]._options.length ; o++){
 							var seldef = (d && this.form[key]._options[o].value==d[key]) ? ' selected="selected"' : '';
 							var sel = (p && this.form[key]._options[o].value==p) ? ' selected="selected"' : (this.form[key]._usedef) ? seldef : '';
@@ -271,7 +261,7 @@
 						}
 						inp += '</select>';
 					}else if(this.form[key]._type=="string"){
-						inp = '<input type="text" class="'+cl+'" name="'+newk+'" value="'+sanitize(p || (this.form[key]._usedef ? inpdef : ""))+'" />';
+						inp = '<input type="text" class="'+cl+'" id="'+newk+'" name="'+newk+'" value="'+sanitize(p || (this.form[key]._usedef ? inpdef : ""))+'" />';
 					}
 					html += this.row((this.form[key]._title ? this.form[key]._title : key),this.form[key]._text,inp,ldef,inpdef);
 				}else{
@@ -292,32 +282,18 @@
 		}
 
 		return html;
-	}
+	};
 
 	Translator.prototype.percentComplete = function(){
 		var percent = 100;
 		if(this.lang!="en"){
 			var total = 0;
 			var diff = 0;
-/*
-			for(var i = 0 in this.chromo.phrasebook){
-				if(i!="alignment" && i!="code" && i != "lang" && i!="helpmenu" && i!="gal" && i!="eq" && i!="version"){
-					total++;
-					var val = converter($("#"+i).val()).replace(/&amp;/g,"&");
-					if(this.q.debug) console.log(i,val,this.english[i])
-					if(val && val != this.english[i]){
-						diff++;
-//						$("#fs_"+i).removeClass('same');
-					}else{
-//						$("#fs_"+i).addClass('same');
-					}
-				}
-			}
-*/
 			percent = Math.floor(100*diff/total);
 		}
-		$("#complete").html(percent);
-	}
+		//S("#complete").html(percent);
+		return this;
+	};
 
 	Translator.prototype.row = function(title,desc,field,ldef,def){
 		var id = field.indexOf("id=\"");
@@ -334,79 +310,56 @@
 		html += "			<div class=\"default\"><strong>"+ldef+" (default):</strong> "+def+"</div>";
 		html += "		</div>";
 		html += "	</fieldset>";
-		// html = "	<div>";// id=\"fs"+id+"\">";
-		// html += "		<div class=\"twocol\">";
-		// html += "			<p>&nbsp;</p>";
-		// html += "		</div>";
-		// html += "		<div class=\"fourcol default\">";
-		// html += "			"+def;
-		// html += "		</div>";
-		// html += "	</div>";
 		return html;
-	}
-	Translator.prototype.getOutput = function(){
-		var json = sanitize(S("#language").formToJSON(this));
-		console.log(json);
-		//json = json.substring(0,json.length-4).substring(17).replace(/\n\t\t/g,'\n\t')+'}';
-		var css = (json) ? ' style="height:'+(json.split("\n").length + 5)+'em;font-family:monospace;"' : ''
-		var output = '<textarea onfocus="this.select()"'+css+' wrap="off">'+json+"</textarea>";
-
-		if($('#output').length == 0) $('#translation').after('<div id="output"></div>')
-
-		$('#output').html(output);
-	}
-
-
-	/* From http://exceptionallyexceptionalexceptions.blogspot.co.uk/2011/12/convert-html-form-to-json.html */
-	stuQuery.prototype.formToJSON = function(t) {
-
-		function setValue(object, key, value) {
-			// // Don't need to split keys on "."
-			// var a = path.split('.');
-			// // Instead, just use the full key
-			var a = [key];
-			var o = object;
-			for (var i = 0; i < a.length - 1; i++) {
-				var n = a[i];
-				if (n in o) {
-					o = o[n];
-				} else {
-					o[n] = {};
-					o = o[n];
-				}
-			}
-			o[a[a.length - 1]] = value;
-		}
-
-		if(t.phrasebook){
-
-			// First of all we need to get a copy of the original JSON structure
-			// otherwise we loose arrays
-			// var objectG = JSON.parse(JSON.stringify(t.phrasebook));
-			var objectG = {}
-			console.log(objectG)
-			//loop through all of the input/textarea elements of the form
-			var el = this.find('input, textarea, select').each(function(i){
-				//ignore the submit button
-				if($(this).attr('name') != 'submit') setValue(objectG,$(this).attr('name').substr(1),converter($(this).val()))
-			})
-		}
-
-		return JSON.stringify(objectG,null, " ");
 	};
 
+	Translator.prototype.getOutput = function(){
+	
+		var output = {};
+		var lang = this.lang;
+		var i,f,file,key,source,val,css,out;
 
-	function converter(tstr) {
-		if(!tstr) return "";
-		return tstr;
-		// // Don't want to convert character codes
-		// var bstr = '';
-		// for(var i=0; i<tstr.length; i++){
-		// 	if(tstr.charCodeAt(i)>127) bstr += '&amp;#' + tstr.charCodeAt(i) + ';';
-		// 	else bstr += tstr.charAt(i);
-		// }
-		// return bstr;
+		if(S('#output').length == 0) S('#translation').after('<div id="output"></div>');
+
+
+		for(f = 0; f < this.langs[this.langdefault].files.length; f++){
+			output[this.langs[this.langdefault].files[f]] = {'file':this.langs[this.langdefault].files[f].replace(new RegExp("([^A-Za-z])"+this.langdefault+"([^A-Za-z])"),function(m,p1,p2){ return p1+lang+p2; }),'json':[]};
+		}
+		// Loop over every element and add it to an appropriate JSON for each output file
+		for(key in this.form){
+			if(this.phrasebook[key] && this.phrasebook[key][this.langdefault] && this.form[key]["_type"]){
+				source = this.phrasebook[key][this.langdefault].source;
+				val = (S('#'+safeKey(key))[0].value || "");
+				if(val) output[source].json.push('"'+key+'": "'+val+'"');
+			}
+		}		
+	
+
+		f = 0;
+		S('#output').html('');
+		json = '';
+		for(file in output){
+			json += output[file].file+':\n';
+			json += '{\n';
+			for(i = 0; i < output[file].json.length; i++){
+				if(i > 0) json += ',\n';
+				json += '\t'+output[file].json[i];
+			}
+			json += '\n}\n\n';
+		}
+		json = sanitize(json);
+			
+		css = (json) ? ' style="height:'+(json.split("\n").length+(this.langs[this.langdefault].files.length*2))+'em;font-family:monospace;"' : ''
+		out = '<textarea onfocus="this.select()"'+css+' wrap="off">'+json+"</textarea>";
+		S('#output').append(out);
+
+		return this;
+	};
+
+	function safeKey(k){
+		return k.replace(/\./g,'-');
 	}
+
 	function sanitize(str){
 		if(str){
 			str = str.replace(/</g,"&lt;");
