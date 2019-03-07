@@ -839,7 +839,7 @@ GWViewer.prototype.draw = function(format){
 			if(this.axes.x.logscale){
 				spacing = Math.log10(this.axes.x.ticks.value/tscale);
 				// Get log lines
-				for(var i = Math.round(tlogoffset); i < Math.log10(this.axes.x.scale)+tlogoffset; i += 1){
+				for(var i = Math.round(tlogoffset); i < Math.log10(this.axes.x.scale)+tlogoffset+2; i += 1){
 					x = Math.round(i * xlogscale + xorig) + 0.5 - xlogoffset;
 					if(x > 0) lines[x] = (10**i)/tscale;
 					x2 = Math.round((i+Math.log10(2)) * xlogscale + xorig) + 0.5 - xlogoffset;
@@ -879,7 +879,7 @@ GWViewer.prototype.draw = function(format){
 
 		var dy = this.axes.y.spacing/2;
 		if(this.axes.y.auto) dy = this.canvas.tall*(1/(n+1));
-	
+
 		// Loop over each waveform
 		for(var i = 0, ii = 0; i < this.cat.length; i++){
 
