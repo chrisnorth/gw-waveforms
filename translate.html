@@ -1,0 +1,37 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Translation | Gravitational Wave Viewer</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/translate.css" type="text/css" />
+    <script src="js/lib/stuquery.js"></script>
+	<script src="js/translate.js"></script>
+    <!-- Code to setup page -->
+    <script type="text/javascript">
+		var translator;
+		S(document).ready(function(){
+			translator = new Translator({
+				'id':'form',
+				'help': 'config/lang_master.json',
+				'languages': 'config/lang.json'
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="progressbar"><div class="progress-inner" style="width:0.0%"></div></div>
+    <div class="holder">
+		<h1>Gravitational Wave Viewer Translation Page</h1>
+		<div id="page">
+			<p>The form below contains all the language fields used in the <a href="viewer.html">Gravitational Wave Viewer</a> (see the <a href="viewer.html?lang=" class="langlinkcat">viewer in <span class="langname"></span></a>).</p>
+			<p>The fields are split into sections. If you'd like to start translating a language that is not available in the list, click the <em>Create new language</em> button, translate the fields, and send the output to Chris.</p>
+			<p class="warning"><strong>If you want your changes to be applied you'll have to copy/paste the <a href="#output">output</a> from the bottom into an email to <a href="http://blogs.cardiff.ac.uk/chrisnorth">Chris</a> (chris.north AT astro.cf.ac.uk). This form does not automatically save!</strong></p>
+		</div>
+        <h2>Translation Form</h2>
+		<div id="form"></div>
+		<h2>Output</h2>
+		<p>Here is the output. You should copy this and <span class="email">send it into an email to Chris</span>.</p>
+		<div id="output"></div>
+	</div>
+</body>
+</html>

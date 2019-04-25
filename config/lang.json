@@ -5,6 +5,7 @@
 	},
 	"en": {
 		"name":"English",
+		"default": true,
 		"files":["gwcat/lang/lang_en.json","config/lang/lang_en.json"]
 	},
 	"es": {

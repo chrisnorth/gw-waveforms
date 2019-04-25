@@ -34,6 +34,8 @@
 	"text.gwviewer.axes.x.offset":"Time offset (linear)",
 	"text.gwviewer.axes.x.logoffset":"Time offset (log)",
 	"text.gwviewer.axes.y.scaling":"Vertical scaling",
+	"text.gwviewer.axes.y.auto": "Fit to height",
+	"text.gwviewer.axes.y.spacing":"Vertical spacing (pixels)",
 	"text.gwviewer.option.mergealign": "Align mergers",
 	"text.gwviewer.option.gridlines": "Show gridlines",
 	"text.gwviewer.option.lineWidth": "Line thickness",

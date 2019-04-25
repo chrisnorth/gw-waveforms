@@ -1,0 +1,222 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block; }
+
+body {
+  line-height: 1em; }
+
+ol, ul {
+  list-style: none; }
+
+blockquote, q {
+  quotes: none; }
+
+blockquote:before, blockquote:after, q:before, q:after {
+  content: '';
+  content: none; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+/* apply a natural box layout model to all elements */
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* End of reset */
+
+
+html,body {
+	height: auto;
+}
+body {
+	background: #e6e6e6;
+	overflow: auto;
+	min-height: 0;
+	min-width: 0;
+	font-family: sans-serif;
+	font-size: 0.9em;
+}
+.holder {
+	width:800px;
+	background-color: white;
+	padding: 2em;
+	margin: 1em auto;
+	text-align: left;
+	box-sizing: content-box;
+}
+h1, h2, h3, h4, p, label { line-height: 1.2em; }
+h1 { font-size: 1.75em; }
+h2 { font-size: 1.5em; margin-top: 1em; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1.1em; }
+h1, h2, h3, h4 {
+	/*font-family: 'SecretTypewriterRegular';*/
+	opacity: 0.7;
+	font-weight: bold;
+	color: blue;
+}
+em { font-style: italic; }
+label { display: inline-block; }
+code { color: #396bad; font-weight: bold; }
+p { margin: 1em 0;}
+span.hl{color:red; font-weight:bold;}
+#fake { display: none; }
+#chooser {
+	margin-bottom: 20px;
+}
+#complete { font-weight: bold; }
+p.warning { padding: 0.5em; }
+.warning { background-color: #fff6bf; color: #817134; }
+.error { background-color: #fbe3e4; color: #d12f19; border: 2px solid #d12f19; }
+button { border: 0px; background-color: #60adfa; padding: 0.5em; border-radius: 2px; color: white; cursor: pointer; }
+div.twocol {
+	width: 290px;
+	float: left;
+	margin-right: 10px;
+	display: inline-block;
+	color: #333333;
+}
+div.twocol label {
+	margin-top: 0.5em;
+}
+div.fourcol {
+	width: 500px;
+	display: inline-block;
+}
+.rtl { text-align: right; }
+.rtl div.twocol { float: right; margin-left: 10px; margin-right: 0px; }
+
+div.subt {
+	width: 770px;
+	display: inline-block;
+}
+div.subt p {
+	margin-top:-0.25em;
+}
+div.fourcol div.default {
+	background-color:#ddd;
+	padding:0.5em;
+}
+fieldset {
+	margin: 1em 0;
+	border: 0px;
+}
+fieldset.same {
+	background-color: #ffcccc;
+}
+fieldset p {
+	margin: 0px;
+}
+.group {
+	background-color: #e9e9e9;
+	margin-bottom: 1em;
+	padding: 8px;
+}
+.group fieldset:last-child {
+	margin-bottom: 0px;
+}
+legend {
+	margin:0px;
+	padding: 0px;
+	font-weight: bold;
+}
+input {
+	width:100%;
+	padding: 0 0.25em;
+}
+select, input {
+	font-family: inherit;
+	font-size: 1em;
+	line-height: 1.5em;
+}
+select {
+	padding: 0.25em;
+}
+textarea {
+	width:100%;
+	height: 5em;
+	font-family: inherit;
+	font-size: 1em;
+	line-height: 1.5em;
+	padding: 0.25em;
+}
+input.blank, textarea.blank{
+	border:solid 2px red;
+}
+input.highlight, textarea.highlight{
+	border:solid 2px green;
+}
+ul i {
+	color: #999;
+}
+pre, #output textarea { overflow-x: auto; width: 100%; }
+pre.code {
+	border-bottom-right-radius: 1em;
+	border-top-right-radius: 1em;
+	margin-left: 0em;
+	overflow-x: auto;
+	padding: 1em;
+	padding-left: 0em;
+}
+pre.code .b {
+	color: blue!important;
+	font-weight: normal!important;
+}
+pre.code .c {
+	color: #009E00!important;
+}
+pre.code .d,ul li code.d {
+	color: #CF6A4C!important;
+}
+pre.code .s {
+	color: #82C6BC!important;
+}
+pre.code .f {
+	color: #BE0750!important;
+}
+pre.code .bracket {
+	color: black;
+	font-weight:bold;
+}
+
+#progressbar {
+  height: 0.3em;
+  left: 0;
+  top: 0;
+  width: 100%;
+  position: fixed;
+  background-color: #404040;
+}
+
+#progressbar .progress-inner {
+  background-color: #60adfa;
+  width: 0%;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  -webkit-transition: width 0.5s ease-in-out;
+  -moz-transition: width 0.5s ease-in-out;
+  -ms-transition: width 0.5s ease-in-out;
+  -o-transition: width 0.5s ease-in-out;
+  transition: width 0.5s ease-in-out;
+}
