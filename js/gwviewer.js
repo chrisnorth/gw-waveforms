@@ -828,7 +828,10 @@ GWViewer.prototype.draw = function(format){
 				this.canvas.ctx.stroke();
 				if(typeof lines[i]!=="undefined"){
 					this.canvas.ctx.beginPath();
-					this.canvas.ctx.fillText(lines[i]+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4)
+					this.canvas.ctx.textBaseline = "bottom";
+					this.canvas.ctx.fillText(lines[i]+' '+this.language['data.time.unit'],x+4,this.canvas.tall-4);
+					this.canvas.ctx.textBaseline = "top";
+					this.canvas.ctx.fillText(lines[i]+' '+this.language['data.time.unit'],x+4,8);
 					this.canvas.ctx.fill();
 					svg += '<text x="'+(x+4)+'" y="'+(this.canvas.tall-4)+'" fill="'+(this.colourschemes[this.colourscheme].gridlinelabel || "rgba(255,255,255,0.3)")+'">'+lines[i]+' '+this.language['data.time.unit']+'</text>';
 				}
