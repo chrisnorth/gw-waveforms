@@ -31,7 +31,7 @@
 		// Set empty help and phrasebook
 		this.form = undefined;
 		this.phrasebook = undefined;
-		this.logging = true;
+		this.log = new Logger({'id':'Translator','logging':true});
 
 		this.loadLanguages();
 		this.loadHelp();
@@ -40,7 +40,7 @@
 	};
 	
 	Translator.prototype.loadHelp = function(){
-		this.log('loadHelp',this.formfile);
+		this.log.message('loadHelp',this.formfile);
 		S(document).ajax(this.formfile,{
 			'dataType': 'json',
 			'this': this,
@@ -49,14 +49,14 @@
 				this.init();
 			},
 			'error': function(err,attr){
-				this.log('ERROR','Unable to load '+attr.url,err)
+				this.log.error('Unable to load '+attr.url,err)
 			}		
 		});
 		return this;
 	};
 
 	Translator.prototype.loadLanguages = function(){
-		this.log('loadLanguages',this.langfile);
+		this.log.message('loadLanguages',this.langfile);
 		S(document).ajax(this.langfile,{
 			'dataType': 'json',
 			'this': this,
@@ -68,7 +68,7 @@
 				this.init();
 			},
 			'error': function(err,attr){
-				this.log('ERROR','Unable to load '+attr.url,err)
+				this.log.error('Unable to load '+attr.url,err)
 			}
 		});
 
@@ -76,9 +76,9 @@
 	};
 
 	Translator.prototype.init = function(){
-		this.log('init');
+		this.log.message('init');
 		if(!this.langdefault){
-			this.log('ERROR','No default language set. Please make sure '+this.langfile+' has a default language set. Just add a %c"default": true%c','font-weight: bold;color:#0DBC37');
+			this.log.error('No default language set. Please make sure '+this.langfile+' has a default language set. Just add a %c"default": true%c','font-weight: bold;color:#0DBC37');
 			return this;
 		}
 		
@@ -94,7 +94,7 @@
 		this.page = S('#'+this.id);
 
 		if(!this.langs[this.lang]){
-			this.log('ERROR','The language '+this.lang+' does not appear to exist in the translation file.');
+			this.log.error('The language '+this.lang+' does not appear to exist in the translation file.');
 			this.page.html('The language '+this.lang+' does not appear to exist yet.');
 			return this;
 		}
@@ -119,20 +119,8 @@
 		return this;
 	};
 
-	Translator.prototype.log = function(){
-		if(this.logging || arguments[0]=="ERROR"){
-			var args = Array.prototype.slice.call(arguments, 0);
-			if(console && typeof console.log==="function"){
-				if(arguments[0] == "ERROR") console.log('%cERROR%c %cTranslator%c: '+args[1],'color:white;background-color:#D60303;padding:2px;','','font-weight:bold;','',(args.length > 2 ? args.splice(2):""));
-				else if(arguments[0] == "WARNING") console.log('%cWARNING%c %cTranslator%c: '+args[1],'color:white;background-color:#F9BC26;padding:2px;','','font-weight:bold;','',(args.length > 2 ? args.splice(2):""));
-				else console.log('%cTranslator%c','font-weight:bold;','',args);
-			}
-		}
-		return this;
-	};
-
 	Translator.prototype.setLanguage = function(lang){
-		this.log('setLanguage',lang)
+		this.log.message('setLanguage',lang)
 		// If a language is provided, set it
 		if(lang) this.lang = lang;
 
@@ -143,12 +131,12 @@
 	};
 
 	Translator.prototype.loadLanguage = function(lang){
-		this.log('loadLanguage',lang);
+		this.log.message('loadLanguage',lang);
 		if(!lang) lang = this.langdefault;
 
 		// Is the language already loaded?
 		if(this.langs[lang].filesloaded==this.langs[lang].files.length){
-			this.log('Already loaded '+this.phrasebook['meta.name'][lang].value+' ('+lang+')');
+			this.log.message('Already loaded '+this.phrasebook['meta.name'][lang].value+' ('+lang+')');
 			return this.processLanguage(lang);
 		}
 
@@ -156,7 +144,7 @@
 		this.langs[lang].filesloaded = 0;
 
 		for(var f = 0; f < this.langs[lang].files.length; f++){
-			this.log('Loading file '+this.langs[lang].files[f]);
+			this.log.message('Loading file '+this.langs[lang].files[f]);
 			
 			S(document).ajax(this.langs[lang].files[f],{
 				dataType: 'json',
@@ -166,7 +154,7 @@
 				error: function(err,attr){
 					// We couldn't find this language so load the English version
 					// so there is something to work from.
-					this.log('ERROR',"Couldn't load "+attr.lang)
+					this.log.error("Couldn't load "+attr.lang)
 					if(attr.lang != "en") this.loadLanguage('en');
 				},
 				success: function(data,attr){
@@ -190,11 +178,11 @@
 	};
 	
 	Translator.prototype.processLanguage = function(lang){
-		this.log('processLanguage',lang);
+		this.log.message('processLanguage',lang);
 		
 		if(lang){
 			var hrefcat = S('a.langlinkcat').attr('href');
-			S('a.langlinkcat').attr('href',hrefcat.substring(0,hrefcat.indexOf('?'))+'?lang='+this.phrasebook['meta.code'][lang].value);
+			S('a.langlinkcat').attr('href',hrefcat.substring(0,hrefcat.indexOf('?'))+'?lang='+(this.phrasebook['meta.code'] ? this.phrasebook['meta.code'][lang].value:''));
 			S('.langname').html(this.phrasebook['meta.name'][lang].value);
 		}
 
@@ -204,7 +192,7 @@
 	};
 
 	Translator.prototype.rebuildForm = function(){
-		this.log('rebuildForm',this.phrasebook);
+		this.log.message('rebuildForm',this.phrasebook);
 
 		var html = "<form id=\"language\">"+this.buildForm()+"</form>";
 
@@ -312,7 +300,7 @@
 			if(this.phrasebook[key] && this.phrasebook[key][this.langdefault] && this.phrasebook[key][this.langdefault].value && !done[key]){
 				this.misc[key] = true;
 			}else{
-				this.log('WARNING','Unable to set '+key);
+				this.log.warning('Unable to set '+key);
 			}
 		}
 
@@ -412,7 +400,7 @@
 		});
 		etxt = (S('.email a').length == 1) ? S('.email a').html() : S('.email').html();
 		lang = S('#meta-name')[0].value;
-		S('.email').html('<a href="mailto:'+email+'?subject='+this.phrasebook['text.gwviewer.information.title'].en.value+': '+lang+' translation&body='+encodeURI('Hi Chris,\n\nHere is an update to the '+lang+' translation.\n\nBest regards,\n\nNAME\n\n\n')+''+encodeURI(json)+'">'+etxt+'</a>')
+		S('.email').html('<a href="mailto:'+email+'?subject='+(this.phrasebook['text.gwviewer.information.title'] ? this.phrasebook['text.gwviewer.information.title'].en.value:'')+': '+lang+' translation&body='+encodeURI('Hi Chris,\n\nHere is an update to the '+lang+' translation.\n\nBest regards,\n\nNAME\n\n\n')+''+encodeURI(json)+'">'+etxt+'</a>')
 		S('#output').append(out);
 
 		return this;
@@ -431,6 +419,77 @@
 		return str;
 	}
 
+	/**
+	 * @desc Create a logger for console messages and timing
+	 * @param {boolean} inp.logging - do we log messages to the console?
+	 * @param {boolean} inp.logtime - do we want to log execution times?
+	 * @param {string} inp.id - an ID to use for the log messages (default "JS")
+	 */
+	function Logger(inp){
+		if(!inp) inp = {};
+		this.logging = (inp.logging||false);
+		this.logtime = (inp.logtime||false);
+		this.id = (inp.id||"JS");
+		this.metrics = {};
+		this.error = function(){ this.log('ERROR',arguments); };
+		this.warning = function(){ this.log('WARNING',arguments); };
+		this.info = function(){ this.log('INFO',arguments); };
+		this.message = function(){ this.log('MESSAGE',arguments); }
+		return this;
+	}
+	/**
+	 * @desc A wrapper for log messages. The first argument is the type of message e.g. "ERROR", "WARNING", "INFO", or "MESSAGE". Other arguments are any objects/values you want to include.
+	 */
+	Logger.prototype.log = function(){
+		if(this.logging || arguments[0]=="ERROR" || arguments[0]=="WARNING" || arguments[0]=="INFO"){
+			var args,args2,bold;
+			args = Array.prototype.slice.call(arguments[1], 0);
+			args2 = (args.length > 1 ? args.splice(1):"");
+			// Remove array if only 1 element
+			if(args2.length == 1) args2 = args2[0];
+			bold = 'font-weight:bold;';
+			if(console && typeof console.log==="function"){
+				if(arguments[0] == "ERROR") console.error('%c'+this.id+'%c: '+args[0],bold,'',args2);
+				else if(arguments[0] == "WARNING") console.warn('%c'+this.id+'%c: '+args[0],bold,'',args2);
+				else if(arguments[0] == "INFO") console.info('%c'+this.id+'%c: '+args[0],bold,'',args2);
+				else console.log('%c'+this.id+'%c: '+args[0],bold,'',args2);
+			}
+		}
+		return this;
+	}
+	/**
+	 * @desc Start/stop a timer. This will build metrics for the key containing the start time ("start"), weighted average ("av"), and recent durations ("times")
+	 * @param {string} key - the key for this timer
+	 */
+	Logger.prototype.time = function(key){
+		if(!this.metrics[key]) this.metrics[key] = {'times':[],'start':''};
+		if(!this.metrics[key].start) this.metrics[key].start = new Date();
+		else{
+			var t,w,v,tot,l,i,ts;
+			t = ((new Date())-this.metrics[key].start);
+			ts = this.metrics[key].times;
+			// Define the weights for each time in the array
+			w = [1,0.75,0.55,0.4,0.28,0.18,0.1,0.05,0.002];
+			// Add this time to the start of the array
+			ts.unshift(t);
+			// Remove old times from the end
+			if(ts.length > w.length-1) ts = ts.slice(0,w.length);
+			// Work out the weighted average
+			l = ts.length;
+			this.metrics[key].av = 0;
+			if(l > 0){
+				for(i = 0, v = 0, tot = 0 ; i < l ; i++){
+					v += ts[i]*w[i];
+					tot += w[i];
+				}
+				this.metrics[key].av = v/tot;
+			}
+			this.metrics[key].times = ts.splice(0);
+			if(this.logtime) this.info(key+' '+t+'ms ('+this.metrics[key].av.toFixed(1)+'ms av)');
+			delete this.metrics[key].start;
+		}
+		return this;
+	};
 	// Add CommonGround as a global variable
 	root.Translator = Translator;
 
