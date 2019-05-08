@@ -112,6 +112,7 @@ input.hamburger:checked ~ menu > .holder {
 }
 input.hamburger:checked ~ #main, input.hamburger:checked ~ menu, input.hamburger:checked ~ footer {
 	width: 100%;
+	margin-left: 360px;
 }
 .hamburger, menu .holder {
 	transition: left 0.3s ease-in;
@@ -207,41 +208,24 @@ menu button:last-child { margin-right: 0px; }
 menu button:hover, menu button.selected, menu label:hover { background: #634d72; color: white; }/*#5d2f4f*/
 menu ol { list-style: none; }
 menu ol li button { padding-left: 1em; }
-menu nav a {
-	text-align: right;
-}
+menu nav a { text-align: right; }
 #main { padding-top: 3em; }
-menu, footer, #main {
-	width: 100%;
-	transition: margin-left 0.3s ease-in;
-}
-
-input.hamburger:checked, input.hamburger:checked + label.hamburger {
-	left: 360px;
-}
-input.hamburger:checked ~ menu, input.hamburger:checked ~ footer {
-	margin-left: 360px;
-}
+menu, footer, #main { width: 100%; transition: margin-left 0.3s ease-in; }
+input.hamburger:checked, input.hamburger:checked + label.hamburger { /*left: 360px;*/ }
+input.hamburger:checked ~ menu, input.hamburger:checked ~ footer { margin-left: 360px; }
 menu > .holder {
 	left: -360px;
 	width: 360px;
 	position: fixed;
 	height: 100%;
 	overflow-y: auto;
+	top: 3em;
 }
 
-.noUi-target {
-	border-radius: 0px;
-}
-.noUi-connect {
-	background: #634d72;
-}
-.noUi-background {
-	background: #222;
-}
-.noUi-handle {
-	border-radius: 2px;
-}
+.noUi-target { border-radius: 0px; }
+.noUi-connect { background: #634d72; }
+.noUi-background { background: #222; }
+.noUi-handle { border-radius: 2px; }
 
 @media only screen and (max-width: 500px) {
 	input.hamburger:checked, input.hamburger:checked + label.hamburger {
