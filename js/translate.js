@@ -380,18 +380,21 @@
 		for(file in output){
 			if(f > 0) json += '\n\n';
 			json += output[file].file+':\n';
-			json += '{\n';
+			jsonbit = '{\n';
 			for(i = 0; i < output[file].json.length; i++){
-				if(i > 0) json += ',\n';
-				json += '\t'+output[file].json[i];
+				if(i > 0) jsonbit += ',\n';
+				jsonbit += '\t'+output[file].json[i];
 			}
-			json += '\n}';
+			jsonbit += '\n}';
+			json += jsonbit;
+			output[file].txt = jsonbit;
 			f++;
 		}
+		text = json;
 		json = sanitize(json);
-			
+
 		css = (json) ? ' style="height:'+((json.split("\n").length+((this.langs[this.langdefault].files.length)*2))+5)+'em;overflow-x:hidden;font-family:monospace;"' : ''
-		out = '<textarea onfocus="this.select()"'+css+' wrap="off">'+json+"</textarea>";
+		out = '<button>Save to file</button><textarea onfocus="this.select()"'+css+' wrap="off">'+json+"</textarea>";
 		
 		var email;
 		this.page.html().replace(/\(([a-zA-Z0-9\.\-]+) AT ([a-zA-Z0-9\.\-]+)\)/,function(m,p1,p2){
@@ -402,6 +405,40 @@
 		lang = S('#meta-name')[0].value;
 		S('.email').html('<a href="mailto:'+email+'?subject='+(this.phrasebook['text.gwviewer.information.title'] ? this.phrasebook['text.gwviewer.information.title'].en.value:'')+': '+lang+' translation&body='+encodeURI('Hi Chris,\n\nHere is an update to the '+lang+' translation.\n\nBest regards,\n\nNAME\n\n\n')+''+encodeURI(json)+'">'+etxt+'</a>')
 		S('#output').append(out);
+		S('#output button').on('click',{'json':text,'file':'output.txt'},function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			
+			// Bail out if there is no Blob function to save with
+			if(typeof Blob!=="function") return this;
+			var opts = { 'type': '', 'file': '' };
+
+			function save(content){
+				var asBlob = new Blob([content], {type:opts.type});
+				function destroyClickedElement(event){ document.body.removeChild(event.target); }
+
+				var dl = document.createElement("a");
+				dl.download = opts.file;
+				dl.innerHTML = "Download File";
+				if(window.webkitURL != null){
+					// Chrome allows the link to be clicked
+					// without actually adding it to the DOM.
+					dl.href = window.webkitURL.createObjectURL(asBlob);
+				}else{
+					// Firefox requires the link to be added to the DOM
+					// before it can be clicked.
+					dl.href = window.URL.createObjectURL(asBlob);
+					dl.onclick = destroyClickedElement;
+					dl.style.display = "none";
+					document.body.appendChild(dl);
+				}
+				dl.click();
+			}
+
+			opts.type = 'text/plain';
+			opts.file = e.data.file;
+			save(e.data.json);
+		});
 
 		return this;
 	};
