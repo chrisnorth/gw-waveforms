@@ -1,6 +1,6 @@
 [submodule "gwcat"]
 	path = gwcat
-	url = https://github.com/chrisnorth/gwcat.git
+	url = https://github.com/cardiffgravity/gwcat.git
 [submodule "gwcatpy"]
 	path = gwcatpy
 	url = https://github.com/cardiffgravity/gwcatpy
