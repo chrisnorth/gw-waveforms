@@ -634,10 +634,10 @@ GWViewer.prototype.updateLanguage = function(){
 
 GWViewer.prototype.loadCatalogue = function(file){
 
-	this.log.message('loadCatalogue')
-	if(!file || typeof file!=="string") file = 'gwcat/data/events.json';
-	// if(!gwoscfile || typeof gwoscfile!=="string") gwoscfile = 'gwcat/data/gwosc.json';
-	gwoscfile = 'gwcat/data/gwosc.json';
+	this.log('loadCatalogue')
+	// if(!file || typeof file!=="string") file = 'gwcat/data/events.json';
+	// // if(!gwoscfile || typeof gwoscfile!=="string") gwoscfile = 'gwcat/data/gwosc.json';
+	// gwoscfile = 'gwcat/data/gwosc.json';
 	var _obj = this;
 
 	function loaded(){
@@ -692,7 +692,7 @@ GWViewer.prototype.loadCatalogue = function(file){
 		});
 	}
 
-	this.cat = new GWCat(loaded,{'fileIn':file,'datasrc':'gwosc',gwoscFile:gwoscfile});
+	this.cat = new GWCat(loaded,{confirmedOnly:true,debug:false});
 
 	return this;
 }
@@ -934,6 +934,7 @@ GWViewer.prototype.scaleWaves = function(){
 	var max = 0;
 	var n = 0;
 	for(var i = 0; i < this.cat.length; i++){
+		this.log(this.cat.data[i].name)
 		if(this.cat.data[i].waveform.max > max) max = this.cat.data[i].waveform.max;
 		if(this.cat.data[i].waveform.active) n++;
 	}

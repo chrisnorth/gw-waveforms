@@ -2,7 +2,7 @@
 # coding: utf-8
 
 
-import gwcat
+import gwcatpy as gwcat
 import numpy as np
 import json
 import os
@@ -11,10 +11,13 @@ from pycbc.waveform import get_td_waveform
 from astropy.table import Table
 plot.ion()
 
-dataDir='gwcat/data/'
-gwc=gwcat.GWCat(os.path.join('gwcat/data/','events.json'))
-newdata=json.load(open(os.path.join('gwcat/data/','gwosc.json')))
-gwc.data = newdata['data']
+# download data
+# !curl data.cardiffgravity.org/gwcat-data/data/gwosc_gracedb.json --output ../data/gwosc_gracedb.json
+# !curl data.cardiffgravity.org/gwcat-data/data/status.json --output ../data/status.json
+dataDir='data/'
+gwc=gwcat.GWCat(os.path.join(dataDir,'gwosc_gracedb.json'))
+# newdata=json.load(open(os.path.join('gwcat/data/','gwosc.json')))
+# gwc.data = newdata['data']
 gwc.json2dataframe()
 
 # dplot=['GW150914','GW151226']
@@ -32,24 +35,25 @@ for d in datain:
             idx=dplot.index(d)
         except:
             continue
-    wfs[d]={}
-    if 'best' in datain[d]['mass1']:
-        wfs[d]["M1"]=datain[d]['mass1']['best']
-    elif 'lim' in datain[d]['mass1']:
-        lims=datain[d]['mass1']['lim']
-        wfs[d]['M1']=0.5*(lims[0]+lims[1])
-    if 'best' in datain[d]['mass2']:
-        wfs[d]["M2"]=datain[d]['mass2']['best']
-    elif 'lim' in datain[d]['mass2']:
-        lims=datain[d]['mass2']['lim']
-        wfs[d]['M2']=0.5*(lims[0]+lims[1])
-    if 'best' in datain[d]['mchirp']:
-        wfs[d]["Mchirp"]=datain[d]['mchirp']['best']
-    elif 'lim' in datain[d]['mchirp']:
-        lims=datain[d]['mchirp']['lim']
-        wfs[d]['Mchirp']=0.5*(lims[0]+lims[1])
-    if 'best' in datain[d]['distance']:
-        wfs[d]["DL"]=datain[d]['distance']['best']
+    if 'M1' in datain[d]:
+        wfs[d]={}
+        if 'best' in datain[d]['M1']:
+            wfs[d]["M1"]=datain[d]['M1']['best']
+        elif 'lim' in datain[d]['M1']:
+            lims=datain[d]['M1']['lim']
+            wfs[d]['M1']=0.5*(lims[0]+lims[1])
+        if 'best' in datain[d]['M2']:
+            wfs[d]["M2"]=datain[d]['M2']['best']
+        elif 'lim' in datain[d]['M2']:
+            lims=datain[d]['M2']['lim']
+            wfs[d]['M2']=0.5*(lims[0]+lims[1])
+        if 'best' in datain[d]['Mchirp']:
+            wfs[d]["Mchirp"]=datain[d]['Mchirp']['best']
+        elif 'lim' in datain[d]['Mchirp']:
+            lims=datain[d]['Mchirp']['lim']
+            wfs[d]['Mchirp']=0.5*(lims[0]+lims[1])
+        if 'best' in datain[d]['DL']:
+            wfs[d]["DL"]=datain[d]['DL']['best']
 
 
 for d in wfs:
@@ -91,7 +95,7 @@ for d in wfs:
                      distance=wfs[d]['DL'])
     t= hp.sample_times
     wfs[d]['data']=Table({'t':t,'hp':hp,'hc':hc})
-    wfs[d]['data'].write('full-data/waveform_{}.csv'.format(d),format='ascii.csv',overwrite=True)
+    # wfs[d]['data'].write('full-data/waveform_{}.csv'.format(d),format='ascii.csv',overwrite=True)
     print('  produced {:.2f}s from {:.2f}Hz'.format(-t[0],f_lower))
 for d in wfs:
     if 'data' in wfs[d]:
@@ -105,7 +109,7 @@ for d in wfs:
         for l in range(len(wfs[d]['data2'])):
             wfs[d]['data2'][l]['t']=round(wfs[d]['data2'][l]['t'],5)
             wfs[d]['data2'][l]['strain*1e23']=round(wfs[d]['data2'][l]['strain*1e23'],1)
-        wfs[d]['data2'].write('compressed/waveform_{}_compress.txt'.format(d),format='ascii.basic',delimiter=" ",overwrite=True)
+        wfs[d]['data2'].write('example-data/waveform_{}_compress.txt'.format(d),format='ascii.basic',delimiter=" ",overwrite=True)
 
 i=0
 plot.figure(1)
