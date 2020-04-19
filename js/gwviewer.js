@@ -3,6 +3,7 @@
 	Created by Chris North and Stuart Lowe
 
 	Requires stuquery
+	Uses gwcat from github.com/cardiffgravity/gwcat
 */
 function GWViewer(attr) {
 
