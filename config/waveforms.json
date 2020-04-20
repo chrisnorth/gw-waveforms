@@ -70,5 +70,11 @@
 		"offset": -39.10507,
 		"tmerge":0.0,
 		"colour":"#BFBFFF"
+	},
+	"GW190412": {
+		"file": "example-data/waveform_GW190412_compress.txt",
+		"offset": -1.00365,
+		"tmerge":0.0,
+		"colour":"#FFFBFB"
 	}
 }
