@@ -7,7 +7,7 @@
 */
 function GWViewer(attr) {
 
-	this.version = "0.1";
+	this.version = "1.1";
 	if(!attr) attr = {};
 	if(typeof attr.id!=="string") attr.id = "gw-viewer";
 	this.attr = attr;
