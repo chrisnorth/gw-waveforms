@@ -47,11 +47,16 @@ for d in datain:
         elif 'lim' in datain[d]['M2']:
             lims=datain[d]['M2']['lim']
             wfs[d]['M2']=0.5*(lims[0]+lims[1])
-        if 'best' in datain[d]['Mchirp']:
-            wfs[d]["Mchirp"]=datain[d]['Mchirp']['best']
-        elif 'lim' in datain[d]['Mchirp']:
-            lims=datain[d]['Mchirp']['lim']
-            wfs[d]['Mchirp']=0.5*(lims[0]+lims[1])
+        if 'Mchirp' in datain[d]:
+            if 'best' in datain[d]['Mchirp']:
+                wfs[d]["Mchirp"]=datain[d]['Mchirp']['best']
+            elif 'lim' in datain[d]['Mchirp']:
+                lims=datain[d]['Mchirp']['lim']
+                wfs[d]['Mchirp']=0.5*(lims[0]+lims[1])
+        else:
+            m1=wfs[d]['M1']
+            m2=wfs[d]['M2']
+            wfs[d]['Mchirp']=(m1*m2)**0.6/(m1+m2)**0.2
         if 'best' in datain[d]['DL']:
             wfs[d]["DL"]=datain[d]['DL']['best']
 
