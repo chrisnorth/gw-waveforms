@@ -6,7 +6,8 @@ import gwcatpy as gwcat
 import numpy as np
 import json
 import os
-import matplotlib.pyplot as plot
+from matplotlib import pyplot as plot
+from matplotlib import cm, colors
 from pycbc.waveform import get_td_waveform
 from astropy.table import Table
 plot.ion()
@@ -15,7 +16,11 @@ plot.ion()
 # !curl data.cardiffgravity.org/gwcat-data/data/gwosc_gracedb.json --output ../data/gwosc_gracedb.json
 # !curl data.cardiffgravity.org/gwcat-data/data/status.json --output ../data/status.json
 dataDir='data/'
-gwc=gwcat.GWCat(os.path.join(dataDir,'gwosc_gracedb.json'))
+if os.getcwd().split('/')[-1]=='python':
+    relDir='../'
+else:
+    relDir='./'
+gwc=gwcat.GWCat(os.path.join(relDir,dataDir,'gwosc_gracedb.json'))
 # newdata=json.load(open(os.path.join('gwcat/data/','gwosc.json')))
 # gwc.data = newdata['data']
 gwc.json2dataframe()
@@ -107,40 +112,65 @@ for d in wfs:
         cropt=np.where(wfs[d]['data']['t']>-wfs[d]['t25'])[0]
         hp=wfs[d]['data']['hp'][cropt]
         t=wfs[d]['data']['t'][cropt]
-        print('t25={:.2f}: {} samples'.format(wfs[d]['t25'],len(t)))
+        print('{} t30={:.2f}: {} samples'.format(d,wfs[d]['t30'],len(t)))
         print('compressing {}'.format(d))
         hp2=np.where(np.abs(hp)<1e-24,0,hp*1e23)
         wfs[d]['data2']=Table([t,hp2],names=['t','strain*1e23'])
         for l in range(len(wfs[d]['data2'])):
             wfs[d]['data2'][l]['t']=round(wfs[d]['data2'][l]['t'],5)
             wfs[d]['data2'][l]['strain*1e23']=round(wfs[d]['data2'][l]['strain*1e23'],1)
-        wfs[d]['data2'].write('example-data/waveform_{}_compress.txt'.format(d),format='ascii.basic',delimiter=" ",overwrite=True)
+        wfs[d]['fileCompress']='example-data/waveform_{}_compress.txt'.format(d)
+        wfs[d]['data2'].write(os.path.join(relDir,wfs[d]['fileCompress']),format='ascii.basic',delimiter=" ",overwrite=True)
 
-i=0
-plot.figure(1)
-plot.clf()
+# update config file
+wfsListInFile=os.path.join(relDir,'config/waveforms.json')
+wfsListOutFile=os.path.join(relDir,'config/waveforms.json')
+wfsListIn=json.load(open(wfsListInFile,'r'))
+wfsListOut={}
+cn=0
+cmap='Set3'
 for d in wfs:
-    if 'data2' in wfs[d]:
-        print(d,wfs[d]['data2']['t'][0],wfs[d]['tmin'])
-        if 'data2' in wfs[d]:
-            plot.plot(wfs[d]['data2']['t'],i*200+wfs[d]['data2']['strain*1e23'],label=d)
-            i+=1
-plot.legend()
-plot.xlim(-0.5,0)
+    if 'data' in wfs[d]:
+        config={}
+        config['file']=wfs[d]['fileCompress']
+        config['offset']=float('{:.5f}'.format(-wfs[d]['t30']))
+        config['tmerge']=0.0
+        colour=''
+        if d in wfsListIn:
+            if 'colour' in wfsListIn[d]:
+                colour=wfsListIn[d]['colour'].upper()
+        if colour=='':
+            colour=colors.to_hex(plot.get_cmap(cmap).colors[cn]).upper()
+            cn=cn+1
+        config['colour']=colour
+        wfsListOut[d]=config
+json.dump(wfsListOut,open(wfsListOutFile,'w'),indent=4)
 
-ms=[]
-rs=[]
-for d in wfs:
-    ms.append(wfs[d]['Mchirp'])
-    rs.append(-wfs[d]['tmin']/wfs[d]['data2']['t'][0])
-plot.figure(2)
-plot.clf()
-plot.plot(ms,rs,'x')
-
-xlim=plot.xlim()
-param=np.polyfit(ms,rs,1)
-yfit=param[0]*np.array(ms) + param[1]
-plot.plot(ms,yfit)
-plot.show()
-
+# i=0
+# plot.figure(1)
+# plot.clf()
+# for d in wfs:
+#     if 'data2' in wfs[d]:
+#         print(d,wfs[d]['data2']['t'][0],wfs[d]['tmin'])
+#         if 'data2' in wfs[d]:
+#             plot.plot(wfs[d]['data2']['t'],i*200+wfs[d]['data2']['strain*1e23'],label=d)
+#             i+=1
+# plot.legend()
+# plot.xlim(-0.5,0)
+# 
+# ms=[]
+# rs=[]
+# for d in wfs:
+#     ms.append(wfs[d]['Mchirp'])
+#     rs.append(-wfs[d]['tmin']/wfs[d]['data2']['t'][0])
+# plot.figure(2)
+# plot.clf()
+# plot.plot(ms,rs,'x')
+# 
+# xlim=plot.xlim()
+# param=np.polyfit(ms,rs,1)
+# yfit=param[0]*np.array(ms) + param[1]
+# plot.plot(ms,yfit)
+# plot.show()
+# 
 

@@ -1,80 +1,80 @@
 {
-	"GW150914": {
-		"file": "example-data/waveform_GW150914_compress.txt",
-		"offset": -0.29087,
-		"tmerge":0.0,
-		"colour":"#e03d22"
-	},
-	"GW151012": {
-		"file": "example-data/waveform_GW151012_compress.txt",
-		"offset": -0.80244,
-		"tmerge":0.0,
-		"colour":"#808000"
-	},
-	"GW151226": {
-		"file": "example-data/waveform_GW151226_compress.txt",
-		"offset": -1.92174,
-		"tmerge":0.0,
-		"colour":"#32CD32"
-	},
-	"GW170104": {
-		"file": "example-data/waveform_GW170104_compress.txt",
-		"offset": -0.46202,
-		"tmerge":0.0,
-		"colour":"#FF5470"
-	},
-	"GW170608": {
-		"file": "example-data/waveform_GW170608_compress.txt",
-		"offset": -2.33701,
-		"tmerge":0.0,
-		"colour":"#F8F8FF"
-	},
-	"GW170729": {
-		"file": "example-data/waveform_GW170729_compress.txt",
-		"offset": -0.20778,
-		"tmerge":0.0,
-		"colour":"#C080FF"
-	},
-	"GW170809": {
-		"file": "example-data/waveform_GW170809_compress.txt",
-		"offset": -0.36257,
-		"tmerge":0.0,
-		"colour":"#FF8833"
-	},
-	"GW170814": {
-		"file": "example-data/waveform_GW170814_compress.txt",
-		"offset": -0.38198,
-		"tmerge":0.0,
-		"colour":"#CCFF00"
-	},
-	"GW170817": {
-		"file": "example-data/waveform_GW170817_compress.txt",
-		"offset": -53.99543,
-		"tmerge":0.0,
-		"colour":"#FFD700"
-	},
-	"GW170818": {
-		"file": "example-data/waveform_GW170818_compress.txt",
-		"offset": -0.32833,
-		"tmerge":0.0,
-		"colour":"#90ee90"
-	},
-	"GW170823": {
-		"file": "example-data/waveform_GW170823_compress.txt",
-		"offset": -0.28145,
-		"tmerge":0.0,
-		"colour":"#00BFFF"
-	},
-	"GW190425": {
-		"file": "example-data/waveform_GW190425_compress.txt",
-		"offset": -39.10507,
-		"tmerge":0.0,
-		"colour":"#BFBFFF"
-	},
-	"GW190412": {
-		"file": "example-data/waveform_GW190412_compress.txt",
-		"offset": -1.00365,
-		"tmerge":0.0,
-		"colour":"#FFFBFB"
-	}
+    "GW150914": {
+        "file": "example-data/waveform_GW150914_compress.txt",
+        "offset": -0.29087,
+        "tmerge": 0.0,
+        "colour": "#E03D22"
+    },
+    "GW151012": {
+        "file": "example-data/waveform_GW151012_compress.txt",
+        "offset": -0.80244,
+        "tmerge": 0.0,
+        "colour": "#808000"
+    },
+    "GW151226": {
+        "file": "example-data/waveform_GW151226_compress.txt",
+        "offset": -1.92174,
+        "tmerge": 0.0,
+        "colour": "#32CD32"
+    },
+    "GW170104": {
+        "file": "example-data/waveform_GW170104_compress.txt",
+        "offset": -0.46202,
+        "tmerge": 0.0,
+        "colour": "#FF5470"
+    },
+    "GW170608": {
+        "file": "example-data/waveform_GW170608_compress.txt",
+        "offset": -2.33701,
+        "tmerge": 0.0,
+        "colour": "#F8F8FF"
+    },
+    "GW170729": {
+        "file": "example-data/waveform_GW170729_compress.txt",
+        "offset": -0.20778,
+        "tmerge": 0.0,
+        "colour": "#C080FF"
+    },
+    "GW170809": {
+        "file": "example-data/waveform_GW170809_compress.txt",
+        "offset": -0.36257,
+        "tmerge": 0.0,
+        "colour": "#FF8833"
+    },
+    "GW170814": {
+        "file": "example-data/waveform_GW170814_compress.txt",
+        "offset": -0.38198,
+        "tmerge": 0.0,
+        "colour": "#CCFF00"
+    },
+    "GW170817": {
+        "file": "example-data/waveform_GW170817_compress.txt",
+        "offset": -53.99543,
+        "tmerge": 0.0,
+        "colour": "#FFD700"
+    },
+    "GW170818": {
+        "file": "example-data/waveform_GW170818_compress.txt",
+        "offset": -0.32833,
+        "tmerge": 0.0,
+        "colour": "#90EE90"
+    },
+    "GW170823": {
+        "file": "example-data/waveform_GW170823_compress.txt",
+        "offset": -0.28145,
+        "tmerge": 0.0,
+        "colour": "#8DD3C7"
+    },
+    "GW190425": {
+        "file": "example-data/waveform_GW190425_compress.txt",
+        "offset": -39.10507,
+        "tmerge": 0.0,
+        "colour": "#FFFFB3"
+    },
+    "GW190412": {
+        "file": "example-data/waveform_GW190412_compress.txt",
+        "offset": -1.00365,
+        "tmerge": 0.0,
+        "colour": "#BEBADA"
+    }
 }
